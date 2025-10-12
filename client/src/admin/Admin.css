@@ -1,0 +1,61 @@
+/* ==========================
+   🔐 Admin Page Styling
+   ========================== */
+
+.admin-login,
+.admin-dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: radial-gradient(circle, #020a0a, #000);
+  color: white;
+  text-align: center;
+}
+
+.admin-login h2,
+.admin-dashboard h1 {
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: #00e676;
+}
+
+.admin-login input {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  margin: 10px 0;
+  outline: none;
+  font-size: 1rem;
+  text-align: center;
+  width: 220px;
+}
+
+.admin-login button,
+.admin-dashboard button {
+  background: #00c853;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.2s;
+}
+
+.admin-login button:hover,
+.admin-dashboard button:hover {
+  background: #00e676;
+}
+
+.error-text {
+  color: #ff5252;
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+
+.admin-actions {
+  margin-top: 20px;
+}
