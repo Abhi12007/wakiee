@@ -1,13 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
-import React, { useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState, lazy, Suspense } from "react";
 import io from "socket.io-client";
-import About from "./About"; 
-import Contact from "./Contact";
-import Privacy from "./Privacy"; 
-import Terms from "./Terms"; 
-import Guidelines from "./Guidelines";
-import BlogIndex from "./blog/BlogIndex";
-import BlogPost from "./blog/BlogPost";
+const About = lazy(() => import("./About"));
+const Contact = lazy(() => import("./Contact"));
+const Privacy = lazy(() => import("./Privacy"));
+const Terms = lazy(() => import("./Terms"));
+const Guidelines = lazy(() => import("./Guidelines"));
+const BlogIndex = lazy(() => import("./blog/BlogIndex"));
+const BlogPost = lazy(() => import("./blog/BlogPost"));
 import "./App.css";
 import OnboardingModal from "./OnboardingModal";
 
@@ -718,6 +718,9 @@ const {
    <Router>
     {/* ✅ Show NavBar on all pages except during video calls */}
    {!joined && <NavBar joined={joined} />}
+    
+  {/* ✅ Wrap all routes with Suspense so lazy pages load gracefully */}
+  <Suspense fallback={<div className="loader">Loading...</div>}>
     <Routes>
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
@@ -1073,7 +1076,7 @@ const {
           </div>
         } />
       </Routes>
-        
+         </Suspense>
     </Router>
   );
 }
