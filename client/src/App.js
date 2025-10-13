@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState ,lazy ,Suspense } from "react";
 import io from "socket.io-client";
 // Lazy-loaded pages — loaded only when visited
 const About = lazy(() => import("./About"));
