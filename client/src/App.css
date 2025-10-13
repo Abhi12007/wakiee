@@ -23,6 +23,13 @@ body, html, #root {
   background-size: cover;
 }
 
+/* in App.css */
+.loader {
+  color: #f90;
+  text-align: center;
+  padding: 80px;
+  font-size: 1.5rem;
+}
 
 
 
