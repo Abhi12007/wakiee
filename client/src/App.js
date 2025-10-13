@@ -21,7 +21,6 @@ import { useBanSystem } from "./ban";
 
 
 
-
 const socket = io(); // assumes same origin
 
 /* ---------- NavBar Component ---------- */
