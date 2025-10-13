@@ -716,7 +716,8 @@ const {
   /* ---------- Render ---------- */
   return (
    <Router>
-  
+    {/* ✅ Show NavBar on all pages except during video calls */}
+   {!joined && <NavBar joined={joined} />}
     <Routes>
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
