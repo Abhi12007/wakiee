@@ -16,7 +16,7 @@ import img14 from "./blog/pictures/14.webp";
 import img16 from "./blog/pictures/16.webp";
 import img4 from "./blog/pictures/4.webp";
 import { useBanSystem } from "./ban";
-import Admin from "./admin/Admin";
+
 
 
 
@@ -764,7 +764,7 @@ const {
            <Route path="/privacy" element={<Privacy />} />
            <Route path="/terms" element={<Terms />} />
            <Route path="/guidelines" element={<Guidelines />} />
-           <Route path="/Admin12007" element={<Admin />} />
+           
 
 
           
