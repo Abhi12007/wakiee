@@ -486,7 +486,7 @@ const {
         }));
       }
     }
-  }, 4000); // check every 4 seconds
+  }, 2000); // check every 2 seconds
 
   // 🎧 Step 5: Optimize audio (Opus)
   pc.getSenders().forEach((sender) => {
@@ -749,7 +749,7 @@ const {
               {/* ✨ Typing text beside banner */}
 {/* ✨ Static heading text (replaces typing effect) */}
 <div className="typing-heading">
-  <span className="static-heading">The world is ready to Connect — are you?</span>
+  <span className="static-heading">The world is ready to Connect, Are you ?</span>
 </div>
 
 
