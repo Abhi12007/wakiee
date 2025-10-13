@@ -1,13 +1,15 @@
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
-import About from "./About";
-import Contact from "./Contact";
-import Privacy from "./Privacy";
-import Terms from "./Terms";
-import Guidelines from "./Guidelines";
-import BlogIndex from "./blog/BlogIndex";
-import BlogPost from "./blog/BlogPost";
+// Lazy-loaded pages — loaded only when visited
+const About = lazy(() => import("./About"));
+const Contact = lazy(() => import("./Contact"));
+const Privacy = lazy(() => import("./Privacy"));
+const Terms = lazy(() => import("./Terms"));
+const Guidelines = lazy(() => import("./Guidelines"));
+const BlogIndex = lazy(() => import("./blog/BlogIndex"));
+const BlogPost = lazy(() => import("./blog/BlogPost"));
+
 import "./App.css";
 import OnboardingModal from "./OnboardingModal";
 
@@ -754,22 +756,17 @@ const {
 
   /* ---------- Render ---------- */
   return (
-    <Router>
-   {/* ✅ Show NavBar on all pages unless user is in a video call  */} 
-           {!joined && <NavBar joined={joined} />}
+   <Router>
+  <Suspense fallback={<div className="loader">Loading...</div>}>
+    <Routes>
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/guidelines" element={<Guidelines />} />
 
-      <Routes>
-           <Route path="/about" element={<About />} />
-           <Route path="/contact" element={<Contact />} />
-           <Route path="/privacy" element={<Privacy />} />
-           <Route path="/terms" element={<Terms />} />
-           <Route path="/guidelines" element={<Guidelines />} />
-           
-
-
-          
-<Route path="/blog" element={<BlogIndex />} />
-<Route path="/blog/:slug" element={<BlogPost />} />
+      <Route path="/blog" element={<BlogIndex />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
 
          
          {/* Landing / In-app page */}
@@ -1114,6 +1111,7 @@ const {
           </div>
         } />
       </Routes>
+          </Suspense>
     </Router>
   );
 }
