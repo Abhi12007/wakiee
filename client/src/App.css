@@ -328,16 +328,7 @@ section, main, .content, .video-container {
 .chat-input.modern button{padding:10px 14px;border-radius:8px;background:var(--green);font-weight:700;color:#002a12;border:0;cursor:pointer}
 
  
-.typing-heading { /*The world is ready to connect,are you?*/
-  font-size: 1.8rem;
-  color: #fff;
-  font-weight: 600;
-  max-width: 420px;
-  text-align: left;
-  font-family: 'Poppins', sans-serif;
-  letter-spacing: 1px;
-  margin-top: 20px;
-}
+
 
 
 
@@ -951,17 +942,6 @@ body::-webkit-scrollbar {
 
 .landing-header-nav a:hover {
   color: #ffcc66;
-}
-
-/*blinking stick*/
-@keyframes blink {
-  50% {
-    border-color: transparent;
-  }
-}
-
-span {
-  animation: blink 0.8s step-end infinite;
 }
 
 /* 🌐 Responsive Blog Layout */
