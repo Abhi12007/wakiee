@@ -176,46 +176,7 @@ function ReloadIcon() {
   );
 }
 
-//Typing effect less=faster
-function TypingEffect({ text, speed = 33 }) {
-  const [displayed, setDisplayed] = React.useState("");
-  const indexRef = React.useRef(0);
-  const intervalRef = React.useRef(null);
 
-  React.useEffect(() => {
-    // Reset for fresh typing
-    setDisplayed("");
-    indexRef.current = 0;
-
-    // Define safe typing function
-    const typeNext = () => {
-      const i = indexRef.current;
-      if (i < text.length) {
-        setDisplayed((prev) => prev + text.charAt(i));
-        indexRef.current += 1;
-      } else {
-        clearInterval(intervalRef.current); // stop cleanly
-      }
-    };
-
-    intervalRef.current = setInterval(typeNext, speed);
-
-    // Cleanup (prevents double intervals in Strict Mode)
-    return () => clearInterval(intervalRef.current);
-  }, [text, speed]);
-
-  return (
-    <span
-      style={{
-        borderRight: "3px solid #f90",
-        paddingRight: "6px",
-        whiteSpace: "pre-wrap",
-      }}
-    >
-      {displayed}
-    </span>
-  );
-}
 
 
 // Utility: detect mobile screen    use when needed   const isMobile = window.innerWidth <= 768;
@@ -784,9 +745,11 @@ const {
                   <img src="/banner.webp" alt="Banner" className="landing-banner" />
 
               {/* ✨ Typing text beside banner */}
+{/* ✨ Static heading text (replaces typing effect) */}
 <div className="typing-heading">
-  <TypingEffect text="The world is ready to Connect, Are you?" />
+  <span className="static-heading">The world is ready to Connect — are you?</span>
 </div>
+
 
 
 
