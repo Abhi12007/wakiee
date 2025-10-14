@@ -1,35 +1,115 @@
-import React from "react";
+// client/src/Privacy.js
+import React, { useEffect } from "react";
 
 const Privacy = () => {
+  useEffect(() => {
+    // ✅ Set SEO Title
+    document.title = "Privacy Policy | Wakiee — Safe Anonymous Video Chat Platform";
+
+    // ✅ Canonical Tag
+    const canonicalLink = document.querySelector("link[rel='canonical']");
+    if (canonicalLink) {
+      canonicalLink.setAttribute("href", "https://wakiee.live/privacy-policy");
+    } else {
+      const link = document.createElement("link");
+      link.setAttribute("rel", "canonical");
+      link.setAttribute("href", "https://wakiee.live/privacy-policy");
+      document.head.appendChild(link);
+    }
+
+    // ✅ Meta Description
+    const metaDesc = document.querySelector("meta[name='description']");
+    const description =
+      "Read Wakiee's Privacy Policy — learn how we protect your data, ensure safe anonymous video chats, comply with AdSense policies, and respect your online privacy.";
+    if (metaDesc) {
+      metaDesc.setAttribute("content", description);
+    } else {
+      const meta = document.createElement("meta");
+      meta.setAttribute("name", "description");
+      meta.setAttribute("content", description);
+      document.head.appendChild(meta);
+    }
+
+    // ✅ Meta Keywords
+    const keywords =
+      "wakiee privacy policy, anonymous video chat privacy, data safety, random chat protection, secure video calling, COPPA compliance, AdSense privacy policy, GDPR compliant chat, online safety, private video calls, safe chatting platform";
+    const metaKeywords = document.querySelector("meta[name='keywords']");
+    if (metaKeywords) {
+      metaKeywords.setAttribute("content", keywords);
+    } else {
+      const meta = document.createElement("meta");
+      meta.setAttribute("name", "keywords");
+      meta.setAttribute("content", keywords);
+      document.head.appendChild(meta);
+    }
+
+    // ✅ Open Graph / Social Meta Tags
+    const ogTags = [
+      { property: "og:title", content: "Privacy Policy | Wakiee — Safe Anonymous Video Chat" },
+      {
+        property: "og:description",
+        content:
+          "Discover how Wakiee keeps your video chats private and secure. No tracking, no data storage — just safe global connections.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://wakiee.live/privacy-policy" },
+      { property: "og:image", content: "https://wakiee.live/og-image.jpg" },
+      { property: "og:site_name", content: "Wakiee" },
+    ];
+    ogTags.forEach((tag) => {
+      const meta = document.createElement("meta");
+      meta.setAttribute("property", tag.property);
+      meta.setAttribute("content", tag.content);
+      document.head.appendChild(meta);
+    });
+
+    // ✅ JSON-LD Structured Data (Google Rich Snippet)
+    const ldJson = document.createElement("script");
+    ldJson.type = "application/ld+json";
+    ldJson.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "PrivacyPolicy",
+      "name": "Wakiee Privacy Policy",
+      "url": "https://wakiee.live/privacy-policy",
+      "description":
+        "Wakiee respects user privacy with anonymous video chats, no recordings, no data storage, and AdSense-compliant safety practices.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Wakiee",
+        "url": "https://wakiee.live",
+        "logo": "https://wakiee.live/android-chrome-192x192.png",
+      },
+    });
+    document.head.appendChild(ldJson);
+  }, []);
+
   return (
-    <div style={{ padding: "30px", maxWidth: "900px", margin: "auto", lineHeight: "1.6" }}>
+    <div style={{ padding: "30px", maxWidth: "900px", margin: "auto", lineHeight: "1.6", fontFamily: "Poppins, sans-serif", color: "white" }}>
       <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Privacy Policy for Wakiee</h1>
       <p><strong>Last Updated:</strong> October 2025</p>
 
       <p>
         Welcome to <strong>Wakiee</strong> (the “Website”, “Site”, “We”, “Us”, or “Our”), accessible from{" "}
-        <a href="https://wakiee.live">https://wakiee.live</a>. This Privacy Policy explains how we collect,
-        use, and protect your information when you use our services, including video chat, blog access,
-        and related features.
+        <a href="https://wakiee.live" target="_blank" rel="noopener noreferrer" style={{ color: "#4FA3FF" }}>
+          https://wakiee.live
+        </a>.
+        This Privacy Policy explains how we collect, use, and protect your information when you use our services, including video chat, blog access, and related features.
       </p>
       <p>
         By using Wakiee, you agree to this Privacy Policy and our{" "}
-        <a href="/terms">Terms of Service</a>.
+        <a href="/terms" style={{ color: "#4FA3FF" }}>Terms of Service</a>.
       </p>
 
       <h2>1. Who We Are</h2>
       <p>
         Wakiee is an online platform operated by <strong>Wakiee Technologies</strong>, based in India.
-        We provide anonymous peer-to-peer video chat and communication features that allow users to connect,
-        talk, and share experiences safely and respectfully. Our goal is to create a fun, global, and
-        privacy-conscious environment for all users.
+        We provide anonymous peer-to-peer video chat and communication features that allow users to connect, talk, and share experiences safely and respectfully. Our goal is to create a fun, global, and privacy-conscious environment for all users.
       </p>
 
       <h3>Data Controller</h3>
       <p>
         The data controller responsible for your personal information is <strong>Wakiee Technologies</strong>,
-        operating in India. For privacy-related matters, contact us at{" "}
-        <strong>contact@wakiee.live</strong>.
+        operating in India. For privacy-related matters, contact us at <strong>contact@wakiee.live</strong>.
       </p>
 
       <h2>2. Information We Process</h2>
@@ -63,7 +143,9 @@ const Privacy = () => {
       <p>
         Google uses the DoubleClick DART cookie to serve ads to users based on their previous visits to our
         site and other websites. You can opt out of personalized advertising by visiting{" "}
-        <a href="https://adssettings.google.com">Google Ads Settings</a>.
+        <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" style={{ color: "#4FA3FF" }}>
+          Google Ads Settings
+        </a>.
       </p>
       <ul>
         <li>Understand how visitors use our website.</li>
@@ -75,9 +157,12 @@ const Privacy = () => {
       <h3>Behavioral Advertising Opt-Out</h3>
       <p>
         You can opt out of personalized Google advertising by visiting{" "}
-        <a href="https://adssettings.google.com">https://adssettings.google.com</a>. To learn more about
-        third-party ad practices, visit{" "}
-        <a href="https://www.aboutads.info/choices">https://www.aboutads.info/choices</a>.
+        <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" style={{ color: "#4FA3FF" }}>
+          https://adssettings.google.com
+        </a>. To learn more about third-party ad practices, visit{" "}
+        <a href="https://www.aboutads.info/choices" target="_blank" rel="noopener noreferrer" style={{ color: "#4FA3FF" }}>
+          https://www.aboutads.info/choices
+        </a>.
       </p>
 
       <h3>Sponsored Content & Affiliate Links</h3>
@@ -87,7 +172,7 @@ const Privacy = () => {
         partnerships are disclosed transparently.
       </p>
 
-      <h2>5. Information We Collect</h2>
+    <h2>5. Information We Collect</h2>
       <ul>
         <li>IP address (anonymized)</li>
         <li>Device and browser type</li>
