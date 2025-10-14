@@ -1120,6 +1120,7 @@ const {
   />
 )}
 
+
                {/* ⬇️ BLOCKED OVERLAY (Step 4)  removed now in ban.js    */}
                {showReportModal && <ReportModal partnerId={partnerId} />}
                  {isBlocked && <BlockedOverlay />}
