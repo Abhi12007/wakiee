@@ -974,7 +974,7 @@ const {
   </div>
 
   <div className="footer-center">
-    ©2025 Wakiee — All rights reserved.
+    ©2025 Wakiee
   </div>
 
   <div className="footer-right">
