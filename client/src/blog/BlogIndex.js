@@ -9,6 +9,30 @@ const BlogIndex = () => {
   const navigate = useNavigate();
   const [showUnbannedPopup, setShowUnbannedPopup] = useState(false);
 
+  useEffect(() => {
+  document.title = "Wakiee Blog — Stories & Tips for Random Video Call";
+  const desc =
+    "Read blogs from Wakiee about meeting strangers, safe chatting, online learning, and idea sharing through random video calls.";
+  const canonical = "https://wakiee.live/blog";
+
+  let link = document.querySelector("link[rel='canonical']");
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "canonical";
+    document.head.appendChild(link);
+  }
+  link.href = canonical;
+
+  let metaDesc = document.querySelector("meta[name='description']");
+  if (!metaDesc) {
+    metaDesc = document.createElement("meta");
+    metaDesc.name = "description";
+    document.head.appendChild(metaDesc);
+  }
+  metaDesc.content = desc;
+}, []);
+
+
   // 🧠 Check every 2 seconds if the user is unbanned while on blogs
   useEffect(() => {
     const checkUnban = setInterval(() => {
