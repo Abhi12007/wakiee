@@ -9,11 +9,11 @@ const Privacy = () => {
     // ✅ Canonical Tag
     const canonicalLink = document.querySelector("link[rel='canonical']");
     if (canonicalLink) {
-      canonicalLink.setAttribute("href", "https://wakiee.live/privacy-policy");
+      canonicalLink.setAttribute("href", "https://wakiee.live/privacy");
     } else {
       const link = document.createElement("link");
       link.setAttribute("rel", "canonical");
-      link.setAttribute("href", "https://wakiee.live/privacy-policy");
+      link.setAttribute("href", "https://wakiee.live/privacy");
       document.head.appendChild(link);
     }
 
@@ -52,7 +52,7 @@ const Privacy = () => {
           "Discover how Wakiee keeps your video chats private and secure. No tracking, no data storage — just safe global connections.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://wakiee.live/privacy-policy" },
+      { property: "og:url", content: "https://wakiee.live/privacy" },
       { property: "og:image", content: "https://wakiee.live/og-image.jpg" },
       { property: "og:site_name", content: "Wakiee" },
     ];
@@ -70,7 +70,7 @@ const Privacy = () => {
       "@context": "https://schema.org",
       "@type": "PrivacyPolicy",
       "name": "Wakiee Privacy Policy",
-      "url": "https://wakiee.live/privacy-policy",
+      "url": "https://wakiee.live/privacy",
       "description":
         "Wakiee respects user privacy with anonymous video chats, no recordings, no data storage, and AdSense-compliant safety practices.",
       "publisher": {
