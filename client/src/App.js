@@ -202,14 +202,15 @@ export default function App() {   useEffect(() => {
     );
 
     setMeta(
-      "keywords",
-      "random video chat, anonymous video call, talk to strangers, omegle alternative,chathub,omegle,uhmegle,ometv, meet new people, wakiee live, random webcam chat,omegle alternatives,ome,ome tv,azar,video chat,
-monkey app,monkey,airtalk,talk to strangers,
-random video calling app,random video calling website,Free calling,
-talk to strangers online,random call,
-culture,language,international,friends,fun,talk,conversation,
-random,live,chat,call,video"
-    );
+  "keywords",
+  `random video chat, anonymous video call, talk to strangers, omegle alternative, chathub, omegle, uhmegle, ometv, meet new people, wakiee live, random webcam chat, omegle alternatives, ome, ome tv, azar, video chat,
+  monkey app, monkey, airtalk, talk to strangers,
+  random video calling app, random video calling website, Free calling,
+  talk to strangers online, random call,
+  culture, language, international, friends, fun, talk, conversation,
+  random, live, chat, call, video`
+);
+
 
     // ✅ Canonical
     let canonical = document.querySelector("link[rel='canonical']");
