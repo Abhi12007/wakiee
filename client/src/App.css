@@ -31,7 +31,7 @@ body, html, #root {
   font-size: 1.5rem;
 }
 .static-heading {
-  font-size: 1rem;
+  font-size: 1.8rem;
   color: #ff9900;
   font-weight: 600;
   text-shadow: 0 0 6px rgba(255, 153, 0, 0.5);
@@ -412,7 +412,8 @@ section, main, .content, .video-container {
 /* responsive */
 @media (max-width:1100px){ /*For mobile */  /*tried in redmi */
 
-
+ .static-heading {
+  font-size: 1.2rem;}
 
   .overlay {
     font-size: 0.7rem;    /* smaller name of partner*/
@@ -612,7 +613,7 @@ body::-webkit-scrollbar {
 /* Your custom styles go here */
 
   .static-heading {
-  font-size: 0.9rem;}
+  font-size: 1rem;}
 
   .overlay {
     font-size: 0.7rem;    /* smaller partner name */
