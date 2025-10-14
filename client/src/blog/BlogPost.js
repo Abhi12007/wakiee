@@ -12,6 +12,63 @@ const BlogPost = () => {
   // 🟢 State to show the unbanned popup
   const [showUnbannedPopup, setShowUnbannedPopup] = useState(false);
 
+  useEffect(() => {
+  if (!post) return;
+
+  document.title = `${post.title} | Wakiee Blog`;
+  const desc = post.excerpt || "Read insightful stories on Wakiee about random video calling and online learning.";
+  const canonical = `https://wakiee.live/blog/${post.slug}`;
+
+  // Canonical
+  let link = document.querySelector("link[rel='canonical']");
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "canonical";
+    document.head.appendChild(link);
+  }
+  link.href = canonical;
+
+  // Meta Description
+  let metaDesc = document.querySelector("meta[name='description']");
+  if (!metaDesc) {
+    metaDesc = document.createElement("meta");
+    metaDesc.name = "description";
+    document.head.appendChild(metaDesc);
+  }
+  metaDesc.content = desc;
+
+  // Open Graph
+  const ogTags = [
+    { property: "og:title", content: post.title },
+    { property: "og:description", content: desc },
+    { property: "og:type", content: "article" },
+    { property: "og:url", content: canonical },
+    { property: "og:image", content: post.image || "https://wakiee.live/og-image.jpg" },
+  ];
+  ogTags.forEach(tag => {
+    const el = document.createElement("meta");
+    el.setAttribute("property", tag.property);
+    el.content = tag.content;
+    document.head.appendChild(el);
+  });
+
+  // JSON-LD Structured Data (BlogPosting schema)
+  const ld = document.createElement("script");
+  ld.type = "application/ld+json";
+  ld.text = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "image": post.image || "https://wakiee.live/og-image.jpg",
+    "author": { "@type": "Organization", "name": "Wakiee" },
+    "publisher": { "@type": "Organization", "name": "Wakiee", "logo": { "@type": "ImageObject", "url": "https://wakiee.live/android-chrome-192x192.png" } },
+    "url": canonical,
+    "description": desc,
+  });
+  document.head.appendChild(ld);
+}, [post]);
+
+
   // 🧠 Check every 2s if the unban flag is set in sessionStorage
   useEffect(() => {
     const checkUnban = setInterval(() => {
