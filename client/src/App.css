@@ -610,6 +610,8 @@ body::-webkit-scrollbar {
 
 @media (min-width: 360px) and (max-width: 393px) {            /*for devices smaller than redmi note 8 redmi is 393px*/
 /* Your custom styles go here */
+  .typing-heading {
+  font-size: 0.6rem;  }
 
   .overlay {
     font-size: 0.7rem;    /* smaller partner name */
