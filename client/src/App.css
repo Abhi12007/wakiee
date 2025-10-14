@@ -31,7 +31,7 @@ body, html, #root {
   font-size: 1.5rem;
 }
 .static-heading {
-  font-size: 1.8rem;
+  font-size: 1rem;
   color: #ff9900;
   font-weight: 600;
   text-shadow: 0 0 6px rgba(255, 153, 0, 0.5);
@@ -484,7 +484,7 @@ section, main, .content, .video-container {
 
  /* ✨ Make "The world is ready to connect" smaller on mobile */
 .typing-heading {
-  font-size: 0.9rem;     /* reduce text size */
+  font-size: 1.2rem;     /* reduce text size */
   text-align: center;    /* center it nicely for smaller screens */
   max-width: 300px;      /* prevent overflow */
   margin: 12px auto 0;   /* center horizontally with smaller margin */
@@ -610,7 +610,9 @@ body::-webkit-scrollbar {
 
 @media (min-width: 360px) and (max-width: 393px) {            /*for devices smaller than redmi note 8 redmi is 393px*/
 /* Your custom styles go here */
-  
+
+  .static-heading {
+  font-size: 0.9rem;}
 
   .overlay {
     font-size: 0.7rem;    /* smaller partner name */
