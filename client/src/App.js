@@ -203,7 +203,12 @@ export default function App() {   useEffect(() => {
 
     setMeta(
       "keywords",
-      "random video chat, anonymous video call, talk to strangers, omegle alternative,chathub,omegle,uhmegle,ometv, meet new people, wakiee live, random webcam chat"
+      "random video chat, anonymous video call, talk to strangers, omegle alternative,chathub,omegle,uhmegle,ometv, meet new people, wakiee live, random webcam chat,omegle alternatives,ome,ome tv,azar,video chat,
+monkey app,monkey,airtalk,talk to strangers,
+random video calling app,random video calling website,Free calling,
+talk to strangers online,random call,
+culture,language,international,friends,fun,talk,conversation,
+random,live,chat,call,video"
     );
 
     // ✅ Canonical
@@ -866,7 +871,7 @@ const {
         />
         <h2 className="blog-title" >Random Video Call to Strangers Online </h2>
         <p style={{ fontSize: "12px", opacity: 0.8 }}>
-          Discover the best ways to meet and chat with real people safely in 2025.
+          Discover the best ways to meet and chat with real people safely.
         </p>
         <a href="/blog/random-video-call-talk-to-strangers-online-in-2025" style={{ color: "#66fcf1", textDecoration: "none" }}>
           Read More →
@@ -883,7 +888,7 @@ const {
         />
         <h2 className="blog-title" >How AI Is Changing Online Connections</h2>
         <p style={{ fontSize: "12px", opacity: 0.8 }}>
-          Explore how AI-powered matching enhances how people meet online.
+          Explore how AI matching enhances online meetings.
         </p>
         <a href="/blog/how-ai-is-changing-the-way-we-meet-new-people-online" style={{ color: "#66fcf1", textDecoration: "none" }}>
           Read More →
