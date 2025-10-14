@@ -942,21 +942,34 @@ const {
     <li>🚫 Do not share personal info (phone, address, etc.)</li>
     <li>🛡️ Stay anonymous — that’s the fun of talking to strangers</li>
     <li>💬 Be kind and open-minded — every conversation is unique</li>
-      </ul>
+     </ul>
 </section>
 
 <footer className="landing-footer">
   <div className="footer-left">
-    Follow us on
+    Follow us on{" "}
     <a
       href="https://instagram.com/wakiee.live"
       target="_blank"
       rel="noopener noreferrer"
       className="insta-icon"
-      aria-label="Visit Wakiee on Instagram"
-      style={{ marginLeft: "8px" }}
+      aria-label="Follow Wakiee on Instagram"
+      title="Follow Wakiee on Instagram"
+      style={{ marginLeft: "8px", display: "inline-flex", alignItems: "center" }}
     >
-      <i className="fab fa-instagram" aria-hidden="true"></i>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        role="img"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <title>Instagram icon</title>
+        <path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm5 6.3a4.7 4.7 0 1 1 0 9.4 4.7 4.7 0 0 1 0-9.4zm0 7.7a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm5.2-8.8a1.1 1.1 0 1 1 0-2.2 1.1 1.1 0 0 1 0 2.2z" />
+      </svg>
     </a>
   </div>
 
@@ -972,6 +985,7 @@ const {
     <a href="/guidelines">Community Guidelines</a>
   </div>
 </footer>
+
 
             </>
                   
