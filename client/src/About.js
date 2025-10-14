@@ -1,13 +1,107 @@
 // client/src/About.js
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function About() {
+  useEffect(() => {
+    // ✅ Set page title for SEO
+    document.title = "About Wakiee | Random Video Chat Platform for Fun & Learning";
+
+    // ✅ Add canonical tag
+    const canonicalLink = document.querySelector("link[rel='canonical']");
+    if (canonicalLink) {
+      canonicalLink.setAttribute("href", "https://wakiee.live/about");
+    } else {
+      const link = document.createElement("link");
+      link.setAttribute("rel", "canonical");
+      link.setAttribute("href", "https://wakiee.live/about");
+      document.head.appendChild(link);
+    }
+
+    // ✅ Add meta description
+    const metaDesc = document.querySelector("meta[name='description']");
+    if (metaDesc) {
+      metaDesc.setAttribute(
+        "content",
+        "Learn about Wakiee — a global random video calling platform where you can meet new people, share ideas, and learn language and culture safely through  video calls."
+      );
+    } else {
+      const meta = document.createElement("meta");
+      meta.setAttribute("name", "description");
+      meta.setAttribute(
+        "content",
+        "Learn about Wakiee — a global random video calling platform where you can meet new people, share ideas, and learn language and culture safely through  video calls."
+      );
+      document.head.appendChild(meta);
+    }
+
+    // ✅ Add meta keywords
+    const metaKeywords = document.querySelector("meta[name='keywords']");
+    const keywords =
+      "random video chat, anonymous video calls, chat with strangers, random webcam chat, talk to strangers anonymously, video call app,chathub,omegle,ometv,video call,random,unknown, random video chat platform, free random video calls, anonymous chat online, meet strangers online, safe video chat, video call with strangers, global video chatting, talk anonymously online, random people video chat";
+    if (metaKeywords) {
+      metaKeywords.setAttribute("content", keywords);
+    } else {
+      const meta = document.createElement("meta");
+      meta.setAttribute("name", "keywords");
+      meta.setAttribute("content", keywords);
+      document.head.appendChild(meta);
+    }
+
+    // ✅ Add Open Graph meta (for social sharing)
+    const ogTitle = document.createElement("meta");
+    ogTitle.setAttribute("property", "og:title");
+    ogTitle.setAttribute("content", "About Wakiee | Random Video Chat Platform for Fun & Learning");
+
+    const ogDesc = document.createElement("meta");
+    ogDesc.setAttribute(
+      "property",
+      "og:description",
+      "Discover Wakiee — an anonymous video chat app connecting people worldwide for fun, learning, and friendship."
+    );
+
+    const ogUrl = document.createElement("meta");
+    ogUrl.setAttribute("property", "og:url");
+    ogUrl.setAttribute("content", "https://wakiee.live/about");
+
+    const ogImg = document.createElement("meta");
+    ogImg.setAttribute("property", "og:image");
+    ogImg.setAttribute("content", "https://wakiee.live/og-image.jpg");
+
+    document.head.append(ogTitle, ogDesc, ogUrl, ogImg);
+
+    // ✅ Add JSON-LD structured data for Google
+    const ldJson = document.createElement("script");
+    ldJson.type = "application/ld+json";
+    ldJson.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "url": "https://wakiee.live/about",
+      "name": "About Wakiee",
+      "description":
+        "Wakiee is a random video chat platform that connects people globally for fun, learning, and safe conversations.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Wakiee",
+        "url": "https://wakiee.live",
+        "logo": "https://wakiee.live/android-chrome-192x192.png",
+      },
+    });
+    document.head.appendChild(ldJson);
+  }, []);
+
   return (
-    <div style={{ padding: "40px 20px", color: "white", textAlign: "center", fontFamily: "Poppins, sans-serif" }}>
-      {/* Banner */}
+    <div
+      style={{
+        padding: "40px 20px",
+        color: "white",
+        textAlign: "center",
+        fontFamily: "Poppins, sans-serif",
+      }}
+    >
+      {/* ✅ Banner with alt text */}
       <img
         src="/banner.webp"
-        alt="About Wakiee Banner"
+        alt="About Wakiee Banner - Random Video Chat Platform"
         style={{ maxWidth: "340px", margin: "0 auto 30px", display: "block" }}
       />
 
@@ -118,7 +212,7 @@ export default function About() {
           fontSize: "18px",
         }}
       >
-        <em>Wakiee is more than just a chat — it’s where confidence grows, friendships begin,  
+        <em>Wakiee is more than just a chat — it’s where confidence grows, friendships begin, cultural exchange happens  
         and the world feels a little closer. 🌍💬</em>
       </p>
     </div>
