@@ -182,12 +182,31 @@ function ReloadIcon() {
 
 
 /* ---------- App ---------- */
-export default function App() { 
-  // ✅ SEO + AdSense Meta Injection (add this)
-  useEffect(() => {
-    document.title = "Wakiee — Random Video Chat | Talk, Learn & Meet Strangers Online";
+export default function App() {   useEffect(() => {
+    // ✅ Basic SEO setup for homepage
+    document.title = "Wakiee — Random Video Chat | Meet, Learn & Talk Online";
 
-    // Canonical
+    const setMeta = (name, content) => {
+      let tag = document.querySelector(`meta[name="${name}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("name", name);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+
+    setMeta(
+      "description",
+      "Join Wakiee — free random video chat to meet strangers, share ideas, and connect globally in a fun, safe space."
+    );
+
+    setMeta(
+      "keywords",
+      "random video chat, anonymous video call, talk to strangers, omegle alternative,chathub,omegle,uhmegle,ometv, meet new people, wakiee live, random webcam chat"
+    );
+
+    // ✅ Canonical
     let canonical = document.querySelector("link[rel='canonical']");
     if (!canonical) {
       canonical = document.createElement("link");
@@ -196,71 +215,18 @@ export default function App() {
     }
     canonical.setAttribute("href", "https://wakiee.live/");
 
-    // Description
-    const desc =
-      "Join Wakiee — the safest and fastest random video ccall to meet strangers, learn, share ideas, and make friends worldwide. Connect instantly with people from around the globe.";
-    let metaDesc = document.querySelector("meta[name='description']");
-    if (!metaDesc) {
-      metaDesc = document.createElement("meta");
-      metaDesc.setAttribute("name", "description");
-      document.head.appendChild(metaDesc);
-    }
-    metaDesc.setAttribute("content", desc);
-
-    // Keywords
-    const keywords =
-      "random video call, anonymous video call, talk to strangers, omegle alternative, random video chat app, free video chat, meet new people online, learn from strangers,chathub,omegle,uhmegle,ometv,call,video call, idea exchange, talk safely online, webcam chat, video conversation, random people video chat, wakiee live, chat anonymously";
-    let metaKeywords = document.querySelector("meta[name='keywords']");
-    if (!metaKeywords) {
-      metaKeywords = document.createElement("meta");
-      metaKeywords.setAttribute("name", "keywords");
-      document.head.appendChild(metaKeywords);
-    }
-    metaKeywords.setAttribute("content", keywords);
-
-    // Open Graph
-    const ogData = [
-      { property: "og:title", content: "Wakiee — Random Video Chat | Talk, Learn & Meet Strangers" },
-      { property: "og:description", content: desc },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://wakiee.live/" },
-      { property: "og:image", content: "https://wakiee.live/og-image.jpg" },
-      { property: "og:site_name", content: "Wakiee" },
-    ];
-    ogData.forEach((data) => {
-      const meta = document.createElement("meta");
-      meta.setAttribute("property", data.property);
-      meta.setAttribute("content", data.content);
-      document.head.appendChild(meta);
-    });
-
-    // JSON-LD Structured Data
-    const ldJson = document.createElement("script");
-    ldJson.type = "application/ld+json";
-    ldJson.text = JSON.stringify({
+    // ✅ Structured Data (minimal)
+    const ld = document.createElement("script");
+    ld.type = "application/ld+json";
+    ld.text = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Wakiee",
-      "url": "https://wakiee.live/",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://wakiee.live/blog?q={search_term_string}",
-        "query-input": "required name=search_term_string",
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "Wakiee Technologies",
-        "url": "https://wakiee.live",
-        "logo": "https://wakiee.live/android-chrome-192x192.png",
-      },
+      "url": "https://wakiee.live",
+      "description":
+        "Wakiee connects people through random video chat to talk, learn, and exchange ideas safely.",
     });
-    document.head.appendChild(ldJson);
-
-    // ✅ Optional: AdSense verification tag
-    // const adsense = document.createElement("meta");
-    // adsense.name = "google-adsense-account";
-    // adsense.content = "ca-pub-XXXXXXXXXXXX"; // <-- Replace with your AdSense publisher ID
-    // document.head.appendChild(adsense);
+    document.head.appendChild(ld);
   }, []);
 
    
