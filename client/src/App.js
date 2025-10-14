@@ -788,7 +788,16 @@ const {
               <div className="center-card">
                 <div className="landing-header">
                   {/* banner from public */}
-                  <img src="/banner.webp" alt="Banner" className="landing-banner" />
+                  <img
+  src="/banner.webp"
+  alt="Wakiee – Connect with Strangers Online"
+  className="landing-banner"
+  width="800"
+  height="400"
+  fetchpriority="high"
+  decoding="async"
+/>
+
 
               {/* ✨ Typing text beside banner */}
 {/* ✨ Static heading text (replaces typing effect) */}
