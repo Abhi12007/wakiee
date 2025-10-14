@@ -182,7 +182,86 @@ function ReloadIcon() {
 
 
 /* ---------- App ---------- */
-export default function App() {
+export default function App() { 
+  // ✅ SEO + AdSense Meta Injection (add this)
+  useEffect(() => {
+    document.title = "Wakiee — Random Video Chat | Talk, Learn & Meet Strangers Online";
+
+    // Canonical
+    let canonical = document.querySelector("link[rel='canonical']");
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", "https://wakiee.live/");
+
+    // Description
+    const desc =
+      "Join Wakiee — the safest and fastest random video ccall to meet strangers, learn, share ideas, and make friends worldwide. Connect instantly with people from around the globe.";
+    let metaDesc = document.querySelector("meta[name='description']");
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.setAttribute("name", "description");
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute("content", desc);
+
+    // Keywords
+    const keywords =
+      "random video call, anonymous video call, talk to strangers, omegle alternative, random video chat app, free video chat, meet new people online, learn from strangers,chathub,omegle,uhmegle,ometv,call,video call, idea exchange, talk safely online, webcam chat, video conversation, random people video chat, wakiee live, chat anonymously";
+    let metaKeywords = document.querySelector("meta[name='keywords']");
+    if (!metaKeywords) {
+      metaKeywords = document.createElement("meta");
+      metaKeywords.setAttribute("name", "keywords");
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute("content", keywords);
+
+    // Open Graph
+    const ogData = [
+      { property: "og:title", content: "Wakiee — Random Video Chat | Talk, Learn & Meet Strangers" },
+      { property: "og:description", content: desc },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://wakiee.live/" },
+      { property: "og:image", content: "https://wakiee.live/og-image.jpg" },
+      { property: "og:site_name", content: "Wakiee" },
+    ];
+    ogData.forEach((data) => {
+      const meta = document.createElement("meta");
+      meta.setAttribute("property", data.property);
+      meta.setAttribute("content", data.content);
+      document.head.appendChild(meta);
+    });
+
+    // JSON-LD Structured Data
+    const ldJson = document.createElement("script");
+    ldJson.type = "application/ld+json";
+    ldJson.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Wakiee",
+      "url": "https://wakiee.live/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://wakiee.live/blog?q={search_term_string}",
+        "query-input": "required name=search_term_string",
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Wakiee Technologies",
+        "url": "https://wakiee.live",
+        "logo": "https://wakiee.live/android-chrome-192x192.png",
+      },
+    });
+    document.head.appendChild(ldJson);
+
+    // ✅ Optional: AdSense verification tag
+    // const adsense = document.createElement("meta");
+    // adsense.name = "google-adsense-account";
+    // adsense.content = "ca-pub-XXXXXXXXXXXX"; // <-- Replace with your AdSense publisher ID
+    // document.head.appendChild(adsense);
+  }, []);
 
    
   // Reporting / Block removed ,now inside ban.js
