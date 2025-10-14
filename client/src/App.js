@@ -855,7 +855,7 @@ const {
            loading="lazy"       // ✅ Lazy loads only when near viewport
           style={{ width: "100%", borderRadius: "10px", marginBottom: "15px" }}
         />
-        <h2>Random Video Call to Strangers Online in 2025</h2>
+        <h2 className="blog-title" >Random Video Call to Strangers Online in 2025</h2>
         <p style={{ fontSize: "10px", opacity: 0.8 }}>
           Discover the best ways to meet and chat with real people safely in 2025.
         </p>
@@ -872,7 +872,7 @@ const {
           loading="lazy"       
           style={{ width: "100%", borderRadius: "10px", marginBottom: "15px" }}
         />
-        <h2>How AI Is Changing Online Connections</h2>
+        <h2 className="blog-title" >How AI Is Changing Online Connections</h2>
         <p style={{ fontSize: "10px", opacity: 0.8 }}>
           Explore how AI-powered matching enhances how people meet online.
         </p>
@@ -889,7 +889,7 @@ const {
           loading="lazy"       
           style={{ width: "100%", borderRadius: "10px", marginBottom: "15px" }}
         />
-        <h2>Why Did Omegle Shut Down?</h2>
+        <h2 className="blog-title" >Why Did Omegle Shut Down?</h2>
         <p style={{ fontSize: "10px", opacity: 0.8 }}>
           The real story behind Omegle’s shutdown and what comes next.
         </p>
@@ -915,7 +915,7 @@ const {
           loading="lazy"     
           style={{ width: "100%", borderRadius: "10px", marginBottom: "15px" }}
         />
-        <h2>How to Make Friends Online Across Cultures</h2>
+        <h2 className="blog-title" >How to Make Friends Online Across Cultures</h2>
         <p style={{ fontSize: "10px", opacity: 0.8 }}>
           A Global Village Connected by Conversation
         </p>
