@@ -843,7 +843,7 @@ const {
                     
 <>             
  
-    <h2 style={{ fontSize: "2rem", color: "#f90", marginBottom: "40px" }}>📰 Read Our Blogs</h2>
+    <h2 style={{ fontSize: "2rem", color: "#ffcc66", marginBottom: "40px" }}>📰 Read Our Blogs</h2>
 
   {/* Slider Container   deleted */}
 <div className="blog-row">
