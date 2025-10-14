@@ -817,7 +817,7 @@ const {
 
               <button
   className="primary glow-button"
-     style={{ marginBottom: "60px" }}
+     style={{ marginBottom: "80px" }}
   onClick={async () => {
     if (!onboardingSeen) {
       setShowOnboarding(true);  // show onboarding first time
@@ -832,12 +832,12 @@ const {
   Connect to a stranger
 </button>
 
-
+  /* warning box talks a lot of time lowers performance
               <div className="warning-box">
   ⚠️ Important: Wakiee is a safe space for everyone. Any form of nudity, harassment, or abusive behaviour 
   is strictly prohibited and will result in a permanent ban without warning.
              </div>
-
+*/
 
 {/* After this → read Blogs Guidelines Section */}
                     
