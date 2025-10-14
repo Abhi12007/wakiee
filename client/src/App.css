@@ -519,7 +519,7 @@ body::-webkit-scrollbar {
   flex-direction: column;          /* stack items vertically */
   align-items: center;             /* center horizontally */
   justify-content: center;         /* center vertically */
-  gap: 8px;                        /* even spacing between links */
+  gap: 15px;                        /* even spacing between links */
   text-align: center;              /* center text alignment */
   padding: 20px 0;                 /* equal padding top and bottom */
 }
