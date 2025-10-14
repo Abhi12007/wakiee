@@ -851,11 +851,11 @@ const {
   <div>
         <img
           src={img14}
-          alt="Random Video Call - Talk to Strangers Online"
+          alt="Random Video Call - Talk to Strangers Onlinein 2025"
            loading="lazy"       // ✅ Lazy loads only when near viewport
           style={{ width: "100%", borderRadius: "10px", marginBottom: "15px" }}
         />
-        <h2 className="blog-title" >Random Video Call to Strangers Online in 2025</h2>
+        <h2 className="blog-title" >Random Video Call to Strangers Online </h2>
         <p style={{ fontSize: "10px", opacity: 0.8 }}>
           Discover the best ways to meet and chat with real people safely in 2025.
         </p>
