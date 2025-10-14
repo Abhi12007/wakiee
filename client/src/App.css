@@ -516,26 +516,25 @@ body::-webkit-scrollbar {
 /*footer for mobile*/
   /* 📱 Mobile footer — vertical clean layout */
 .landing-footer {
-  flex-direction: column;          /* stack items vertically */
-  align-items: center;             /* center horizontally */
-  justify-content: center;         /* center vertically */
-  gap: 15px;                        /* even spacing between links */
-  text-align: center;              /* center text alignment */
-  padding: 20px 0;                 /* equal padding top and bottom */
-}
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px 0;
+    gap: 18px; /* ✅ adds nice even space between footer sections */
+  }
 
-.landing-footer a {
-  display: block;                  /* each link on its own line */
-  margin: 0;                       /* remove left spacing */
-  color: var(--muted);             /* same soft color */
-  font-size: 14px;                 /* readable but compact */
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
+  .footer-left,
+  .footer-center,
+  .footer-right {
+    margin: 0;           /* reset margins if any */
+    width: 100%;         /* ensures full width alignment */
+  }
 
-.landing-footer a:hover {
-  color: #ffcc66;                  /* subtle golden hover effect */
-}
+  .footer-right a {
+    display: block;      /* stack links vertically */
+    padding: 10px 0;     /* ✅ touch-friendly space */
+  }
 
   
           /*                                 Video calling page              */
