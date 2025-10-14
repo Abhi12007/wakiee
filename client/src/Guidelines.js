@@ -1,43 +1,158 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const Community = () => {
+  useEffect(() => {
+    // ✅ SEO Title
+    document.title =
+      "Community Guidelines | Wakiee — Safe Random Video Chat Rules & Policy";
+
+    // ✅ Canonical Tag
+    const canonicalLink = document.querySelector("link[rel='canonical']");
+    if (canonicalLink) {
+      canonicalLink.setAttribute(
+        "href",
+        "https://wakiee.live/guidelines"
+      );
+    } else {
+      const link = document.createElement("link");
+      link.setAttribute("rel", "canonical");
+      link.setAttribute("href", "https://wakiee.live/guidelines");
+      document.head.appendChild(link);
+    }
+
+    // ✅ Meta Description
+    const description =
+      "Read Wakiee’s Community Guidelines to ensure safe, respectful, and AdSense-compliant random video chats. Learn what’s allowed and what’s not.";
+    const metaDesc = document.querySelector("meta[name='description']");
+    if (metaDesc) {
+      metaDesc.setAttribute("content", description);
+    } else {
+      const meta = document.createElement("meta");
+      meta.setAttribute("name", "description");
+      meta.setAttribute("content", description);
+      document.head.appendChild(meta);
+    }
+
+    // ✅ Meta Keywords
+    const keywords =
+      "wakiee community guidelines, random video chat rules, anonymous chat policy, safe video calls, online behavior policy, moderation rules, AdSense compliance, talk to strangers safely, anti-harassment rules, online chat safety";
+    const metaKeywords = document.querySelector("meta[name='keywords']");
+    if (metaKeywords) {
+      metaKeywords.setAttribute("content", keywords);
+    } else {
+      const meta = document.createElement("meta");
+      meta.setAttribute("name", "keywords");
+      meta.setAttribute("content", keywords);
+      document.head.appendChild(meta);
+    }
+
+    // ✅ Open Graph Meta
+    const ogTags = [
+      {
+        property: "og:title",
+        content:
+          "Community Guidelines | Wakiee — Safe Random Video Chat Rules & Policy",
+      },
+      {
+        property: "og:description",
+        content:
+          "Follow Wakiee’s Community Guidelines for respectful, safe, and AdSense-compliant random video chatting worldwide.",
+      },
+      { property: "og:type", content: "website" },
+      {
+        property: "og:url",
+        content: "https://wakiee.live/guidelines",
+      },
+      { property: "og:image", content: "https://wakiee.live/og-image.jpg" },
+      { property: "og:site_name", content: "Wakiee" },
+    ];
+    ogTags.forEach((tag) => {
+      const meta = document.createElement("meta");
+      meta.setAttribute("property", tag.property);
+      meta.setAttribute("content", tag.content);
+      document.head.appendChild(meta);
+    });
+
+    // ✅ JSON-LD Structured Data
+    const ldJson = document.createElement("script");
+    ldJson.type = "application/ld+json";
+    ldJson.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Wakiee Community Guidelines",
+      "url": "https://wakiee.live/guidelines",
+      "description":
+        "Official Wakiee Community Guidelines outlining safety, moderation, and AdSense-compliant behavior for random video chat users.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Wakiee",
+        "url": "https://wakiee.live",
+        "logo": "https://wakiee.live/android-chrome-192x192.png",
+      },
+    });
+    document.head.appendChild(ldJson);
+  }, []);
+
   return (
-    <div style={{ padding: "30px", maxWidth: "900px", margin: "auto", lineHeight: "1.6" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Community Guidelines (Rules)</h1>
-      <p><strong>Last Updated:</strong> October 2025</p>
+    <div
+      style={{
+        padding: "30px",
+        maxWidth: "900px",
+        margin: "auto",
+        lineHeight: "1.6",
+      }}
+    >
+      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
+        Community Guidelines (Rules)
+      </h1>
+      <p>
+        <strong>Last Updated:</strong> October 2025
+      </p>
 
       <p>
-        Welcome to <strong>Wakiee</strong> — a platform designed for spontaneous, real-time
-        conversations with new people across the world. To ensure a positive, respectful,
-        and safe experience for everyone, <strong>all users must follow these rules</strong>.
-        These guidelines form an integral part of our{" "}
-        <a href="/terms">Terms of Service</a>.
+        Welcome to <strong>Wakiee</strong> — a platform designed for spontaneous,
+        real-time conversations with new people across the world. To ensure a
+        positive, respectful, and safe experience for everyone,{" "}
+        <strong>all users must follow these rules</strong>. These guidelines form
+        an integral part of our{" "}
+        <a
+          href="/terms"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: "#4FA3FF" }}
+        >
+          Terms of Service
+        </a>
+        .
       </p>
 
       <h2>🚫 STRICTLY 18+ ONLY</h2>
       <p>
-        Wakiee is a service for <strong>adults only</strong>. ALL USERS MUST BE 18 YEARS OF AGE OR
-        OLDER. Access by minors is strictly forbidden under any circumstances, including with
-        parental permission. By using Wakiee, you affirm that you are at least 18 years old.
+        Wakiee is a service for <strong>adults only</strong>. ALL USERS MUST BE 18
+        YEARS OF AGE OR OLDER. Access by minors is strictly forbidden under any
+        circumstances, including with parental permission. By using Wakiee, you
+        affirm that you are at least 18 years old.
       </p>
       <p>
-        Users are expected to use the <strong>Report</strong> button to flag any suspected
-        underage users — this helps support our multi-layered <strong>human moderation</strong>
-        system to maintain safety and compliance.
+        Users are expected to use the <strong>Report</strong> button to flag any
+        suspected underage users — this helps support our multi-layered{" "}
+        <strong>human moderation</strong> system to maintain safety and
+        compliance.
       </p>
 
       <h2>⚠️ Inappropriate Conduct</h2>
       <p>
-        Any form of illegal, harmful, or inappropriate behavior is strictly prohibited and may
-        result in an immediate permanent ban. This includes, but is not limited to:
+        Any form of illegal, harmful, or inappropriate behavior is strictly
+        prohibited and may result in an immediate permanent ban. This includes,
+        but is not limited to:
       </p>
 
       <h3>Abuse &amp; Harassment</h3>
       <ul>
         <li>Do not insult, bully, threaten, or demean others.</li>
         <li>
-          Hate speech, racism, or discrimination based on gender, sexuality, ethnicity, religion,
-          or appearance is forbidden.
+          Hate speech, racism, or discrimination based on gender, sexuality,
+          ethnicity, religion, or appearance is forbidden.
         </li>
         <li>Use respectful, positive language in both chat and video.</li>
       </ul>
@@ -46,8 +161,8 @@ const Community = () => {
       <ul>
         <li>Absolutely no nudity, partial nudity, or sexual behavior of any kind.</li>
         <li>
-          Do not display or imply sexual gestures, body exposure, or adult content. Video chats
-          must remain appropriate and focus on your face.
+          Do not display or imply sexual gestures, body exposure, or adult
+          content. Video chats must remain appropriate and focus on your face.
         </li>
       </ul>
 
@@ -62,76 +177,79 @@ const Community = () => {
       <ul>
         <li>Wakiee is a personal communication platform, not a marketplace.</li>
         <li>Do not promote websites, social media handles, or products.</li>
-        <li>Unsolicited advertising, spamming links, or repeated messages will lead to a ban.</li>
+        <li>
+          Unsolicited advertising, spamming links, or repeated messages will lead
+          to a ban.
+        </li>
       </ul>
 
       <h2>🚷 Gender-Based Solicitation</h2>
       <p>
-        Wakiee is <strong>not a dating site</strong>. It is a space for open conversation and
-        cultural exchange. Users must not indicate gender preferences (e.g., “M”, “F”, “looking
-        for girls/boys”) or use symbols suggesting such. This behavior ruins the experience for
-        others and will result in moderation action.
+        Wakiee is <strong>not a dating site</strong>. It is a space for open
+        conversation and cultural exchange. Users must not indicate gender
+        preferences or use symbols suggesting such behavior.
       </p>
 
       <h2>🕵️ Impersonation</h2>
       <ul>
         <li>Do not pretend to be another person, organization, or brand.</li>
         <li>
-          The use of fake identities, filters, or pre-recorded videos to impersonate someone else
-          is forbidden.
+          The use of fake identities, filters, or pre-recorded videos to
+          impersonate someone else is forbidden.
         </li>
         <li>Always show your real live video — no replayed or altered footage.</li>
       </ul>
 
       <h2>💬 Advertising, Spam, and Disruptive Content</h2>
       <p>
-        Any form of advertising or disruptive behavior in text or video is strictly prohibited.
-        This includes:
+        Any form of advertising or disruptive behavior in text or video is
+        strictly prohibited. This includes:
       </p>
       <ul>
         <li>Posting repetitive, irrelevant, or commercial content.</li>
-        <li>Showing printed signs, posters, or advertising material through your camera.</li>
+        <li>Showing printed signs, posters, or advertising material.</li>
         <li>Directing your camera at any object or screen instead of your face.</li>
       </ul>
       <p>Keep the experience personal and interactive — that’s the spirit of Wakiee.</p>
 
       <h2>🧠 Third-Party Scripts, Bots, and Software</h2>
       <ul>
-        <li>Using unauthorized software, scripts, or automation tools is strictly forbidden.</li>
-        <li>Do not attempt to hack, scrape, or manipulate Wakiee’s system or user data.</li>
-        <li>Any such activity may result in a permanent ban and possible legal action.</li>
+        <li>Using unauthorized software, scripts, or automation tools is forbidden.</li>
+        <li>Do not attempt to hack, scrape, or manipulate Wakiee’s system.</li>
+        <li>Any such activity may result in a permanent ban and legal action.</li>
       </ul>
 
       <h2>🛡️ Moderation &amp; User Responsibility</h2>
       <p>
-        Wakiee employs <strong>human moderators</strong> who monitor activity and respond to
-        user reports. We may introduce <strong>AI-based moderation tools in the future</strong> to
-        improve safety and speed of enforcement.
+        Wakiee employs <strong>human moderators</strong> who monitor activity and
+        respond to reports. We may introduce <strong>AI-based moderation</strong>{" "}
+        in the future to improve safety and speed.
       </p>
       <ul>
         <li>You are connecting with real people in real time.</li>
         <li>
-          You are fully responsible for your own behavior and any content you display or share.
+          You are fully responsible for your own behavior and any content you
+          display or share.
         </li>
-        <li>Violations may lead to a temporary or permanent ban without prior notice.</li>
+        <li>Violations may lead to a temporary or permanent ban without notice.</li>
       </ul>
       <p>
-        Bans cannot be lifted by payment, and repeated offenders will be permanently restricted
-        from accessing Wakiee.
+        Bans cannot be lifted by payment, and repeated offenders will be
+        permanently restricted.
       </p>
 
       <h2>🧒 Protecting Minors</h2>
       <ul>
         <li>Wakiee strictly prohibits anyone under 18 from accessing the platform.</li>
-        <li>Users must report any suspected minors immediately using the Report button.</li>
-        <li>Accounts or sessions found to involve minors will be immediately terminated.</li>
+        <li>Report suspected minors immediately using the Report button.</li>
+        <li>Sessions found to involve minors will be terminated instantly.</li>
       </ul>
 
       <h2>📝 Content Ownership and Privacy</h2>
       <ul>
         <li>Do not record, screenshot, or share any chat without consent.</li>
-        <li>Conversations are temporary — we do not store or publish user interactions.</li>
-        <li>Users are expected to respect others’ privacy and boundaries at all times.</li>
+        <li>Conversations are temporary — Wakiee does not store interactions.</li>
+        <li>Always respect others’ privacy and boundaries.</li>
       </ul>
 
       <h2>💬 Blog and Public Interaction Rules</h2>
@@ -139,37 +257,32 @@ const Community = () => {
         <li>Do not post spam, offensive language, or unrelated links.</li>
         <li>Stay on-topic and avoid self-promotion.</li>
         <li>Do not include personal contact information in comments.</li>
-        <li>Comments may be reviewed and removed if found inappropriate.</li>
+        <li>Comments may be removed if found inappropriate.</li>
       </ul>
 
       <h2>🚨 Reporting Misconduct</h2>
       <ul>
-        <li>If you encounter any user violating these rules, use the Report button immediately.</li>
-        <li>Reports are reviewed by our moderation team.</li>
-        <li>
-          Users who misuse the reporting system to spam or target others may be penalized.
-        </li>
+        <li>Use the Report button for any rule violations.</li>
+        <li>Reports are reviewed by moderators for action.</li>
+        <li>False or abusive reporting may lead to penalties.</li>
       </ul>
 
       <h2>⏳ Enforcement</h2>
       <p>
-        Breaking these rules will lead to: immediate disconnection, temporary suspension, or a
-        permanent ban for serious or repeat violations. Wakiee reserves the right to take any
-        action necessary to maintain a safe environment, including reporting illegal activity to
-        authorities.
+        Violations may lead to immediate disconnection, suspension, or a permanent
+        ban. Wakiee may report illegal activity to authorities when required.
       </p>
 
       <h2>🔄 Updates to the Rules</h2>
       <p>
-        These rules may be updated periodically to reflect improvements in moderation and user
-        safety practices. The most recent update date is shown at the top of this page. By
-        continuing to use Wakiee, you agree to follow the latest version of these guidelines.
+        Guidelines may be updated periodically to improve safety and moderation.
+        By continuing to use Wakiee, you agree to the latest version.
       </p>
 
       <h2>📬 Contact Us</h2>
       <p>
-        If you have questions or suggestions about these Community Guidelines, or wish to report
-        an issue, contact us at:<br />
+        For questions or suggestions about these Community Guidelines, contact us
+        at:<br />
         📧 <strong>contact@wakiee.live</strong>
         <br />
         📍 <strong>Wakiee Technologies, Delhi, India</strong>
