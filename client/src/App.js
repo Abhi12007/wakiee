@@ -851,7 +851,7 @@ const {
   <div>
         <img
           src={img14}
-          alt="Random Video Call - Talk to Strangers Online in 2025"
+          alt="Random Video Call - Talk to Strangers Online"
            loading="lazy"       // ✅ Lazy loads only when near viewport
           style={{ width: "100%", borderRadius: "10px", marginBottom: "15px" }}
         />
