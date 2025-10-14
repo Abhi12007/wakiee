@@ -942,52 +942,37 @@ const {
     <li>🚫 Do not share personal info (phone, address, etc.)</li>
     <li>🛡️ Stay anonymous — that’s the fun of talking to strangers</li>
     <li>💬 Be kind and open-minded — every conversation is unique</li>
-       </ul>
-      </section>    
-                
+      </ul>
+</section>
 
-                <footer className="landing-footer">
+<footer className="landing-footer">
   <div className="footer-left">
-    Follow us on 
-
-            
-                      <a
-  href="https://instagram.com/wakiee.live"
-  target="_blank"
-  rel="noopener noreferrer"
-  class="insta-icon"
-  aria-label="Visit Wakiee on Instagram"
-  style="margin-left: 8px;"
->
-  <i class="fab fa-instagram" aria-hidden="true"></i>
-</a>
-
-      
+    Follow us on
+    <a
+      href="https://instagram.com/wakiee.live"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="insta-icon"
+      aria-label="Visit Wakiee on Instagram"
+      style={{ marginLeft: "8px" }}
+    >
+      <i className="fab fa-instagram" aria-hidden="true"></i>
+    </a>
   </div>
-                       
-  
 
-
-
-
-
-
-        
-  
   <div className="footer-center">
-    ©2025 Wakiee-All rights reserved.
+    ©2025 Wakiee — All rights reserved.
   </div>
-  
-<div className="footer-right">
-  <a href="/about">About Us</a>
-  <a href="/contact">Contact Us</a>
-  <a href="/privacy">Privacy Policy</a>
-  <a href="/terms">Terms of Service</a>
-  <a href="/guidelines">Community Guidelines</a>
- 
-</div>
 
+  <div className="footer-right">
+    <a href="/about">About Us</a>
+    <a href="/contact">Contact Us</a>
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/terms">Terms of Service</a>
+    <a href="/guidelines">Community Guidelines</a>
+  </div>
 </footer>
+
             </>
                   
               </div>
