@@ -23,6 +23,14 @@ body, html, #root {
   background-size: cover;
 }
 
+.blog-title {
+  font-size: 1rem;        /* same as your previous <h4> size */
+  font-weight: 600;
+  color: #fff;
+  margin: 5px 0;
+  line-height: 1.4;
+}
+ 
 /* in App.css */
 .loader {
   color: #f90;
@@ -412,6 +420,11 @@ section, main, .content, .video-container {
 /* responsive */
 @media (max-width:1100px){ /*For mobile */  /*tried in redmi */
 
+
+.blog-title {
+    font-size: 0.7rem;
+  }
+  
  .static-heading {
   font-size: 1.2rem;}
 
@@ -611,6 +624,10 @@ body::-webkit-scrollbar {
 
 @media (min-width: 360px) and (max-width: 393px) {            /*for devices smaller than redmi note 8 redmi is 393px*/
 /* Your custom styles go here */
+
+  .blog-title {
+    font-size: 0.7rem;
+  }
 
   .static-heading {
   font-size: 1rem;}
