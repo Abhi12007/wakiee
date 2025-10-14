@@ -865,7 +865,7 @@ const {
           style={{ width: "100%", borderRadius: "10px", marginBottom: "15px" }}
         />
         <h2 className="blog-title" >Random Video Call to Strangers Online </h2>
-        <p style={{ fontSize: "10px", opacity: 0.8 }}>
+        <p style={{ fontSize: "12px", opacity: 0.8 }}>
           Discover the best ways to meet and chat with real people safely in 2025.
         </p>
         <a href="/blog/random-video-call-talk-to-strangers-online-in-2025" style={{ color: "#66fcf1", textDecoration: "none" }}>
@@ -882,7 +882,7 @@ const {
           style={{ width: "100%", borderRadius: "10px", marginBottom: "15px" }}
         />
         <h2 className="blog-title" >How AI Is Changing Online Connections</h2>
-        <p style={{ fontSize: "10px", opacity: 0.8 }}>
+        <p style={{ fontSize: "12px", opacity: 0.8 }}>
           Explore how AI-powered matching enhances how people meet online.
         </p>
         <a href="/blog/how-ai-is-changing-the-way-we-meet-new-people-online" style={{ color: "#66fcf1", textDecoration: "none" }}>
@@ -899,7 +899,7 @@ const {
           style={{ width: "100%", borderRadius: "10px", marginBottom: "15px" }}
         />
         <h2 className="blog-title" >Why Did Omegle Shut Down?</h2>
-        <p style={{ fontSize: "10px", opacity: 0.8 }}>
+        <p style={{ fontSize: "12px", opacity: 0.8 }}>
           The real story behind Omegle’s shutdown and what comes next.
         </p>
         <a href="/blog/why-did-omegle-shut-down-real-reason-behind-it" style={{ color: "#66fcf1", textDecoration: "none" }}>
@@ -925,7 +925,7 @@ const {
           style={{ width: "100%", borderRadius: "10px", marginBottom: "15px" }}
         />
         <h2 className="blog-title" >How to Make Friends Online Across Cultures</h2>
-        <p style={{ fontSize: "10px", opacity: 0.8 }}>
+        <p style={{ fontSize: "12px", opacity: 0.8 }}>
           A Global Village Connected by Conversation
         </p>
         <a href="/blog/make-friends-online-across-cultures" style={{ color: "#66fcf1", textDecoration: "none" }}>
