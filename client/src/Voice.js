@@ -1,4 +1,3 @@
-// Voice.js
 import React, { useEffect, useRef, useState } from "react";
 import "./Voice.css";
 import io from "socket.io-client";
@@ -66,7 +65,7 @@ function PlayIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
       <g
-        stroke="#00ff9d"
+        stroke="#22c55e"
         strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -96,7 +95,7 @@ const Voice = () => {
   const analyserRef = useRef(null);
   const chatWindowRef = useRef(null);
 
-  // ✅ Setup socket listeners
+  // ✅ Socket Listeners (Logic unchanged)
   useEffect(() => {
     socket.on("online-count", (count) => setOnlineCount(count));
     socket.on("waiting", () => setStatus("searching"));
@@ -161,7 +160,7 @@ const Voice = () => {
   };
 
   // =========================================================
-  // 🔊 FUNCTIONS (UNCHANGED LOGIC)
+  // 🔊 FUNCTIONS (unchanged, only waveform improved)
   // =========================================================
 
   const startMatching = async () => {
@@ -196,16 +195,31 @@ const Voice = () => {
     const draw = () => {
       requestAnimationFrame(draw);
       analyser.getByteTimeDomainData(dataArray);
+
+      const avg =
+        dataArray.reduce((a, b) => a + Math.abs(b - 128), 0) / bufferLength;
+      const pulse = Math.min(avg / 20, 1); // 0–1 pulse intensity
+
       ctx.fillStyle = "#0b1124";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = status === "connected" ? "#3bc1ff" : "#333";
+
+      ctx.lineWidth = 2 + pulse * 2;
+      ctx.strokeStyle =
+        status === "connected"
+          ? pulse > 0.2
+            ? `rgba(59,193,255,${0.8 + pulse * 0.2})`
+            : "#333"
+          : "#333";
+
       ctx.beginPath();
       const sliceWidth = canvas.width / bufferLength;
       let x = 0;
       for (let i = 0; i < bufferLength; i++) {
         const v = dataArray[i] / 128.0;
-        const y = (v * canvas.height) / 2 + Math.sin(i / 10) * 2;
+        const y =
+          pulse > 0.2
+            ? (v * canvas.height) / 2
+            : canvas.height / 2; // flat line when no voice
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
         x += sliceWidth;
@@ -260,7 +274,10 @@ const Voice = () => {
   };
 
   const handleNext = () => {
+    stopAudio();
+    setMessages([]);
     socket.emit("next-voice");
+    setStatus("searching");
   };
 
   const sendMessage = () => {
@@ -280,7 +297,7 @@ const Voice = () => {
     <div className="voicep-container">
       <div className="voicep-header">
         <p className="voicep-online">
-          Online: <span style={{ color: "#00ff9d" }}>{onlineCount}</span>
+          Online: <span style={{ color: "#22c55e" }}>{onlineCount}</span>
         </p>
         <p className="voicep-status">
           {status === "idle"
@@ -291,10 +308,8 @@ const Voice = () => {
         </p>
       </div>
 
-      {/* ✅ WAVEFORM */}
       <canvas ref={canvasRef} width="400" height="120" className="voicep-waveform" />
 
-      {/* ✅ CONTROLS + LABELS */}
       <div className="voicep-controls">
         {status === "idle" ? (
           <div className="voicep-btn-group">
@@ -327,10 +342,9 @@ const Voice = () => {
         )}
       </div>
 
-      {/* ✅ CHAT SECTION */}
       <div className="voicep-chat-section">
         <div className="voicep-chat-window" ref={chatWindowRef}>
-          {messages.map((m, i) => (
+          {messages.length === 0 ? null : messages.map((m, i) => (
             <div key={i} className={`voicep-chat-bubble ${m.self ? "voicep-self" : ""}`}>
               {m.text}
             </div>
