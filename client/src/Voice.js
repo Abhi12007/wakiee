@@ -1,4 +1,4 @@
-// Voice.js — Optimized WebRTC Audio Page with fallback STUN/TURN/Relay
+// Voice.js — optimized with ban, thinner pulse, green chat ring, and delayed reconnect
 import React, { useEffect, useRef, useState } from "react";
 import "./Voice.css";
 import io from "socket.io-client";
@@ -6,32 +6,16 @@ import { useBanSystem } from "./ban";
 
 const socket = io();
 
-// ====================== SVG ICONS ======================
+// ICONS
 function MicIcon({ active }) {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <g
-        stroke={active ? "#ffffff" : "#ffffff"}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      >
+      <g stroke={active ? "#ffffff" : "#ffffff"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none">
         <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z" />
         <path d="M19 11v1a7 7 0 0 1-14 0v-1" />
         <path d="M12 19v3" />
       </g>
-      {!active && (
-        <line
-          x1="4"
-          y1="20"
-          x2="20"
-          y2="4"
-          stroke="#ff4040"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-        />
-      )}
+      {!active && <line x1="4" y1="20" x2="20" y2="4" stroke="#ff4040" strokeWidth="2.2" strokeLinecap="round" />}
     </svg>
   );
 }
@@ -39,13 +23,7 @@ function MicIcon({ active }) {
 function NextIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <g
-        stroke="#1e3a8a"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      >
+      <g stroke="#1e3a8a" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none">
         <path d="M5 19V5l14 7-14 7z" />
       </g>
     </svg>
@@ -72,8 +50,6 @@ function PlayIcon() {
   );
 }
 
-// ====================== MAIN COMPONENT ======================
-
 const Voice = () => {
   const [status, setStatus] = useState("idle");
   const [muted, setMuted] = useState(false);
@@ -88,13 +64,13 @@ const Voice = () => {
   const canvasRef = useRef(null);
   const analyserRef = useRef(null);
 
-  // Ban/Report Hook
+  // Ban hook (same as video)
   useBanSystem(socket, { setStatus, cleanupCall: handleStop });
 
-  // ✅ Socket event setup (unchanged)
   useEffect(() => {
     socket.on("online-count", (count) => setOnlineCount(count));
     socket.on("waiting", () => setStatus("searching"));
+
     socket.on("paired-voice", async ({ partnerId, initiator }) => {
       setStatus("connected");
       setPartnerId(partnerId);
@@ -120,18 +96,16 @@ const Voice = () => {
     });
 
     socket.on("ice-candidate-voice", ({ candidate }) => {
-      if (candidate && pcRef.current) {
-        pcRef.current.addIceCandidate(new RTCIceCandidate(candidate));
-      }
+      if (candidate && pcRef.current) pcRef.current.addIceCandidate(new RTCIceCandidate(candidate));
     });
 
-    socket.on("chat-message-voice", (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    });
+    socket.on("chat-message-voice", (msg) => setMessages((p) => [...p, msg]));
 
+    // partner leaves -> wait 1s before reconnect
     socket.on("partner-left-voice", () => {
       setStatus("searching");
-      socket.emit("join-voice");
+      setMessages([]);
+      setTimeout(() => socket.emit("join-voice"), 1000);
     });
 
     return () => {
@@ -140,17 +114,12 @@ const Voice = () => {
     };
   }, []);
 
-  // =========================================================
-  // 🔊 FUNCTIONS
-  // =========================================================
-
   const startMatching = async () => {
     await startAudio();
     socket.emit("join-voice");
     setStatus("searching");
   };
 
-  // ✅ Optimized audio: no echo, best clarity
   const startAudio = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -171,70 +140,30 @@ const Voice = () => {
     }
   };
 
-  // ✅ Fallback-based PeerConnection
   const createPeerConnection = async (partnerId) => {
-    // Start with fast STUN
-    let config = {
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-      iceTransportPolicy: "all",
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        {
+          urls: "turn:yourdomain_or_ip:5349?transport=tcp",
+          username: "wakiee",
+          credential: "your_turn_password",
+        },
+      ],
+    });
+
+    pcRef.current = pc;
+
+    localStreamRef.current?.getTracks().forEach((track) => pc.addTrack(track, localStreamRef.current));
+
+    pc.onicecandidate = (e) => {
+      if (e.candidate) socket.emit("ice-candidate-voice", { to: partnerId, candidate: e.candidate });
     };
 
-    let pc = new RTCPeerConnection(config);
-
-    // If STUN fails → retry with TURN
-    const setupTurnFallback = async () => {
-      if (pc.iceConnectionState === "failed" || pc.connectionState === "failed") {
-        console.warn("STUN failed, switching to TURN server...");
-        pc.close();
-        pc = new RTCPeerConnection({
-          iceServers: [
-            { urls: "stun:stun.l.google.com:19302" },
-            {
-              urls: "turn:yourdomain_or_ip:5349?transport=tcp",
-              username: "wakiee",
-              credential: "your_turn_password",
-            },
-          ],
-          iceTransportPolicy: "relay",
-        });
-        attachTracksAndListeners(pc, partnerId);
-      }
+    pc.ontrack = (e) => {
+      remoteAudioRef.current.srcObject = e.streams[0];
     };
 
-    // Express relay fallback (pseudo TURN)
-    const setupExpressFallback = async () => {
-      if (pc.iceConnectionState === "failed") {
-        console.warn("TURN failed, using relay via server socket...");
-        socket.emit("relay-fallback", { partnerId });
-      }
-    };
-
-    // Attach common listeners
-    const attachTracksAndListeners = (pc, partnerId) => {
-      pcRef.current = pc;
-
-      localStreamRef.current?.getTracks().forEach((track) => {
-        pc.addTrack(track, localStreamRef.current);
-      });
-
-      pc.onicecandidate = (event) => {
-        if (event.candidate)
-          socket.emit("ice-candidate-voice", { to: partnerId, candidate: event.candidate });
-      };
-
-      pc.ontrack = (event) => {
-        remoteAudioRef.current.srcObject = event.streams[0];
-      };
-
-      pc.oniceconnectionstatechange = async () => {
-        if (["failed", "disconnected"].includes(pc.iceConnectionState)) {
-          await setupTurnFallback();
-          await setupExpressFallback();
-        }
-      };
-    };
-
-    attachTracksAndListeners(pc, partnerId);
     return pc;
   };
 
@@ -251,6 +180,7 @@ const Voice = () => {
     stopAudio();
     setStatus("idle");
     setPartnerId(null);
+    setMessages([]);
   };
 
   const stopAudio = () => {
@@ -263,16 +193,23 @@ const Voice = () => {
 
   const handleNext = () => {
     socket.emit("next-voice");
+    setMessages([]);
+  };
+
+  const handleReport = () => {
+    if (partnerId) {
+      socket.emit("report-voice", { partnerId });
+      alert("⚠️ User reported. They are banned for 60 seconds.");
+    }
   };
 
   const sendMessage = () => {
     if (!input.trim()) return;
     socket.emit("chat-message-voice", { to: partnerId, text: input });
-    setMessages((prev) => [...prev, { text: input, self: true }]);
+    setMessages((p) => [...p, { text: input, self: true }]);
     setInput("");
   };
 
-  // ✅ Enhanced Wave Visualization
   const visualizeAudio = (stream) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -291,27 +228,24 @@ const Voice = () => {
       analyser.getByteTimeDomainData(dataArray);
       ctx.fillStyle = "#0b1124";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1.2; // thinner line
       ctx.strokeStyle = status === "connected" ? "#3bc1ff" : "#333";
       ctx.beginPath();
-
       const sliceWidth = canvas.width / bufferLength;
       let x = 0;
       for (let i = 0; i < bufferLength; i++) {
         const v = dataArray[i] / 128.0;
-        const y = (v * canvas.height) / 2;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+        const y = (v * canvas.height) / 4; // half pulse amplitude
+        if (i === 0) ctx.moveTo(x, y + canvas.height / 2);
+        else ctx.lineTo(x, y + canvas.height / 2);
         x += sliceWidth;
       }
-
       ctx.lineTo(canvas.width, canvas.height / 2);
       ctx.stroke();
     };
     draw();
   };
 
-  // ✅ UI Rendering
   return (
     <div className="voicep-container">
       <div className="voicep-header">
@@ -319,18 +253,12 @@ const Voice = () => {
           Online: <span style={{ color: "#22c55e" }}>{onlineCount}</span>
         </p>
         <p className="voicep-status">
-          {status === "idle"
-            ? "Press Start to find someone"
-            : status === "searching"
-            ? "Searching..."
-            : "Connected"}
+          {status === "idle" ? "Press Start to find someone" : status === "searching" ? "Searching..." : "Connected"}
         </p>
       </div>
 
-      {/* Waveform */}
       <canvas ref={canvasRef} width="400" height="100" className="voicep-waveform" />
 
-      {/* Controls */}
       <div className="voicep-controls">
         {status === "idle" && (
           <button onClick={startMatching} title="Start" className="voicep-btn">
@@ -348,11 +276,13 @@ const Voice = () => {
             <button onClick={handleStop} title="Stop" className="voicep-btn">
               <StopIcon />
             </button>
+            <button onClick={handleReport} title="Report" className="voicep-btn voicep-report-btn">
+              ⚠️
+            </button>
           </>
         )}
       </div>
 
-      {/* Chat */}
       <div className="voicep-chat-section">
         <div className="voicep-chat-window">
           {messages.map((m, i) => (
@@ -361,12 +291,8 @@ const Voice = () => {
             </div>
           ))}
         </div>
-        <div className="voicep-chat-input">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a message..."
-          />
+        <div className="voicep-chat-input voicep-chat-ring">
+          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type a message..." />
           <button onClick={sendMessage}>Send</button>
         </div>
       </div>
