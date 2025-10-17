@@ -211,54 +211,61 @@ const stream = await navigator.mediaDevices.getUserMedia({
   };
 
   const visualizeAudio = (stream) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const audioContext = new AudioContext();
-    const source = audioContext.createMediaStreamSource(stream);
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 512;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    source.connect(analyser);
-    analyserRef.current = analyser;
+  const canvas = canvasRef.current;
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const audioContext = new AudioContext();
+  const source = audioContext.createMediaStreamSource(stream);
+  const analyser = audioContext.createAnalyser();
+  analyser.fftSize = 512;
 
-    const draw = () => {
-      requestAnimationFrame(draw);
-      analyser.getByteTimeDomainData(dataArray);
-      ctx.fillStyle = "#0b1124";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+  source.connect(analyser);
+  analyserRef.current = analyser;
 
-      let rms = 0;
-      for (let i = 0; i < bufferLength; i++) {
-        const v = (dataArray[i] - 128) / 128;
-        rms += v * v;
-      }
-      rms = Math.sqrt(rms / bufferLength);
+  let smoothAmplitude = 0;
 
-     const amplitude = Math.min(rms * 800, 40);
+  const draw = () => {
+    requestAnimationFrame(draw);
+    analyser.getByteTimeDomainData(dataArray);
 
-      ctx.lineWidth = 2 + amplitude / 10;
-      ctx.strokeStyle = amplitude > 5 ? "#3bc1ff" : "#333";
-      ctx.beginPath();
+    // Background stays constant — no flicker
+    ctx.fillStyle = "#0b1124";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const sliceWidth = canvas.width / bufferLength;
-      let x = 0;
-      for (let i = 0; i < bufferLength; i++) {
-        const v = dataArray[i] / 128.0;
-        const y =
-          amplitude > 5
-            ? (v * canvas.height) / 2
-            : canvas.height / 2;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-        x += sliceWidth;
-      }
-      ctx.lineTo(canvas.width, canvas.height / 2);
-      ctx.stroke();
-    };
-    draw();
+    // Calculate RMS (volume)
+    let rms = 0;
+    for (let i = 0; i < bufferLength; i++) {
+      const v = (dataArray[i] - 128) / 128;
+      rms += v * v;
+    }
+    rms = Math.sqrt(rms / bufferLength);
+
+    // Smooth out amplitude (no blinking)
+    const targetAmplitude = Math.min(rms * 800, 40);
+    smoothAmplitude += (targetAmplitude - smoothAmplitude) * 0.2; // smooth transition
+
+    // Draw smooth waveform
+    ctx.lineWidth = 0.8 + smoothAmplitude / 25; // thin waveform
+    ctx.strokeStyle = "#3bc1ff"; // static color, no flicker
+    ctx.beginPath();
+
+    const sliceWidth = canvas.width / bufferLength;
+    let x = 0;
+    for (let i = 0; i < bufferLength; i++) {
+      const v = dataArray[i] / 128.0;
+      const y = (v * canvas.height) / 2;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+      x += sliceWidth;
+    }
+    ctx.lineTo(canvas.width, canvas.height / 2);
+    ctx.stroke();
   };
+
+  draw();
+};
 
   
 
