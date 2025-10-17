@@ -329,25 +329,34 @@ pc.onicecandidate = (event) => {
 
 
 
+pc.ontrack = (event) => {
+  const remoteStream = event.streams[0];
+  remoteAudioRef.current.srcObject = remoteStream;
 
-    
+  // 🔊 Smooth playback with Web Audio API for better tone & auto volume leveling
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioCtx.createMediaStreamSource(remoteStream);
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = 1.0; // base volume
 
-    pc.ontrack = (event) => {
-     const remoteStream = event.streams[0];
-remoteAudioRef.current.srcObject = remoteStream;
+    // 🎧 Auto volume leveling (compressor)
+    const compressor = audioCtx.createDynamicsCompressor();
+    compressor.threshold.value = -30;
+    compressor.knee.value = 40;
+    compressor.ratio.value = 12;
+    compressor.attack.value = 0;
+    compressor.release.value = 0.25;
 
-// 🔊 Smooth playback with Web Audio API for better tone & gain
-try {
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const source = audioCtx.createMediaStreamSource(remoteStream);
-  const gainNode = audioCtx.createGain();
-  gainNode.gain.value = 1.0; // normal volume
-  source.connect(gainNode).connect(audioCtx.destination);
-} catch (err) {
-  console.warn("AudioContext playback setup failed:", err);
-}
+    // ✅ Connect nodes: stream → compressor → gain → speakers
+    source.connect(compressor).connect(gainNode).connect(audioCtx.destination);
 
-    };
+    console.log("🎧 Audio pipeline initialized with dynamic compressor + gain");
+  } catch (err) {
+    console.warn("AudioContext playback setup failed:", err);
+  }
+};
+
 
     return pc;
   };
