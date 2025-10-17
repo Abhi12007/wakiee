@@ -1,5 +1,9 @@
-/* Voice.css */
-.voice-container {
+/* =============================
+   Voice Page (Isolated Styling)
+   Prefix: voicep-
+   ============================= */
+
+.voicep-container {
   background: #0b1124;
   color: #fff;
   min-height: 100vh;
@@ -8,38 +12,79 @@
   font-family: "Inter", sans-serif;
 }
 
-.voice-container header {
+/* ✅ NAVBAR */
+.voicep-navbar {
   display: flex;
   justify-content: space-between;
-  padding: 10px 40px;
+  align-items: center;
+  background: #10182f;
+  padding: 12px 40px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(59, 193, 255, 0.1);
 }
 
-.logo {
+.voicep-logo {
   font-size: 1.8rem;
-  font-weight: bold;
-  color: white;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
 }
 
-.online-count {
+.voicep-nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.voicep-nav-links a {
+  color: #ffffffcc;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.voicep-nav-links a:hover {
   color: #3bc1ff;
 }
 
-.waveform {
+/* ✅ HEADER */
+.voicep-header {
+  margin-top: 30px;
+}
+
+.voicep-header h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.voicep-online {
+  color: #3bc1ff;
+  font-weight: 500;
+}
+
+.voicep-status {
+  margin-top: 8px;
+  font-size: 1.1rem;
+  color: #9bb1d3;
+}
+
+/* ✅ WAVEFORM CANVAS */
+.voicep-waveform {
   background: #0d1530;
   border-radius: 12px;
-  margin: 20px auto;
+  margin: 30px auto;
   display: block;
   box-shadow: 0 0 10px rgba(59, 193, 255, 0.2);
 }
 
-.controls {
+/* ✅ CONTROLS */
+.voicep-controls {
   margin: 20px auto;
   display: flex;
   justify-content: center;
   gap: 15px;
 }
 
-.controls button {
+.voicep-controls button {
   background: #1c2238;
   color: #fff;
   border: none;
@@ -47,62 +92,88 @@
   border-radius: 8px;
   cursor: pointer;
   font-size: 1rem;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.2s;
 }
 
-.controls button:hover {
+.voicep-controls button:hover {
   background: #3bc1ff;
+  color: #000;
+  transform: translateY(-2px);
 }
 
-.chat-section {
+/* ✅ CHAT SECTION */
+.voicep-chat-section {
   margin-top: 30px;
   max-width: 400px;
   margin-inline: auto;
   background: #10182f;
   border-radius: 12px;
   padding: 10px;
+  box-shadow: 0 0 12px rgba(59, 193, 255, 0.15);
 }
 
-.chat-window {
+.voicep-chat-window {
   max-height: 250px;
   overflow-y: auto;
   text-align: left;
+  padding: 5px;
 }
 
-.chat-bubble {
+.voicep-chat-bubble {
   background: #18223c;
   padding: 8px 12px;
   border-radius: 10px;
   margin: 5px;
   display: inline-block;
+  color: #fff;
+  max-width: 80%;
+  word-wrap: break-word;
 }
 
-.chat-bubble.self {
+.voicep-chat-bubble.voicep-self {
   background: #3bc1ff;
   color: #000;
   align-self: flex-end;
+  float: right;
+  clear: both;
 }
 
-.chat-input {
+.voicep-chat-input {
   display: flex;
   gap: 8px;
   margin-top: 10px;
 }
 
-.chat-input input {
+.voicep-chat-input input {
   flex: 1;
   background: #1b2238;
   border: none;
   border-radius: 8px;
   padding: 10px;
   color: white;
+  outline: none;
 }
 
-.chat-input button {
+.voicep-chat-input button {
   background: #3bc1ff;
   border: none;
   border-radius: 8px;
   padding: 10px 16px;
   color: black;
   cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.voicep-chat-input button:hover {
+  background: #66d2ff;
+}
+
+/* ✅ SCROLLBAR */
+.voicep-chat-window::-webkit-scrollbar {
+  width: 6px;
+}
+.voicep-chat-window::-webkit-scrollbar-thumb {
+  background-color: #3bc1ff;
+  border-radius: 10px;
 }
