@@ -21,8 +21,7 @@ const Voice = () => {
   const canvasRef = useRef(null);
   const analyserRef = useRef(null);
 
-  // Ban/report system hook
-  useBanSystem(socket, { setStatus, cleanupCall: handleStop });
+ 
 
   // ✅ Setup socket listeners
   useEffect(() => {
@@ -186,7 +185,9 @@ const Voice = () => {
   // =========================================================
   // 🎨 UI
   // =========================================================
-
+ // Ban/report system hook
+  useBanSystem(socket, { setStatus, cleanupCall: handleStop });
+ 
   return (
     <div className="voice-container">
       {/* ✅ NAVBAR */}
