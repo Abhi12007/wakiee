@@ -2,9 +2,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Voice.css";
 import io from "socket.io-client";
-import useBanSystem from "./hooks/useBanSystem"; // ✅ reuse your existing hook
+import useBanSystem from "./hooks/useBanSystem"; // reuse your moderation system
 
-const socket = io(); // reuse same socket connection
+const socket = io(); // same socket as other pages
 
 const Voice = () => {
   const [status, setStatus] = useState("idle"); // idle, searching, connected
@@ -20,17 +20,17 @@ const Voice = () => {
   const canvasRef = useRef(null);
   const analyserRef = useRef(null);
 
-  // 🔹 Setup Ban/Report System
+  // Ban/report system hook
   useBanSystem(socket, { setStatus, cleanupCall: handleStop });
 
+  // ✅ Setup socket listeners
   useEffect(() => {
     socket.on("online-count", (count) => setOnlineCount(count));
-
     socket.on("waiting", () => setStatus("searching"));
-
     socket.on("paired-voice", async ({ partnerId, initiator }) => {
       setStatus("connected");
       setPartnerId(partnerId);
+
       if (initiator) {
         const pc = createPeerConnection(partnerId);
         const offer = await pc.createOffer();
@@ -61,11 +61,21 @@ const Voice = () => {
       setMessages((prev) => [...prev, msg]);
     });
 
+    // ✅ Auto-rematch when partner leaves
+    socket.on("partner-left-voice", () => {
+      setStatus("searching");
+      socket.emit("join-voice");
+    });
+
     return () => {
       socket.off();
       stopAudio();
     };
   }, []);
+
+  // =========================================================
+  // 🔊 FUNCTIONS
+  // =========================================================
 
   const startMatching = async () => {
     await startAudio();
@@ -101,13 +111,13 @@ const Voice = () => {
       ctx.fillStyle = "#0b1124";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.lineWidth = 2;
-      ctx.strokeStyle = "#3bc1ff";
+      ctx.strokeStyle = status === "connected" ? "#3bc1ff" : "#444";
       ctx.beginPath();
-      let sliceWidth = (canvas.width * 1.0) / bufferLength;
+      const sliceWidth = canvas.width / bufferLength;
       let x = 0;
       for (let i = 0; i < bufferLength; i++) {
-        let v = dataArray[i] / 128.0;
-        let y = (v * canvas.height) / 2;
+        const v = dataArray[i] / 128.0;
+        const y = (v * canvas.height) / 2;
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
         x += sliceWidth;
@@ -162,8 +172,7 @@ const Voice = () => {
   };
 
   const handleNext = () => {
-    handleStop();
-    startMatching();
+    socket.emit("next-voice");
   };
 
   const sendMessage = () => {
@@ -173,16 +182,42 @@ const Voice = () => {
     setInput("");
   };
 
+  // =========================================================
+  // 🎨 UI
+  // =========================================================
+
   return (
     <div className="voice-container">
-      <header>
-        <div className="logo">wakiee</div>
-        <div className="online-count">Online: {onlineCount}</div>
-      </header>
+      {/* ✅ NAVBAR */}
+      <nav className="navbar">
+        <div className="nav-left">wakiee</div>
+        <div className="nav-links">
+          <a href="/">Home</a>
+          <a href="/voice">Voice</a>
+          <a href="/video">Video</a>
+          <a href="/about">About</a>
+          <a href="/blog">Blog</a>
+          <a href="/contact">Contact</a>
+        </div>
+      </nav>
 
-      <h2>Audio Matching</h2>
+      {/* ✅ HEADER */}
+      <div className="voice-header">
+        <h2>Audio Matching</h2>
+        <p className="online">Online: {onlineCount}</p>
+        <p className="status-text">
+          {status === "idle"
+            ? "Press Start to find someone"
+            : status === "searching"
+            ? "Searching..."
+            : "Connected"}
+        </p>
+      </div>
+
+      {/* ✅ WAVEFORM */}
       <canvas ref={canvasRef} width="400" height="100" className="waveform" />
 
+      {/* ✅ CONTROLS */}
       <div className="controls">
         {status === "idle" && <button onClick={startMatching}>Start</button>}
         {status !== "idle" && (
@@ -194,6 +229,7 @@ const Voice = () => {
         )}
       </div>
 
+      {/* ✅ CHAT SECTION */}
       <div className="chat-section">
         <div className="chat-window">
           {messages.map((m, i) => (
