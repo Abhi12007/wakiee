@@ -118,6 +118,9 @@
   text-align: left;
   padding: 8px;
   border-radius: 8px;
+    display: flex;             /* 🧩 makes children use flex layout */
+  flex-direction: column;    /* 🧩 stacks messages vertically */
+  gap: 6px;                  /* 🧩 optional: spacing between messages */
 }
 
 .voicep-empty-chat {
