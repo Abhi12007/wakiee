@@ -19,7 +19,7 @@ function removeFromQueue(socketId) {
   if (idx !== -1) waitingQueue.splice(idx, 1);
 }
 
-io.on('connection', (socket) => {
+io.on('connection', (socket) => {           // video call logic
   console.log('User connected:', socket.id);
 
   io.emit('online-count', io.engine.clientsCount);
@@ -173,6 +173,119 @@ io.on('connection', (socket) => {
     io.emit('online-count', io.engine.clientsCount);
     io.emit('online-users', io.engine.clientsCount);
   });
+
+    io.emit('online-count', io.engine.clientsCount);
+    io.emit('online-users', io.engine.clientsCount);
+  });
+
+  // =========================================================
+  // 🎧 VOICE PAGE CODE (AUDIO-ONLY MATCHING LOGIC)
+  // =========================================================
+
+  // separate queue and partner tracking for voice users
+  let voiceQueue = voiceQueue || [];
+  let voicePartners = voicePartners || {};
+
+  // when user presses Start on /voice page
+  socket.on("join-voice", () => {
+    console.log(`🎧 [VOICE] ${socket.id} joined voice queue`);
+
+    // ensure not already queued
+    voiceQueue = voiceQueue.filter((id) => id !== socket.id);
+
+    // if another user waiting, pair them
+    if (voiceQueue.length > 0) {
+      const partnerId = voiceQueue.shift();
+      voicePartners[socket.id] = partnerId;
+      voicePartners[partnerId] = socket.id;
+
+      io.to(socket.id).emit("paired-voice", { partnerId, initiator: true });
+      io.to(partnerId).emit("paired-voice", { partnerId: socket.id, initiator: false });
+
+      console.log(`✅ [VOICE] Paired ${socket.id} <--> ${partnerId}`);
+    } else {
+      // no one waiting — add to queue
+      voiceQueue.push(socket.id);
+      socket.emit("waiting");
+      console.log(`🕓 [VOICE] ${socket.id} waiting for match`);
+    }
+  });
+
+  // leave or stop voice call
+  socket.on("leave-voice", () => {
+    console.log(`🚪 [VOICE] ${socket.id} left voice`);
+    voiceQueue = voiceQueue.filter((id) => id !== socket.id);
+
+    const partnerId = voicePartners[socket.id];
+    if (partnerId) {
+      io.to(partnerId).emit("partner-left-voice");
+      delete voicePartners[partnerId];
+      delete voicePartners[socket.id];
+    }
+  });
+
+  // "Next" button: leave then instantly rejoin queue
+  socket.on("next-voice", () => {
+    console.log(`➡️ [VOICE] ${socket.id} requested next`);
+    const partnerId = voicePartners[socket.id];
+    if (partnerId) {
+      io.to(partnerId).emit("partner-left-voice");
+      delete voicePartners[partnerId];
+      delete voicePartners[socket.id];
+    }
+    // rejoin matchmaking immediately
+    socket.emit("leave-voice");
+    setTimeout(() => socket.emit("join-voice"), 300);
+  });
+
+  // signaling
+  socket.on("offer-voice", ({ to, sdp }) => {
+    if (to) io.to(to).emit("offer-voice", { from: socket.id, sdp });
+  });
+  socket.on("answer-voice", ({ to, sdp }) => {
+    if (to) io.to(to).emit("answer-voice", { from: socket.id, sdp });
+  });
+  socket.on("ice-candidate-voice", ({ to, candidate }) => {
+    if (to) io.to(to).emit("ice-candidate-voice", { from: socket.id, candidate });
+  });
+
+  // chat messages
+  socket.on("chat-message-voice", ({ to, text }) => {
+    if (to) io.to(to).emit("chat-message-voice", { text });
+  });
+
+  // typing (optional)
+  socket.on("typing-voice", ({ to }) => {
+    if (to) io.to(to).emit("typing-voice");
+  });
+
+  // report feature (uses same system)
+  socket.on("report-voice", ({ partnerId }) => {
+    console.log(`🚫 [VOICE] ${socket.id} reported ${partnerId}`);
+    io.to(partnerId).emit("reported-voice");
+  });
+
+  // voice disconnect cleanup
+  socket.on("disconnect", () => {
+    // remove from voice queue
+    voiceQueue = voiceQueue.filter((id) => id !== socket.id);
+
+    const partnerId = voicePartners[socket.id];
+    if (partnerId) {
+      io.to(partnerId).emit("partner-left-voice");
+      delete voicePartners[partnerId];
+      delete voicePartners[socket.id];
+    }
+  });
+
+  // =========================================================
+  // 🎧 END OF VOICE PAGE CODE
+  // =========================================================
+});
+
+
+
+  
 });
 
 if (process.env.NODE_ENV === 'production') {
