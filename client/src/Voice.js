@@ -564,15 +564,20 @@ const setAudioBitrate = (pc) => {
             </div>
           )}
         </div>
-        <div className="voicep-chat-input">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleTyping}
-            placeholder="Type a message..."
-          />
-          <button onClick={sendMessage}>Send</button>
-        </div>
+            <div className="voicep-chat-ring">
+  <div className="voicep-chat-input">
+    <input
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+      onKeyDown={handleTyping}
+      placeholder="Type a message..."
+    />
+    <button onClick={sendMessage}>Send</button>
+  </div>
+</div>
+
+
+          
       </div>
 
       <audio ref={remoteAudioRef} autoPlay playsInline />
