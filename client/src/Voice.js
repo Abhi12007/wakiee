@@ -169,11 +169,19 @@ const Voice = () => {
     });
 
     // Partner leaves → immediately search again
-    socket.on("partner-left-voice", () => {
-      setStatus("searching");
-      setMessages([]);
-      socket.emit("join-voice");
-    });
+   socket.on("partner-left-voice", () => {
+  console.log("👋 Partner disconnected, rejoining queue...");
+  setMessages([]); // 🧹 Clear messages
+  stopAudio();
+  setPartnerId(null);
+  setStatus("searching");
+
+  // Rejoin queue after a short delay to prevent race conditions
+  setTimeout(() => {
+    socket.emit("join-voice");
+  }, 1500);  //1.5 sec delay
+});
+
 
     return () => {
       socket.off();
@@ -427,11 +435,15 @@ const setAudioBitrate = (pc) => {
   };
 
   const handleStop = () => {
-    socket.emit("leave-voice");
-    stopAudio();
-    setStatus("idle");
-    setPartnerId(null);
-  };
+  // Notify server that this user left
+  socket.emit("leave-voice");
+
+  // 🔄 Reset UI and state
+  stopAudio();
+  setStatus("idle");
+  setPartnerId(null);
+  setMessages([]); // 🧹 Clear messages when call ends
+};
 
   const stopAudio = () => {
     localStreamRef.current?.getTracks().forEach((t) => t.stop());
@@ -441,11 +453,20 @@ const setAudioBitrate = (pc) => {
     }
   };
 
-  const handleNext = () => {
-    stopAudio();
-    setMessages([]);
-    socket.emit("next-voice");
-  };
+ const handleNext = () => {
+  // 🔇 Stop audio and clear chat
+  stopAudio();
+  setMessages([]);
+
+  // 🚪 Notify server to unpair both users
+  socket.emit("leave-voice");
+
+  // ⏳ Wait 1 second before rejoining queue
+  setTimeout(() => {
+    socket.emit("join-voice"); // Try to find a new partner
+    setStatus("searching");
+  }, 1000);
+};
 
   const handleReport = () => {
     if (partnerId) {
