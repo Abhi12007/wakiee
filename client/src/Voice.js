@@ -83,18 +83,29 @@ function PlayIcon() {
 
 function ReportIcon() {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
-        d="M12 2l9 4-9 4-9-4 9-4zm0 18l-9-4 9-4 9 4-9 4z"
-        stroke="#ff4040"
-        strokeWidth="1.6"
+        d="M12 2L1 21h22L12 2z"
+        stroke="#facc15"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
+        fill="none"
       />
-      <circle cx="12" cy="12" r="1.5" fill="#ff4040" />
+      <line
+        x1="12"
+        y1="8"
+        x2="12"
+        y2="13"
+        stroke="#facc15"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <circle cx="12" cy="17" r="1.2" fill="#facc15" />
     </svg>
   );
 }
+
 
 // ========== MAIN COMPONENT ==========
 const Voice = () => {
