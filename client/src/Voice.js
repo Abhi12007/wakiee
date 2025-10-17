@@ -3,12 +3,79 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Voice.css";
 import io from "socket.io-client";
 import { useBanSystem } from "./ban";
- // reuse your moderation system
 
-const socket = io(); // same socket as other pages
+const socket = io();
+
+// ====================== SVG ICONS ======================
+function MicIcon({ active }) {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <g
+        stroke={active ? "#ffffff" : "#ffffff"}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      >
+        <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z" />
+        <path d="M19 11v1a7 7 0 0 1-14 0v-1" />
+        <path d="M12 19v3" />
+      </g>
+      {!active && (
+        <line
+          x1="4"
+          y1="20"
+          x2="20"
+          y2="4"
+          stroke="#ff4040"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+        />
+      )}
+    </svg>
+  );
+}
+
+function NextIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <g
+        stroke="#1e3a8a"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      >
+        <path d="M5 19V5l14 7-14 7z" />
+      </g>
+    </svg>
+  );
+}
+
+function StopIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <g stroke="none" strokeWidth="0" fill="#ff5252">
+        <rect x="5.5" y="5.5" width="13" height="13" rx="2" />
+      </g>
+    </svg>
+  );
+}
+
+function PlayIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <g stroke="#00ff9d" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none">
+        <path d="M5 3l14 9-14 9V3z" />
+      </g>
+    </svg>
+  );
+}
+
+// ====================== MAIN COMPONENT ======================
 
 const Voice = () => {
-  const [status, setStatus] = useState("idle"); // idle, searching, connected
+  const [status, setStatus] = useState("idle");
   const [muted, setMuted] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -20,8 +87,6 @@ const Voice = () => {
   const remoteAudioRef = useRef(null);
   const canvasRef = useRef(null);
   const analyserRef = useRef(null);
-
- 
 
   // ✅ Setup socket listeners
   useEffect(() => {
@@ -61,7 +126,6 @@ const Voice = () => {
       setMessages((prev) => [...prev, msg]);
     });
 
-    // ✅ Auto-rematch when partner leaves
     socket.on("partner-left-voice", () => {
       setStatus("searching");
       socket.emit("join-voice");
@@ -74,7 +138,7 @@ const Voice = () => {
   }, []);
 
   // =========================================================
-  // 🔊 FUNCTIONS
+  // 🔊 FUNCTIONS (UNCHANGED LOGIC)
   // =========================================================
 
   const startMatching = async () => {
@@ -95,6 +159,7 @@ const Voice = () => {
 
   const visualizeAudio = (stream) => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     const audioContext = new AudioContext();
     const source = audioContext.createMediaStreamSource(stream);
@@ -183,20 +248,25 @@ const Voice = () => {
   };
 
   // =========================================================
-  // 🎨 UI
+  // 🎨 UI (ISOLATED CLASSES)
   // =========================================================
- // Ban/report system hook
+
   useBanSystem(socket, { setStatus, cleanupCall: handleStop });
- 
+
+  const navigateToVideo = () => {
+    handleStop();
+    window.location.href = "/video";
+  };
+
   return (
-    <div className="voice-container">
+    <div className="voicep-container">
       {/* ✅ NAVBAR */}
-      <nav className="navbar">
-        <div className="nav-left">wakiee</div>
-        <div className="nav-links">
-          <a href="/">Home</a>
-          <a href="/voice">Voice</a>
-          <a href="/video">Video</a>
+      <nav className="voicep-navbar">
+        <div className="voicep-logo">
+          <img src="/logo.svg" alt="wakiee logo" height="38" />
+        </div>
+        <div className="voicep-nav-links">
+          <button onClick={navigateToVideo}>Video</button>
           <a href="/about">About</a>
           <a href="/blog">Blog</a>
           <a href="/contact">Contact</a>
@@ -204,10 +274,11 @@ const Voice = () => {
       </nav>
 
       {/* ✅ HEADER */}
-      <div className="voice-header">
-        <h2>Audio Matching</h2>
-        <p className="online">Online: {onlineCount}</p>
-        <p className="status-text">
+      <div className="voicep-header">
+        <p className="voicep-online">
+          Online: <span style={{ color: "#00ff9d" }}>{onlineCount}</span>
+        </p>
+        <p className="voicep-status">
           {status === "idle"
             ? "Press Start to find someone"
             : status === "searching"
@@ -217,30 +288,40 @@ const Voice = () => {
       </div>
 
       {/* ✅ WAVEFORM */}
-      <canvas ref={canvasRef} width="400" height="100" className="waveform" />
+      <canvas ref={canvasRef} width="400" height="100" className="voicep-waveform" />
 
       {/* ✅ CONTROLS */}
-      <div className="controls">
-        {status === "idle" && <button onClick={startMatching}>Start</button>}
+      <div className="voicep-controls">
+        {status === "idle" && (
+          <button onClick={startMatching} title="Start" className="voicep-btn">
+            <PlayIcon />
+          </button>
+        )}
         {status !== "idle" && (
           <>
-            <button onClick={handleMute}>{muted ? "Unmute" : "Mute"}</button>
-            <button onClick={handleNext}>Next</button>
-            <button onClick={handleStop}>Stop</button>
+            <button onClick={handleMute} title="Mute / Unmute" className="voicep-btn">
+              <MicIcon active={!muted} />
+            </button>
+            <button onClick={handleNext} title="Next" className="voicep-btn">
+              <NextIcon />
+            </button>
+            <button onClick={handleStop} title="Stop" className="voicep-btn">
+              <StopIcon />
+            </button>
           </>
         )}
       </div>
 
       {/* ✅ CHAT SECTION */}
-      <div className="chat-section">
-        <div className="chat-window">
+      <div className="voicep-chat-section">
+        <div className="voicep-chat-window">
           {messages.map((m, i) => (
-            <div key={i} className={m.self ? "chat-bubble self" : "chat-bubble"}>
+            <div key={i} className={`voicep-chat-bubble ${m.self ? "voicep-self" : ""}`}>
               {m.text}
             </div>
           ))}
         </div>
-        <div className="chat-input">
+        <div className="voicep-chat-input">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
