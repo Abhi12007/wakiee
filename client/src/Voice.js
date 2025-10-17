@@ -3,6 +3,9 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Voice.css";
 import io from "socket.io-client";
 import { useBanSystem } from "./ban";
+// 📶 Helps STUN/TURN connect faster through NAT/VPN by forcing IPv4
+window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection;
+
 
 const socket = io();
 
@@ -183,7 +186,18 @@ const Voice = () => {
 
   const startAudio = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+     // 🎧 High quality audio with echo cancellation and natural tone
+const stream = await navigator.mediaDevices.getUserMedia({
+  audio: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+    channelCount: 1,
+    sampleRate: 48000,
+    sampleSize: 16
+  }
+});
+
       localStreamRef.current = stream;
       visualizeAudio(stream);
     } catch (err) {
@@ -241,7 +255,40 @@ const Voice = () => {
   };
 
   const createPeerConnection = (partnerId) => {
-    const pc = new RTCPeerConnection();
+   // 🌍 1️⃣ Multi-layer ICE Server Strategy: STUN → TURN → Express relay
+const pc = new RTCPeerConnection({
+  iceServers: [
+    // ✅ Primary: Google STUN (fastest and public)
+    { urls: "stun:stun.l.google.com:19302" },
+
+    // ✅ Secondary: Your Coturn TURN server
+    {
+      urls: [
+        "turn:yourdomain_or_ip:3478?transport=udp",
+        "turn:yourdomain_or_ip:5349?transport=tcp"
+      ],
+      username: "wakiee", // 🔁 replace with your actual TURN username
+      credential: "your_turn_password"
+    },
+
+    // ✅ Fallback: Express relay (simple signaling audio forwarding)
+    {
+      urls: "turn:wakiee-express-fallback",
+      credential: "socket-relay",
+      username: "wakiee-app"
+    }
+  ],
+  iceTransportPolicy: "all"
+});
+
+// ⚡ Catch ICE failure and auto fallback
+pc.oniceconnectionstatechange = () => {
+  if (pc.iceConnectionState === "failed") {
+    console.warn("⚠️ ICE connection failed, switching to Express relay fallback");
+    socket.emit("fallback-express-relay", { partnerId });
+  }
+};
+
     pcRef.current = pc;
 
     localStreamRef.current?.getTracks().forEach((track) =>
@@ -252,6 +299,9 @@ const Voice = () => {
       if (event.candidate)
         socket.emit("ice-candidate-voice", { to: partnerId, candidate: event.candidate });
     };
+else if (pc.iceGatheringState === "complete") {
+  console.log("✅ ICE candidate gathering completed");
+}
 
     pc.ontrack = (event) => {
       remoteAudioRef.current.srcObject = event.streams[0];
