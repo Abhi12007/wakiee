@@ -192,11 +192,17 @@ const stream = await navigator.mediaDevices.getUserMedia({
     echoCancellation: true,
     noiseSuppression: true,
     autoGainControl: true,
-    channelCount: 1,
+    channelCount: 2,              // stereo if available
     sampleRate: 48000,
-    sampleSize: 16
+    latency: 0.01,                // low capture delay
+    sampleSize: 16,
+    volume: 1.0,
+    googHighpassFilter: true,     // filters low rumbles
+    googTypingNoiseDetection: true,
+    googAudioMirroring: false
   }
 });
+
 
       localStreamRef.current = stream;
       visualizeAudio(stream);
@@ -231,7 +237,8 @@ const stream = await navigator.mediaDevices.getUserMedia({
       }
       rms = Math.sqrt(rms / bufferLength);
 
-      const amplitude = Math.min(rms * 1000, 50);
+     const amplitude = Math.min(rms * 800, 40);
+
       ctx.lineWidth = 2 + amplitude / 10;
       ctx.strokeStyle = amplitude > 5 ? "#3bc1ff" : "#333";
       ctx.beginPath();
@@ -282,33 +289,84 @@ const pc = new RTCPeerConnection({
 });
 
 // ⚡ Catch ICE failure and auto fallback
+
+
+
+    
+// ⚡ Catch ICE failure and auto fallback
 pc.oniceconnectionstatechange = () => {
   if (pc.iceConnectionState === "failed") {
     console.warn("⚠️ ICE connection failed, switching to Express relay fallback");
     socket.emit("fallback-express-relay", { partnerId });
+  } else if (pc.iceConnectionState === "connected") {
+    console.log("✅ ICE connection successful");
   }
 };
 
-    pcRef.current = pc;
+// ✅ Log ICE candidate completion
+pc.onicegatheringstatechange = () => {
+  if (pc.iceGatheringState === "complete") {
+    console.log("✅ ICE candidate gathering completed");
+  }
+};
 
-    localStreamRef.current?.getTracks().forEach((track) =>
-      pc.addTrack(track, localStreamRef.current)
-    );
+pcRef.current = pc;
 
-    pc.onicecandidate = (event) => {
-      if (event.candidate)
-        socket.emit("ice-candidate-voice", { to: partnerId, candidate: event.candidate });
-    };
-else if (pc.iceGatheringState === "complete") {
-  console.log("✅ ICE candidate gathering completed");
-}
+// ✅ Apply custom audio bitrate for high-quality Opus encoding
+setAudioBitrate(pc);
+
+// ✅ Add local audio tracks
+localStreamRef.current?.getTracks().forEach((track) =>
+  pc.addTrack(track, localStreamRef.current)
+);
+
+// ✅ Send ICE candidates
+pc.onicecandidate = (event) => {
+  if (event.candidate)
+    socket.emit("ice-candidate-voice", { to: partnerId, candidate: event.candidate });
+};
+
+
+
+
+
+    
 
     pc.ontrack = (event) => {
-      remoteAudioRef.current.srcObject = event.streams[0];
+     const remoteStream = event.streams[0];
+remoteAudioRef.current.srcObject = remoteStream;
+
+// 🔊 Smooth playback with Web Audio API for better tone & gain
+try {
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const source = audioCtx.createMediaStreamSource(remoteStream);
+  const gainNode = audioCtx.createGain();
+  gainNode.gain.value = 1.0; // normal volume
+  source.connect(gainNode).connect(audioCtx.destination);
+} catch (err) {
+  console.warn("AudioContext playback setup failed:", err);
+}
+
     };
 
     return pc;
   };
+
+// 🎚️ Enhance outgoing audio encoding quality (Opus @ 64kbps)
+const setAudioBitrate = (pc) => {
+  pc.getSenders().forEach((sender) => {
+    if (sender.track && sender.track.kind === "audio") {
+      const parameters = sender.getParameters();
+      if (!parameters.encodings) parameters.encodings = [{}];
+      parameters.encodings[0].maxBitrate = 64000; // 64 kbps
+      parameters.encodings[0].maxFramerate = 30;
+      sender.setParameters(parameters).catch((err) => {
+        console.warn("Failed to set audio bitrate:", err);
+      });
+    }
+  });
+};
+  
 
   const handleMute = () => {
     const track = localStreamRef.current?.getAudioTracks()[0];
