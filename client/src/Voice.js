@@ -190,16 +190,15 @@ const Voice = () => {
 const stream = await navigator.mediaDevices.getUserMedia({
   audio: {
     echoCancellation: true,
-    noiseSuppression: true,
-    autoGainControl: true,
-    channelCount: 2,              // stereo if available
-    sampleRate: 48000,
-    latency: 0.01,                // low capture delay
-    sampleSize: 16,
-    volume: 1.0,
-    googHighpassFilter: true,     // filters low rumbles
-    googTypingNoiseDetection: true,
-    googAudioMirroring: false
+  noiseSuppression: true,
+   autoGainControl: true,
+   channelCount: 2, // stereo if available
+   sampleRate: 48000,
+   sampleSize: 16,
+   latency: 0.005, // ultra-low latency
+   googAudioMirroring: false,
+   googHighpassFilter: true,
+   googTypingNoiseDetection: false
   }
 });
 
@@ -261,6 +260,8 @@ const stream = await navigator.mediaDevices.getUserMedia({
     draw();
   };
 
+  
+
   const createPeerConnection = (partnerId) => {
    // 🌍 1️⃣ Multi-layer ICE Server Strategy: STUN → TURN → Express relay
 const pc = new RTCPeerConnection({
@@ -288,7 +289,6 @@ const pc = new RTCPeerConnection({
   iceTransportPolicy: "all"
 });
 
-// ⚡ Catch ICE failure and auto fallback
 
 
 
@@ -312,14 +312,37 @@ pc.onicegatheringstatechange = () => {
 
 pcRef.current = pc;
 
-// ✅ Apply custom audio bitrate for high-quality Opus encoding
-setAudioBitrate(pc);
 
+
+// 🧠 Monitor audio stats for adaptive quality
+const monitorQuality = setInterval(async () => {
+  if (!pcRef.current) return clearInterval(monitorQuality);
+  const stats = await pcRef.current.getStats();
+  stats.forEach((report) => {
+    if (report.type === "outbound-rtp" && report.kind === "audio" && report.bytesSent) {
+      const bitrate = (8 * report.bytesSent) / 1024; // kbps
+      if (bitrate < 32) console.warn("🟥 Low audio bitrate detected");
+      if (bitrate > 128) console.log("🟢 Excellent audio network");
+    }
+  });
+}, 2000);
+
+
+    
 // ✅ Add local audio tracks
 localStreamRef.current?.getTracks().forEach((track) =>
   pc.addTrack(track, localStreamRef.current)
 );
 
+
+
+// ✅ Apply custom audio bitrate for high-quality Opus encoding
+setAudioBitrate(pc);
+
+    
+
+
+    
 // ✅ Send ICE candidates
 pc.onicecandidate = (event) => {
   if (event.candidate)
@@ -328,7 +351,7 @@ pc.onicecandidate = (event) => {
 
 
 
-
+ // ✅ Remote audio pipeline
 pc.ontrack = (event) => {
   const remoteStream = event.streams[0];
   remoteAudioRef.current.srcObject = remoteStream;
@@ -367,7 +390,7 @@ const setAudioBitrate = (pc) => {
     if (sender.track && sender.track.kind === "audio") {
       const parameters = sender.getParameters();
       if (!parameters.encodings) parameters.encodings = [{}];
-      parameters.encodings[0].maxBitrate = 64000; // 64 kbps
+      parameters.encodings[0].maxBitrate = 128000; // 128 kbps HD voice
       parameters.encodings[0].maxFramerate = 30;
       sender.setParameters(parameters).catch((err) => {
         console.warn("Failed to set audio bitrate:", err);
