@@ -65,7 +65,13 @@ function StopIcon() {
 function PlayIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <g stroke="#00ff9d" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none">
+      <g
+        stroke="#00ff9d"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      >
         <path d="M5 3l14 9-14 9V3z" />
       </g>
     </svg>
@@ -81,12 +87,14 @@ const Voice = () => {
   const [input, setInput] = useState("");
   const [partnerId, setPartnerId] = useState(null);
   const [onlineCount, setOnlineCount] = useState(0);
+  const [typing, setTyping] = useState(false);
 
   const pcRef = useRef(null);
   const localStreamRef = useRef(null);
   const remoteAudioRef = useRef(null);
   const canvasRef = useRef(null);
   const analyserRef = useRef(null);
+  const chatWindowRef = useRef(null);
 
   // ✅ Setup socket listeners
   useEffect(() => {
@@ -124,6 +132,13 @@ const Voice = () => {
 
     socket.on("chat-message-voice", (msg) => {
       setMessages((prev) => [...prev, msg]);
+      scrollToBottom();
+    });
+
+    socket.on("typing-voice", () => {
+      setTyping(true);
+      setTimeout(() => setTyping(false), 2000);
+      scrollToBottom();
     });
 
     socket.on("partner-left-voice", () => {
@@ -136,6 +151,14 @@ const Voice = () => {
       stopAudio();
     };
   }, []);
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (chatWindowRef.current) {
+        chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+      }
+    }, 100);
+  };
 
   // =========================================================
   // 🔊 FUNCTIONS (UNCHANGED LOGIC)
@@ -164,7 +187,7 @@ const Voice = () => {
     const audioContext = new AudioContext();
     const source = audioContext.createMediaStreamSource(stream);
     const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 256;
+    analyser.fftSize = 1024;
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     source.connect(analyser);
@@ -176,13 +199,13 @@ const Voice = () => {
       ctx.fillStyle = "#0b1124";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.lineWidth = 2;
-      ctx.strokeStyle = status === "connected" ? "#3bc1ff" : "#444";
+      ctx.strokeStyle = status === "connected" ? "#3bc1ff" : "#333";
       ctx.beginPath();
       const sliceWidth = canvas.width / bufferLength;
       let x = 0;
       for (let i = 0; i < bufferLength; i++) {
         const v = dataArray[i] / 128.0;
-        const y = (v * canvas.height) / 2;
+        const y = (v * canvas.height) / 2 + Math.sin(i / 10) * 2;
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
         x += sliceWidth;
@@ -247,33 +270,14 @@ const Voice = () => {
     setInput("");
   };
 
-  // =========================================================
-  // 🎨 UI (ISOLATED CLASSES)
-  // =========================================================
+  const handleTyping = () => {
+    socket.emit("typing-voice", { to: partnerId });
+  };
 
   useBanSystem(socket, { setStatus, cleanupCall: handleStop });
 
-  const navigateToVideo = () => {
-    handleStop();
-    window.location.href = "/video";
-  };
-
   return (
     <div className="voicep-container">
-      {/* ✅ NAVBAR */}
-      <nav className="voicep-navbar">
-        <div className="voicep-logo">
-          <img src="/logo.svg" alt="wakiee logo" height="38" />
-        </div>
-        <div className="voicep-nav-links">
-          <button onClick={navigateToVideo}>Video</button>
-          <a href="/about">About</a>
-          <a href="/blog">Blog</a>
-          <a href="/contact">Contact</a>
-        </div>
-      </nav>
-
-      {/* ✅ HEADER */}
       <div className="voicep-header">
         <p className="voicep-online">
           Online: <span style={{ color: "#00ff9d" }}>{onlineCount}</span>
@@ -288,43 +292,62 @@ const Voice = () => {
       </div>
 
       {/* ✅ WAVEFORM */}
-      <canvas ref={canvasRef} width="400" height="100" className="voicep-waveform" />
+      <canvas ref={canvasRef} width="400" height="120" className="voicep-waveform" />
 
-      {/* ✅ CONTROLS */}
+      {/* ✅ CONTROLS + LABELS */}
       <div className="voicep-controls">
-        {status === "idle" && (
-          <button onClick={startMatching} title="Start" className="voicep-btn">
-            <PlayIcon />
-          </button>
-        )}
-        {status !== "idle" && (
+        {status === "idle" ? (
+          <div className="voicep-btn-group">
+            <button onClick={startMatching} className="voicep-btn">
+              <PlayIcon />
+            </button>
+            <span className="voicep-label">Start</span>
+          </div>
+        ) : (
           <>
-            <button onClick={handleMute} title="Mute / Unmute" className="voicep-btn">
-              <MicIcon active={!muted} />
-            </button>
-            <button onClick={handleNext} title="Next" className="voicep-btn">
-              <NextIcon />
-            </button>
-            <button onClick={handleStop} title="Stop" className="voicep-btn">
-              <StopIcon />
-            </button>
+            <div className="voicep-btn-group">
+              <button onClick={handleMute} className="voicep-btn">
+                <MicIcon active={!muted} />
+              </button>
+              <span className="voicep-label">{muted ? "Unmute" : "Mute"}</span>
+            </div>
+            <div className="voicep-btn-group">
+              <button onClick={handleNext} className="voicep-btn">
+                <NextIcon />
+              </button>
+              <span className="voicep-label">Next</span>
+            </div>
+            <div className="voicep-btn-group">
+              <button onClick={handleStop} className="voicep-btn">
+                <StopIcon />
+              </button>
+              <span className="voicep-label">Stop</span>
+            </div>
           </>
         )}
       </div>
 
       {/* ✅ CHAT SECTION */}
       <div className="voicep-chat-section">
-        <div className="voicep-chat-window">
+        <div className="voicep-chat-window" ref={chatWindowRef}>
           {messages.map((m, i) => (
             <div key={i} className={`voicep-chat-bubble ${m.self ? "voicep-self" : ""}`}>
               {m.text}
             </div>
           ))}
+          {typing && (
+            <div className="voicep-typing-bubble">
+              <div className="dot"></div>
+              <div className="dot"></div>
+              <div className="dot"></div>
+            </div>
+          )}
         </div>
         <div className="voicep-chat-input">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleTyping}
             placeholder="Type a message..."
           />
           <button onClick={sendMessage}>Send</button>
