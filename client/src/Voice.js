@@ -1,3 +1,4 @@
+// Voice.js
 import React, { useEffect, useRef, useState } from "react";
 import "./Voice.css";
 import io from "socket.io-client";
@@ -5,7 +6,7 @@ import { useBanSystem } from "./ban";
 
 const socket = io();
 
-// ====================== SVG ICONS ======================
+// ========== SVG ICONS ==========
 function MicIcon({ active }) {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -77,8 +78,22 @@ function PlayIcon() {
   );
 }
 
-// ====================== MAIN COMPONENT ======================
+function ReportIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 2l9 4-9 4-9-4 9-4zm0 18l-9-4 9-4 9 4-9 4z"
+        stroke="#ff4040"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="12" r="1.5" fill="#ff4040" />
+    </svg>
+  );
+}
 
+// ========== MAIN COMPONENT ==========
 const Voice = () => {
   const [status, setStatus] = useState("idle");
   const [muted, setMuted] = useState(false);
@@ -95,7 +110,7 @@ const Voice = () => {
   const analyserRef = useRef(null);
   const chatWindowRef = useRef(null);
 
-  // ✅ Socket Listeners (Logic unchanged)
+  // ✅ Socket Listeners
   useEffect(() => {
     socket.on("online-count", (count) => setOnlineCount(count));
     socket.on("waiting", () => setStatus("searching"));
@@ -124,9 +139,8 @@ const Voice = () => {
     });
 
     socket.on("ice-candidate-voice", ({ candidate }) => {
-      if (candidate && pcRef.current) {
+      if (candidate && pcRef.current)
         pcRef.current.addIceCandidate(new RTCIceCandidate(candidate));
-      }
     });
 
     socket.on("chat-message-voice", (msg) => {
@@ -140,8 +154,10 @@ const Voice = () => {
       scrollToBottom();
     });
 
+    // Partner leaves → immediately search again
     socket.on("partner-left-voice", () => {
       setStatus("searching");
+      setMessages([]);
       socket.emit("join-voice");
     });
 
@@ -153,16 +169,12 @@ const Voice = () => {
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      if (chatWindowRef.current) {
+      if (chatWindowRef.current)
         chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
-      }
     }, 100);
   };
 
-  // =========================================================
-  // 🔊 FUNCTIONS (unchanged, only waveform improved)
-  // =========================================================
-
+  // ✅ Logic Functions (UNCHANGED)
   const startMatching = async () => {
     await startAudio();
     socket.emit("join-voice");
@@ -186,7 +198,7 @@ const Voice = () => {
     const audioContext = new AudioContext();
     const source = audioContext.createMediaStreamSource(stream);
     const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 1024;
+    analyser.fftSize = 512;
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     source.connect(analyser);
@@ -195,31 +207,29 @@ const Voice = () => {
     const draw = () => {
       requestAnimationFrame(draw);
       analyser.getByteTimeDomainData(dataArray);
-
-      const avg =
-        dataArray.reduce((a, b) => a + Math.abs(b - 128), 0) / bufferLength;
-      const pulse = Math.min(avg / 20, 1); // 0–1 pulse intensity
-
       ctx.fillStyle = "#0b1124";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.lineWidth = 2 + pulse * 2;
-      ctx.strokeStyle =
-        status === "connected"
-          ? pulse > 0.2
-            ? `rgba(59,193,255,${0.8 + pulse * 0.2})`
-            : "#333"
-          : "#333";
+      let rms = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        const v = (dataArray[i] - 128) / 128;
+        rms += v * v;
+      }
+      rms = Math.sqrt(rms / bufferLength);
 
+      const amplitude = Math.min(rms * 1000, 50);
+      ctx.lineWidth = 2 + amplitude / 10;
+      ctx.strokeStyle = amplitude > 5 ? "#3bc1ff" : "#333";
       ctx.beginPath();
+
       const sliceWidth = canvas.width / bufferLength;
       let x = 0;
       for (let i = 0; i < bufferLength; i++) {
         const v = dataArray[i] / 128.0;
         const y =
-          pulse > 0.2
+          amplitude > 5
             ? (v * canvas.height) / 2
-            : canvas.height / 2; // flat line when no voice
+            : canvas.height / 2;
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
         x += sliceWidth;
@@ -234,9 +244,9 @@ const Voice = () => {
     const pc = new RTCPeerConnection();
     pcRef.current = pc;
 
-    localStreamRef.current?.getTracks().forEach((track) => {
-      pc.addTrack(track, localStreamRef.current);
-    });
+    localStreamRef.current?.getTracks().forEach((track) =>
+      pc.addTrack(track, localStreamRef.current)
+    );
 
     pc.onicecandidate = (event) => {
       if (event.candidate)
@@ -277,7 +287,13 @@ const Voice = () => {
     stopAudio();
     setMessages([]);
     socket.emit("next-voice");
-    setStatus("searching");
+  };
+
+  const handleReport = () => {
+    if (partnerId) {
+      socket.emit("report-voice", { partnerId });
+      handleStop();
+    }
   };
 
   const sendMessage = () => {
@@ -285,6 +301,7 @@ const Voice = () => {
     socket.emit("chat-message-voice", { to: partnerId, text: input });
     setMessages((prev) => [...prev, { text: input, self: true }]);
     setInput("");
+    scrollToBottom();
   };
 
   const handleTyping = () => {
@@ -338,17 +355,27 @@ const Voice = () => {
               </button>
               <span className="voicep-label">Stop</span>
             </div>
+            <div className="voicep-btn-group">
+              <button onClick={handleReport} className="voicep-btn">
+                <ReportIcon />
+              </button>
+              <span className="voicep-label">Report</span>
+            </div>
           </>
         )}
       </div>
 
       <div className="voicep-chat-section">
         <div className="voicep-chat-window" ref={chatWindowRef}>
-          {messages.length === 0 ? null : messages.map((m, i) => (
-            <div key={i} className={`voicep-chat-bubble ${m.self ? "voicep-self" : ""}`}>
-              {m.text}
-            </div>
-          ))}
+          {messages.length === 0 ? (
+            <div className="voicep-empty-chat"></div>
+          ) : (
+            messages.map((m, i) => (
+              <div key={i} className={`voicep-chat-bubble ${m.self ? "voicep-self" : ""}`}>
+                {m.text}
+              </div>
+            ))
+          )}
           {typing && (
             <div className="voicep-typing-bubble">
               <div className="dot"></div>
