@@ -14,7 +14,7 @@
 .voicep-online {
   font-weight: 500;
   font-size: 1.1rem;
-  color: #00ff9d;
+  color: #22c55e;
 }
 
 .voicep-status {
@@ -34,7 +34,7 @@
   max-width: 480px;
 }
 
-/* ✅ Button Groups */
+/* ✅ Buttons */
 .voicep-controls {
   margin: 25px auto;
   display: flex;
@@ -78,19 +78,20 @@
 /* ✅ Chat Section */
 .voicep-chat-section {
   margin-top: 40px;
-  max-width: 500px;
+  max-width: 550px;
   margin-inline: auto;
   background: #10182f;
   border-radius: 12px;
-  padding: 12px;
+  padding: 14px;
   box-shadow: 0 0 12px rgba(59, 193, 255, 0.15);
 }
 
 .voicep-chat-window {
-  max-height: 400px;
+  height: 550px;
   overflow-y: auto;
   text-align: left;
   padding: 5px;
+  scrollbar-width: thin;
 }
 
 .voicep-chat-bubble {
@@ -134,18 +135,13 @@
 .voicep-typing-bubble .dot:nth-child(2) {
   animation-delay: 0.2s;
 }
-
 .voicep-typing-bubble .dot:nth-child(3) {
   animation-delay: 0.4s;
 }
 
 @keyframes blink {
-  0%, 80%, 100% {
-    opacity: 0.3;
-  }
-  40% {
-    opacity: 1;
-  }
+  0%, 80%, 100% { opacity: 0.3; }
+  40% { opacity: 1; }
 }
 
 /* ✅ Input */
@@ -166,7 +162,7 @@
 }
 
 .voicep-chat-input button {
-  background: #3bc1ff;
+  background: #22c55e;
   border: none;
   border-radius: 8px;
   padding: 10px 16px;
@@ -177,14 +173,19 @@
 }
 
 .voicep-chat-input button:hover {
-  background: #66d2ff;
+  background: #4ade80;
 }
 
 /* ✅ Scrollbar */
-.voicep-chat-window::-webkit-scrollbar {
-  width: 6px;
-}
+.voicep-chat-window::-webkit-scrollbar { width: 6px; }
 .voicep-chat-window::-webkit-scrollbar-thumb {
   background-color: #3bc1ff;
   border-radius: 10px;
+}
+
+/* ✅ Responsive */
+@media (max-width: 600px) {
+  .voicep-controls { gap: 18px; }
+  .voicep-btn { width: 60px; height: 60px; }
+  .voicep-chat-window { height: 400px; }
 }
