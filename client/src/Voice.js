@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Voice.css";
 import io from "socket.io-client";
-import useBanSystem from "./hooks/useBanSystem"; // reuse your moderation system
+import useBanSystem from "./ban"; // reuse your moderation system
 
 const socket = io(); // same socket as other pages
 
