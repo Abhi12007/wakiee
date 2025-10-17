@@ -34,7 +34,7 @@
   max-width: 480px;
 }
 
-/* ✅ Buttons */
+/* ✅ Button Groups */
 .voicep-controls {
   margin: 25px auto;
   display: flex;
@@ -82,16 +82,23 @@
   margin-inline: auto;
   background: #10182f;
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
   box-shadow: 0 0 12px rgba(59, 193, 255, 0.15);
+  height: 600px;
+  display: flex;
+  flex-direction: column;
 }
 
 .voicep-chat-window {
-  height: 550px;
+  flex: 1;
   overflow-y: auto;
   text-align: left;
-  padding: 5px;
-  scrollbar-width: thin;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.voicep-empty-chat {
+  height: 100%;
 }
 
 .voicep-chat-bubble {
@@ -135,6 +142,7 @@
 .voicep-typing-bubble .dot:nth-child(2) {
   animation-delay: 0.2s;
 }
+
 .voicep-typing-bubble .dot:nth-child(3) {
   animation-delay: 0.4s;
 }
@@ -177,15 +185,10 @@
 }
 
 /* ✅ Scrollbar */
-.voicep-chat-window::-webkit-scrollbar { width: 6px; }
+.voicep-chat-window::-webkit-scrollbar {
+  width: 6px;
+}
 .voicep-chat-window::-webkit-scrollbar-thumb {
   background-color: #3bc1ff;
   border-radius: 10px;
-}
-
-/* ✅ Responsive */
-@media (max-width: 600px) {
-  .voicep-controls { gap: 18px; }
-  .voicep-btn { width: 60px; height: 60px; }
-  .voicep-chat-window { height: 400px; }
 }
