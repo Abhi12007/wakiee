@@ -200,6 +200,29 @@
   border-radius: 10px;
 }
 
+
+/* ⚠️ Report button (same as Video Page style) */
+.voicep-btn.report {
+  background: #1e293b;
+  border: 2px solid #facc15;
+  color: #facc15;
+  transition: all 0.2s ease;
+}
+
+.voicep-btn.report:hover {
+  background: #facc15;
+  color: #000;
+}
+
+.voicep-btn.report svg path,
+.voicep-btn.report svg line,
+.voicep-btn.report svg circle {
+  stroke: currentColor;
+  fill: currentColor;
+}
+
+
+
 /* ✅ RESPONSIVE (MOBILE FRIENDLY) */
 @media (max-width: 700px) {
   .voicep-controls {
