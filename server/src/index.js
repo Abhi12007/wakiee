@@ -286,7 +286,7 @@ io.on('connection', (socket) => {           // video call logic
 
 
   
-});
+
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../../client/build')));
