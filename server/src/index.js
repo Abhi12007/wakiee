@@ -260,6 +260,12 @@ io.on('connection', (socket) => {           // video call logic
     console.log(`🚫 [VOICE] ${socket.id} reported ${partnerId}`);
     io.to(partnerId).emit("reported-voice");
   });
+  
+    // 🛰️ Fallback: Socket-based Express relay for audio
+socket.on("fallback-express-relay", ({ partnerId }) => {
+  console.log(`⚠️ Express relay fallback between ${socket.id} and ${partnerId}`);
+  io.to(partnerId).emit("express-relay-start", { from: socket.id });
+});
 
   // voice disconnect cleanup
   socket.on("disconnect", () => {
