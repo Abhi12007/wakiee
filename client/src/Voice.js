@@ -157,10 +157,7 @@ const Voice = () => {
         pcRef.current.addIceCandidate(new RTCIceCandidate(candidate));
     });
 
-    socket.on("chat-message-voice", (msg) => {
-      setMessages((prev) => [...prev, msg]);
-      scrollToBottom();
-    });
+
 
     socket.on("typing-voice", () => {
       setTyping(true);
