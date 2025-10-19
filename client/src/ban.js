@@ -88,41 +88,45 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
   }, [isBlocked]);
 
 // 🧩 When reported (client-side)
+// 🧩 When reported
 useEffect(() => {
   socket.on("client-report", ({ targetId, reason }) => {
-  if (socket.id === targetId) {
-    // 🕒 set 60 sec block
-    const banUntil = Date.now() + 60000;
-    localStorage.setItem("isBlocked", "true");
-    localStorage.setItem("banUntil", banUntil.toString());
-    setIsBlocked(true);
-    setBlockCountdown(60);
+    if (socket.id === targetId) {
+      const banUntil = Date.now() + 60000; // 60s cooldown
+      localStorage.setItem("isBlocked", "true");
+      localStorage.setItem("banUntil", banUntil.toString());
+      setBlockCountdown(60);
 
-    // 🚫 Immediately remove from queue and disconnect
-    socket.emit("leave");        // stop any ongoing match or call
-    socket.emit("leave-voice");  // also cover voice mode, just in case
-    cleanupCall(true);           // stop local media
-    setMessages([]);             // clear chat
-    setPartnerId?.(null);        // optional: if you pass this from parent
-    setStatus("idle");           // go back to landing
+      // 🚫 Remove from any active queues
+      socket.emit("leave");
+      socket.emit("leave-voice");
 
-    // 🏠 Navigate back to landing/home page if using react-router
-    try {
-      window.history.pushState({}, "", "/");
-    } catch (err) {
-      console.warn("Navigation failed, fallback to reload");
-      window.location.href = "/"; // fallback
+      // 🧹 Stop media and clean up UI
+      cleanupCall?.(true);
+      setMessages?.([]);
+      setPartnerId?.(null);
+      setStatus?.("idle");
+
+      // 🏠 Navigate to landing page
+      try {
+        if (typeof navigate === "function") {
+          navigate("/");
+        } else {
+          window.location.href = "/";
+        }
+      } catch {
+        window.location.href = "/";
+      }
+
+      // 🎭 Show block overlay after short delay for smooth UX
+      setTimeout(() => {
+        setIsBlocked(true);
+      }, 400);
     }
-
-    // 🎭 After small delay, show overlay (smooth transition)
-    setTimeout(() => {
-      setIsBlocked(true);
-    }, 300);
-  }
-});
+  });
 
   return () => socket.off("client-report");
-}, [socket]);
+}, [socket, navigate]);
 
 
  // 🧩 Report modal functions
