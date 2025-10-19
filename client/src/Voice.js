@@ -479,11 +479,7 @@ const setAudioBitrate = (pc) => {
 };
 
 
-  const handleReportSubmit = () => {
-  if (partnerId) {
-    submitReport(partnerId);//only targeted partner
-  }
-};
+
 
 
   const sendMessage = () => {
@@ -615,12 +611,8 @@ const {
           
       </div>
       
-{showReportModal && (
-  <ReportModal
-    partnerId={partnerId}
-    onSubmit={() => handleReportSubmit(partnerId)}
-  />
-)}
+{showReportModal && <ReportModal partnerId={partnerId} />}
+
 
 <BlockedOverlay />
 
