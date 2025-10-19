@@ -21,6 +21,16 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const countdownInterval = useRef(null);
+  
+    // ✅ Define modal helpers BEFORE ReportModal is declared
+  function openReportModal() {
+    setShowReportModal(true);
+  }
+
+  function closeReportModal() {
+    setShowReportModal(false);
+    setReportReason("");
+  }
 
   // 🧠 Load saved state
   useEffect(() => {
