@@ -262,6 +262,162 @@
   fill: currentColor;
 }
 
+/* ============================================
+   🔴 Report & Blocked Overlay Styles (from App.css)
+   Used by ban.js — identical to Video Page UI
+   ============================================ */
+
+/* Fullscreen overlay background */
+.report-overlay,
+.blocked-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* 🔴 Report Box (Red Theme) */
+.report-box.red-theme {
+  background: #111;
+  color: white;
+  border: 2px solid #ff4040;
+  border-radius: 12px;
+  padding: 28px 36px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255, 64, 64, 0.6);
+  max-width: 400px;
+  animation: fadeIn 0.4s ease;
+}
+
+.report-box h3 {
+  color: #ff4040;
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+}
+
+.report-box p {
+  color: #ddd;
+  font-size: 0.95rem;
+}
+
+/* 🔴 Reason Buttons */
+.report-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.reason-btn {
+  background: transparent;
+  border: 2px solid #ff4040;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.reason-btn:hover {
+  background: #ff4040;
+  color: #fff;
+}
+
+.reason-btn.active {
+  background: #ff4040;
+  box-shadow: 0 0 12px rgba(255, 64, 64, 0.6);
+}
+
+/* ⚪ Action Buttons */
+.report-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.cancel-btn,
+.submit-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+}
+
+.cancel-btn {
+  background: #444;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #666;
+}
+
+.submit-btn {
+  background: #ff4040;
+  color: white;
+  opacity: 0.9;
+  transition: 0.2s;
+}
+
+.submit-btn:hover {
+  opacity: 1;
+}
+
+.submit-btn:disabled {
+  background: #333;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 🚫 Blocked Overlay */
+.blocked-box {
+  background: #fff;
+  color: #111;
+  padding: 28px;
+  border-radius: 12px;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.blocked-box h2 {
+  color: #d32f2f;
+  margin-top: 0;
+}
+
+.or-divider {
+  margin: 16px 0;
+  font-weight: bold;
+  color: #555;
+  text-align: center;
+}
+
+.blog-btn {
+  background: #1e3a8a;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.blog-btn:hover {
+  background: #0f1f5c;
+}
+
+/* Smooth entrance */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
 
 
 /* ✅ RESPONSIVE (MOBILE FRIENDLY) */
