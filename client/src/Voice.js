@@ -545,12 +545,7 @@ const setAudioBitrate = (pc) => {
   </div>
 )}
 
-          <div className="voicep-btn-group">
-  <button onClick={handleReport} className="voicep-btn report">
-    <ReportIcon />
-  </button>
-  <span className="voicep-label">Report</span>
-</div>
+       
 
           </>
         )}
