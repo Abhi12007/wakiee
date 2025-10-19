@@ -7,7 +7,7 @@ export function useBanSystem(socket, { name, gender, setStatus, cleanupCall }) {
   // Identify current page (used for reconnect logic)
 const path = window.location.pathname;
 const isVoicePage = path === "/voice" || path.startsWith("/voice/");
-// const isVideoPage = path === "/video" || path.startsWith("/video/");
+const isVideoPage = path === "/" ;
 
   const [blockCountdown, setBlockCountdown] = useState(60);
   const [blockedUsers, setBlockedUsers] = useState(() => {
@@ -67,7 +67,7 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
   const isBlogPage = path === "/blog" || path.startsWith("/blog/");
   const isLandingPage = path === "/"; // 👈 new check
 
-   if (!isBlogPage && !isLandingPage && isVideoPage) {
+   if (!isBlogPage && !isLandingPage && Page) {
     // 🟢 Only auto-rejoin automatically if user is inside the video page
     socket.emit("join", { name, gender });
     setStatus("searching");
@@ -107,21 +107,21 @@ useEffect(() => {
       setPartnerId?.(null);
       setStatus?.("idle");
 
-      // 🏠 Navigate to landing page
-      try {
-        if (typeof navigate === "function") {
-          navigate("/");
-        } else {
-          window.location.href = "/";
-        }
-      } catch {
-        window.location.href = "/";
-      }
+// 🏠 Navigate to landing page (safe)
+try {
+  if (typeof navigate === "function") {
+    navigate("/", { replace: true });
+  } else {
+    window.location.href = "/";
+  }
+} catch (err) {
+  console.warn("⚠️ Navigate failed, fallback to reload", err);
+  window.location.href = "/";
+}
 
-      // 🎭 Show block overlay after short delay for smooth UX
-      setTimeout(() => {
-        setIsBlocked(true);
-      }, 400);
+// 🎭 Show block overlay after short delay for smooth UX
+setTimeout(() => setIsBlocked(true), 400);
+
     }
   });
 
