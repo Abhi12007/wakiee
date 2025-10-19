@@ -88,45 +88,55 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
   }, [isBlocked]);
 
   // 🧩 When reported
+// 🧩 When reported — only the targeted user is affected
 useEffect(() => {
-  socket.on("reported", ({ to, clearChat, forceStop }) => {
-    // ✅ Ignore unless YOU are the one reported
-    if (to !== socket.id) return;
+  socket.on("reported", async ({ to, clearChat, forceStop }) => {
+    try {
+      // Wait for socket.id to exist (can sometimes be undefined briefly)
+      const myId = socket.id || (await new Promise((resolve) => {
+        const check = setInterval(() => {
+          if (socket.id) {
+            clearInterval(check);
+            resolve(socket.id);
+          }
+        }, 100);
+      }));
 
-    // ⛔ Stop call and clear chat immediately
-    if (typeof cleanupCall === "function") cleanupCall(true);
-    socket.emit("leave-voice");
-    setStatus("idle");
+      // ✅ Only proceed if YOU are the target
+      if (to !== myId) return;
 
-    if (clearChat) {
-      const chatWindow = document.querySelector(".voicep-chat-window, .chat-window");
-      if (chatWindow) chatWindow.innerHTML = "";
+      // 1️⃣ End current call
+      if (typeof cleanupCall === "function") cleanupCall(true);
+
+      // 2️⃣ Remove from matching queue (no auto requeue)
+      socket.emit("leave-voice");
+      setStatus("idle");
+
+      // 3️⃣ Clear chat if needed
+      if (clearChat) {
+        const chatWindow = document.querySelector(".voicep-chat-window, .chat-window");
+        if (chatWindow) chatWindow.innerHTML = "";
+      }
+
+      // 4️⃣ Apply local ban for 60 seconds
+      const banUntil = Date.now() + 60000;
+      localStorage.setItem("isBlocked", "true");
+      localStorage.setItem("banUntil", banUntil.toString());
+      setIsBlocked(true);
+      setBlockCountdown(60);
+
+      // Prevent premature rejoin
+      sessionStorage.removeItem("unbannedReady");
+
+      console.log("🚫 You have been reported — blocked for 60 seconds");
+    } catch (err) {
+      console.error("Error in reported handler:", err);
     }
-
-    // 🚫 Apply 60s ban
-    const banUntil = Date.now() + 60000;
-    localStorage.setItem("isBlocked", "true");
-    localStorage.setItem("banUntil", banUntil.toString());
-    setIsBlocked(true);
-    setBlockCountdown(60);
-
-    // Prevent rejoin until countdown ends
-    sessionStorage.removeItem("unbannedReady");
   });
 
   return () => socket.off("reported");
 }, [socket, cleanupCall, setStatus]);
 
-
-  // 🧩 Report modal functions
-  function openReportModal() {
-    setShowReportModal(true);
-  }
-
-  function closeReportModal() {
-    setShowReportModal(false);
-    setReportReason("");
-  }
 
 function submitReport(partnerId) {
   if (!reportReason) return alert("Please select a reason");
