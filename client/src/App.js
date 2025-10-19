@@ -359,6 +359,9 @@ const {
       setTypingIndicator("");
       setMessages((prev) => [...prev, { from: fromName || "Stranger", message, mine: false }]);
     });
+socket.on("clear-chat", () => {
+  setMessages([]); // clear chat for both users
+});
 
     socket.on("typing", ({ fromName }) => {
       setTypingIndicator(`${fromName || "Stranger"} is typing...`);
@@ -372,7 +375,7 @@ const {
       setStatus("waiting");
       if (name && gender) socket.emit("join", { name, gender });
     });
-       // ⬇️ Step 5: handle when THIS user is reported removed now inside ban.js
+       
    
 
     return () => socket.removeAllListeners();
