@@ -475,6 +475,13 @@ const setAudioBitrate = (pc) => {
 };
 
 
+  const handleReportSubmit = () => {
+  if (partnerId) {
+    submitReport(partnerId);//only targeted partner
+  }
+};
+
+
   const sendMessage = () => {
     if (!input.trim()) return;
     socket.emit("chat-message-voice", { to: partnerId, text: input });
@@ -487,13 +494,15 @@ const setAudioBitrate = (pc) => {
     socket.emit("typing-voice", { to: partnerId });
   };
 
-  const {
+
+const {
   isBlocked,
   BlockedOverlay,
   ReportModal,
   openReportModal,
   closeReportModal,
   showReportModal,
+  submitReport,
 } = useBanSystem(socket, { setStatus, cleanupCall: handleStop });
 
 
@@ -593,7 +602,13 @@ const setAudioBitrate = (pc) => {
           
       </div>
       
-      {showReportModal && <ReportModal partnerId={partnerId} />}
+{showReportModal && (
+  <ReportModal
+    partnerId={partnerId}
+    onSubmit={() => handleReportSubmit(partnerId)}
+  />
+)}
+
 <BlockedOverlay />
 
       <audio ref={remoteAudioRef} autoPlay playsInline />
