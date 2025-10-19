@@ -67,7 +67,7 @@ const isVideoPage = path === "/" ;
   const isBlogPage = path === "/blog" || path.startsWith("/blog/");
   const isLandingPage = path === "/"; // 👈 new check
 
-   if (!isBlogPage && !isLandingPage && Page) {
+   if (isVideoPage) {
     // 🟢 Only auto-rejoin automatically if user is inside the video page
     socket.emit("join", { name, gender });
     setStatus("searching");
