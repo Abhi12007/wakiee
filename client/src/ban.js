@@ -90,7 +90,6 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
   // 🧩 When reported
   useEffect(() => {
     socket.on("reported", () => {
-     
       const banUntil = Date.now() + 60000; // 60 seconds from now
       localStorage.setItem("isBlocked", "true");
       localStorage.setItem("banUntil", banUntil.toString());
@@ -102,13 +101,21 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
   }, [socket]);
 
   // 🧩 Report modal functions
-function submitReport(partnerId) {
+  function openReportModal() {
+    setShowReportModal(true);
+  }
+
+  function closeReportModal() {
+    setShowReportModal(false);
+    setReportReason("");
+  }
+
+  function submitReport(partnerId) {
     if (!reportReason) return alert("Please select a reason");
      // 2️⃣ Tell the reported user to stop everything
 
   socket.emit("report", { partnerId, reason: reportReason });
     socket.emit("leave");
- 
     cleanupCall(true);
 
     const updated = [...blockedUsers, partnerId];
