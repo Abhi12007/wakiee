@@ -133,20 +133,47 @@ useEffect(() => {
     setReportReason("");
   }
 
-  function submitReport(partnerId) {
-    if (!reportReason) return alert("Please select a reason");
-    socket.emit("report", { partnerId, reason: reportReason });
-    socket.emit("leave");
-    cleanupCall(true);
+function submitReport(partnerId) {
+  if (!reportReason) return alert("Please select a reason");
 
-    const updated = [...blockedUsers, partnerId];
-    setBlockedUsers(updated);
-    localStorage.setItem("blockedUsers", JSON.stringify(updated));
+  // 1️⃣ End the current call immediately (video or voice)
+  if (typeof cleanupCall === "function") cleanupCall(true);
 
-    socket.emit("join", { name, gender, blocked: updated });
+  // 2️⃣ Detect current page
+  const path = window.location.pathname;
+  const isVoicePage = path.includes("/voice");
+
+  // 3️⃣ Clear all messages on this user's screen
+  const chatWindow = document.querySelector(
+    isVoicePage ? ".voicep-chat-window" : ".chat-window"
+  );
+  if (chatWindow) chatWindow.innerHTML = "";
+
+  // 4️⃣ Tell both clients to clear their chats
+  socket.emit(isVoicePage ? "clear-voice-chat" : "clear-chat", { partnerId });
+
+  // 5️⃣ Notify the reported user (they’ll be banned 60s and see overlay)
+  socket.emit("reported", { to: partnerId, clearChat: true });
+
+  // 6️⃣ Reporter rejoins queue after 1 second
+  setTimeout(() => {
+    if (isVoicePage) {
+      socket.emit("join-voice");
+    } else {
+      socket.emit("join", { name, gender });
+    }
     setStatus("searching");
-    closeReportModal();
-  }
+  }, 1000);
+
+  // 7️⃣ Locally record who was reported
+  const updated = [...blockedUsers, partnerId];
+  setBlockedUsers(updated);
+  localStorage.setItem("blockedUsers", JSON.stringify(updated));
+
+  // 8️⃣ Close report modal
+  closeReportModal();
+}
+
 
   // 🟢 Read Blogs → Go to blog, but keep countdown running
   function handleBlogRedirect() {
