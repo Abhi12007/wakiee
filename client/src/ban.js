@@ -21,16 +21,6 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const countdownInterval = useRef(null);
-  
-    // ✅ Define modal helpers BEFORE ReportModal is declared
-  function openReportModal() {
-    setShowReportModal(true);
-  }
-
-  function closeReportModal() {
-    setShowReportModal(false);
-    setReportReason("");
-  }
 
   // 🧠 Load saved state
   useEffect(() => {
@@ -98,103 +88,44 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
   }, [isBlocked]);
 
   // 🧩 When reported
-// 🧩 When reported — only the targeted user is affected
-useEffect(() => {
-  socket.on("reported", async ({ to, clearChat, forceStop }) => {
-    try {
-      // Wait for socket.id (important)
-      const myId = socket.id || (await new Promise((resolve) => {
-        const check = setInterval(() => {
-          if (socket.id) {
-            clearInterval(check);
-            resolve(socket.id);
-          }
-        }, 100);
-      }));
-
-      // ✅ Only react if this user is the target
-      if (to !== myId) return;
-
-      // 1️⃣ End current call immediately
-      if (typeof cleanupCall === "function") cleanupCall(true);
-
-      // 2️⃣ Stop matching
-      socket.emit("leave-voice");
-      setStatus("idle");
-
-      // 3️⃣ Clear chat if requested
-      if (clearChat) {
-        const chatWindow = document.querySelector(".voicep-chat-window, .chat-window");
-        if (chatWindow) chatWindow.innerHTML = "";
-      }
-
-      // 4️⃣ Apply local ban + countdown overlay
-      const banUntil = Date.now() + 60000;
+  useEffect(() => {
+    socket.on("reported", () => {
+      const banUntil = Date.now() + 60000; // 60 seconds from now
       localStorage.setItem("isBlocked", "true");
       localStorage.setItem("banUntil", banUntil.toString());
       setIsBlocked(true);
       setBlockCountdown(60);
+    });
 
-      // Ensure no accidental requeue
-      sessionStorage.removeItem("unbannedReady");
+    return () => socket.off("reported");
+  }, [socket]);
 
-      console.log("🚫 You have been reported — overlay active");
-    } catch (err) {
-      console.error("Error in reported handler:", err);
-    }
-  });
-
-  return () => socket.off("reported");
-}, [socket, cleanupCall, setStatus]);
-
-
-
-function submitReport(partnerId) {
-  if (!reportReason) return alert("Please select a reason");
-
-  // 🧠 Detect current page
-  const path = window.location.pathname;
-  const isVoicePage = path.includes("/voice");
-  const isVideoPage = !isVoicePage; // landing = video page
-
-  // 1️⃣ Locally simulate reporting → directly trigger target user event
-  // find the other window (simulated for same-client testing)
-  socket.emit("reported", { to: partnerId, clearChat: true, forceStop: true });
-
-  // 2️⃣ End this reporter’s own current call safely
-  if (typeof cleanupCall === "function") cleanupCall(true);
-
-  // 3️⃣ Clear own chat window
-  const chatWindow = document.querySelector(".voicep-chat-window, .chat-window");
-  if (chatWindow) chatWindow.innerHTML = "";
-
-  // 4️⃣ Leave the current queue
-  if (isVoicePage) {
-    socket.emit("leave-voice");
-  } else {
-    socket.emit("leave");
+  // 🧩 Report modal functions
+  function openReportModal() {
+    setShowReportModal(true);
   }
 
-  // 5️⃣ Requeue reporter only AFTER UI settles
-  setTimeout(() => {
-    if (isVoicePage) {
-      socket.emit("join-voice");
-      setStatus("searching");
-    } else {
-      socket.emit("join", { name, gender });
-      setStatus("searching");
-    }
-  }, 1200);
+  function closeReportModal() {
+    setShowReportModal(false);
+    setReportReason("");
+  }
 
-  // 6️⃣ Save locally
-  const updated = [...blockedUsers, partnerId];
-  setBlockedUsers(updated);
-  localStorage.setItem("blockedUsers", JSON.stringify(updated));
+  function submitReport(partnerId) {
+    if (!reportReason) return alert("Please select a reason");
+     // 2️⃣ Tell the reported user to stop everything
 
-  // 7️⃣ Close the modal
-  closeReportModal();
-}
+  socket.emit("report", { partnerId, reason: reportReason });
+    socket.emit("leave");
+    cleanupCall(true);
 
+    const updated = [...blockedUsers, partnerId];
+    setBlockedUsers(updated);
+    localStorage.setItem("blockedUsers", JSON.stringify(updated));
+
+    socket.emit("join", { name, gender, blocked: updated });
+    setStatus("searching");
+    closeReportModal();
+  }
 
   // 🟢 Read Blogs → Go to blog, but keep countdown running
   function handleBlogRedirect() {
