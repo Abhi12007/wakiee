@@ -65,27 +65,24 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
   // ✅ Detect current path
   const path = window.location.pathname;
   const isBlogPage = path === "/blog" || path.startsWith("/blog/");
+    const isVideoPage = path === "/voice";
   const isLandingPage = path === "/"; // 👈 new check
 
  if (!isBlogPage && !isLandingPage && isVideoPage) {
-  // 🟢 Only auto-rejoin automatically if user is inside the video page
-  socket.emit("join", { name, gender });
-  setStatus("searching");
-} else if (isVoicePage) {
-  // 🔇 For Voice page → do NOT rejoin automatically
-  console.log("⏳ Voice ban ended — user must press Start manually to match again.");
-} else {
-  console.log("Unban complete — waiting for user action on landing/blog page.");
-}
- else {
+    // 🟢 Only auto-rejoin automatically if user is inside the video page
+    socket.emit("join", { name, gender });
+    setStatus("searching");
+  } else if (isVoicePage) {
+    // 🔇 For Voice page → do NOT rejoin automatically
+    console.log("⏳ Voice ban ended — user must press Start manually to match again.");
+  } else {
     // 🧘 Stay idle (blog or landing) – user must press “Connect”
     console.log("Unban complete — waiting for user action on landing/blog page.");
   }
 } else {
+  // Continue countdown normally
   setBlockCountdown(remaining);
 }
-
-
     }, 1000);
 
     return () => clearInterval(countdownInterval.current);
