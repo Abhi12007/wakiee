@@ -468,12 +468,12 @@ const setAudioBitrate = (pc) => {
   }, 1000);
 };
 
-  const handleReport = () => {
-    if (partnerId) {
-      socket.emit("report-voice", { partnerId });
-      handleStop();
-    }
-  };
+ const handleReport = () => {
+  if (partnerId) {
+    openReportModal(); // opens red modal from ban.js
+  }
+};
+
 
   const sendMessage = () => {
     if (!input.trim()) return;
@@ -487,8 +487,16 @@ const setAudioBitrate = (pc) => {
     socket.emit("typing-voice", { to: partnerId });
   };
 
-  useBanSystem(socket, { setStatus, cleanupCall: handleStop });
+  const {
+  isBlocked,
+  BlockedOverlay,
+  ReportModal,
+  openReportModal,
+  closeReportModal,
+  showReportModal,
+} = useBanSystem(socket, { setStatus, cleanupCall: handleStop });
 
+  
   return (
     <div className="voicep-container">
       <div className="voicep-header">
@@ -534,12 +542,15 @@ const setAudioBitrate = (pc) => {
               </button>
               <span className="voicep-label">Stop</span>
             </div>
-          <div className="voicep-btn-group">
-  <button onClick={handleReport} className="voicep-btn report">
-    <ReportIcon />
-  </button>
-  <span className="voicep-label">Report</span>
-</div>
+          {status === "connected" && (
+  <div className="voicep-btn-group">
+    <button onClick={handleReport} className="voicep-btn report">
+      <ReportIcon />
+    </button>
+    <span className="voicep-label">Report</span>
+  </div>
+)}
+
 
           </>
         )}
@@ -580,6 +591,10 @@ const setAudioBitrate = (pc) => {
           
       </div>
 
+{/* ✅ Add these two lines here */}
+{showReportModal && <ReportModal partnerId={partnerId} />}
+<BlockedOverlay />
+  
       <audio ref={remoteAudioRef} autoPlay playsInline />
     </div>
   );
