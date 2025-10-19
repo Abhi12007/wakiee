@@ -90,16 +90,7 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
   // 🧩 When reported
   useEffect(() => {
     socket.on("reported", () => {
-       // End current call immediately
-    if (typeof cleanupCall === "function") cleanupCall(true);
-    socket.emit("leave-voice");
-    socket.emit("leave");
-
-    // Clear chat
-    if (clearChat) {
-      const chatWindow = document.querySelector(".voicep-chat-window, .chat-window");
-      if (chatWindow) chatWindow.innerHTML = "";
-    }
+     
       const banUntil = Date.now() + 60000; // 60 seconds from now
       localStorage.setItem("isBlocked", "true");
       localStorage.setItem("banUntil", banUntil.toString());
