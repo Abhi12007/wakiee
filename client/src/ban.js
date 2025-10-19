@@ -90,21 +90,36 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
 // 🧩 When reported (client-side)
 useEffect(() => {
   socket.on("client-report", ({ targetId, reason }) => {
-    // Only the targeted user reacts
-    if (socket.id === targetId) {
-      const banUntil = Date.now() + 60000; // 60s cooldown
-      localStorage.setItem("isBlocked", "true");
-      localStorage.setItem("banUntil", banUntil.toString());
-      setIsBlocked(true);
-      setBlockCountdown(60);
+  if (socket.id === targetId) {
+    // 🕒 set 60 sec block
+    const banUntil = Date.now() + 60000;
+    localStorage.setItem("isBlocked", "true");
+    localStorage.setItem("banUntil", banUntil.toString());
+    setIsBlocked(true);
+    setBlockCountdown(60);
 
-      // 🔹 Immediately clear chat, disconnect call, and show overlay
-      socket.emit("leave");
-      cleanupCall(true);
-      setMessages([]);
-      setStatus("home"); // optional - go back to home
+    // 🚫 Immediately remove from queue and disconnect
+    socket.emit("leave");        // stop any ongoing match or call
+    socket.emit("leave-voice");  // also cover voice mode, just in case
+    cleanupCall(true);           // stop local media
+    setMessages([]);             // clear chat
+    setPartnerId?.(null);        // optional: if you pass this from parent
+    setStatus("idle");           // go back to landing
+
+    // 🏠 Navigate back to landing/home page if using react-router
+    try {
+      window.history.pushState({}, "", "/");
+    } catch (err) {
+      console.warn("Navigation failed, fallback to reload");
+      window.location.href = "/"; // fallback
     }
-  });
+
+    // 🎭 After small delay, show overlay (smooth transition)
+    setTimeout(() => {
+      setIsBlocked(true);
+    }, 300);
+  }
+});
 
   return () => socket.off("client-report");
 }, [socket]);
