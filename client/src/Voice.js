@@ -176,6 +176,12 @@ const Voice = () => {
   setPartnerId(null);
   setStatus("searching");
 
+     socket.on("clear-voice-chat", () => {
+  setMessages([]); // clear all chat messages
+});
+
+     
+
   // Rejoin queue after a short delay to prevent race conditions
   setTimeout(() => {
     socket.emit("join-voice");
