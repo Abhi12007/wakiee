@@ -289,6 +289,10 @@ const [onboardingSeen, setOnboardingSeen] = useState(
   
 
   // 🚫 Ban / Report System Hook
+
+// inside App()
+const navigate = useNavigate();
+
 const {
   isBlocked,
   blockCountdown,
@@ -299,7 +303,7 @@ const {
   submitReport,
   BlockedOverlay,
   ReportModal,
-} = useBanSystem(socket, { name, gender, setStatus, cleanupCall });
+} = useBanSystem(socket, { name, gender, setStatus, cleanupCall, navigate });
 
   
 
