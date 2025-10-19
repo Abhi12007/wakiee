@@ -359,9 +359,7 @@ const {
       setTypingIndicator("");
       setMessages((prev) => [...prev, { from: fromName || "Stranger", message, mine: false }]);
     });
-socket.on("clear-chat", () => {
-  setMessages([]); // clear chat for both users
-});
+
 
     socket.on("typing", ({ fromName }) => {
       setTypingIndicator(`${fromName || "Stranger"} is typing...`);
