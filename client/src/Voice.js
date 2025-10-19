@@ -157,7 +157,10 @@ const Voice = () => {
         pcRef.current.addIceCandidate(new RTCIceCandidate(candidate));
     });
 
-
+    socket.on("chat-message-voice", (msg) => {
+      setMessages((prev) => [...prev, msg]);
+      scrollToBottom();
+    });
 
     socket.on("typing-voice", () => {
       setTyping(true);
@@ -172,12 +175,6 @@ const Voice = () => {
   stopAudio();
   setPartnerId(null);
   setStatus("searching");
-
-     socket.on("clear-voice-chat", () => {
-  setMessages([]); // clear all chat messages
-});
-
-     
 
   // Rejoin queue after a short delay to prevent race conditions
   setTimeout(() => {
@@ -471,9 +468,9 @@ const setAudioBitrate = (pc) => {
   }, 1000);
 };
 
- const handleReport = () => {
+  const handleReport = () => {
   if (partnerId) {
-    openReportModal(); // opens red modal from ban.js
+    openReportModal(); // opens the red report modal from ban.js
   }
 };
 
@@ -499,7 +496,7 @@ const setAudioBitrate = (pc) => {
   showReportModal,
 } = useBanSystem(socket, { setStatus, cleanupCall: handleStop });
 
-  
+
   return (
     <div className="voicep-container">
       <div className="voicep-header">
@@ -539,13 +536,7 @@ const setAudioBitrate = (pc) => {
               </button>
               <span className="voicep-label">Next</span>
             </div>
-            <div className="voicep-btn-group">
-              <button onClick={handleStop} className="voicep-btn">
-                <StopIcon />
-              </button>
-              <span className="voicep-label">Stop</span>
-            </div>
-          {status === "connected" && (
+           {status === "connected" && (
   <div className="voicep-btn-group">
     <button onClick={handleReport} className="voicep-btn report">
       <ReportIcon />
@@ -554,6 +545,12 @@ const setAudioBitrate = (pc) => {
   </div>
 )}
 
+          <div className="voicep-btn-group">
+  <button onClick={handleReport} className="voicep-btn report">
+    <ReportIcon />
+  </button>
+  <span className="voicep-label">Report</span>
+</div>
 
           </>
         )}
@@ -593,11 +590,10 @@ const setAudioBitrate = (pc) => {
 
           
       </div>
-
-{/* ✅ Add these two lines here */}
-{showReportModal && <ReportModal partnerId={partnerId} />}
+      
+      {showReportModal && <ReportModal partnerId={partnerId} />}
 <BlockedOverlay />
-  
+
       <audio ref={remoteAudioRef} autoPlay playsInline />
     </div>
   );
