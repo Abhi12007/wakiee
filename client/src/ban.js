@@ -101,69 +101,23 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
   }, [socket]);
 
   // 🧩 Report modal functions
-  function openReportModal() {
-    setShowReportModal(true);
-  }
+function submitReport(partnerId) {
+    if (!reportReason) return alert("Please select a reason");
+     // 2️⃣ Tell the reported user to stop everything
 
-  function closeReportModal() {
-    setShowReportModal(false);
-    setReportReason("");
-  }
+  socket.emit("report", { partnerId, reason: reportReason });
+    socket.emit("leave");
+  socket.emit("leave-voice");
+    cleanupCall(true);
 
- function submitReport(partnerId) {
-  if (!reportReason) return alert("Please select a reason");
-
-  // 1️⃣ Detect current path
-  const path = window.location.pathname;
-  const isVoicePage = path.includes("voice");
-
-  // =========================
-  // 🎤 LOGIC 1 — Voice Page
-  // =========================
-  if (isVoicePage) {
-    // 1️⃣ End current call immediately (locally)
-    if (typeof cleanupCall === "function") cleanupCall(true);
-
-    // 2️⃣ Stop the reported user completely (show overlay + block)
-    socket.emit("reported", { to: partnerId, clearChat: true, forceStop: true });
-
-    // 3️⃣ Clear chats on both sides
-    const chatWindow = document.querySelector(".voicep-chat-window");
-    if (chatWindow) chatWindow.innerHTML = "";
-
-    // 4️⃣ Reporter rejoins matching queue after 1 second
-    setTimeout(() => {
-      socket.emit("join-voice");
-      setStatus("searching");
-    }, 1000);
-
-    // 5️⃣ Save locally for reference (optional)
     const updated = [...blockedUsers, partnerId];
     setBlockedUsers(updated);
     localStorage.setItem("blockedUsers", JSON.stringify(updated));
 
-    // 6️⃣ Close the red report modal
+    socket.emit("join", { name, gender, blocked: updated });
+    setStatus("searching");
     closeReportModal();
-
-    return; // ✅ Stop here (don’t run video logic below)
   }
-
-  // =========================
-  // 🎥 LOGIC 2 — Video Page (Unchanged)
-  // =========================
-  socket.emit("report", { partnerId, reason: reportReason });
-  socket.emit("leave");
-  cleanupCall(true);
-
-  const updated = [...blockedUsers, partnerId];
-  setBlockedUsers(updated);
-  localStorage.setItem("blockedUsers", JSON.stringify(updated));
-
-  socket.emit("join", { name, gender, blocked: updated });
-  setStatus("searching");
-  closeReportModal();
-}
-
 
   // 🟢 Read Blogs → Go to blog, but keep countdown running
   function handleBlogRedirect() {
