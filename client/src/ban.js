@@ -4,6 +4,11 @@ import { useEffect, useRef, useState } from "react";
 
 export function useBanSystem(socket, { name, gender, setStatus, cleanupCall }) {
   const [isBlocked, setIsBlocked] = useState(false);
+  
+  // Identify current page (used for reconnect logic)
+const path = window.location.pathname;                 //in future add this  const isVideoPage = path === "/video" || path.startsWith("/video/");
+const isVoicePage = path === "/voice" || path.startsWith("/voice/");
+  
   const [blockCountdown, setBlockCountdown] = useState(60);
   const [blockedUsers, setBlockedUsers] = useState(() => {
     try {
@@ -62,11 +67,17 @@ export function useBanSystem(socket, { name, gender, setStatus, cleanupCall }) {
   const isBlogPage = path === "/blog" || path.startsWith("/blog/");
   const isLandingPage = path === "/"; // 👈 new check
 
-  if (!isBlogPage && !isLandingPage) {
-    // 🟢 Only auto-rejoin if user is inside the video page
-    socket.emit("join", { name, gender });
-    setStatus("searching");
-  } else {
+ if (!isBlogPage && !isLandingPage && isVideoPage) {
+  // 🟢 Only auto-rejoin automatically if user is inside the video page
+  socket.emit("join", { name, gender });
+  setStatus("searching");
+} else if (isVoicePage) {
+  // 🔇 For Voice page → do NOT rejoin automatically
+  console.log("⏳ Voice ban ended — user must press Start manually to match again.");
+} else {
+  console.log("Unban complete — waiting for user action on landing/blog page.");
+}
+ else {
     // 🧘 Stay idle (blog or landing) – user must press “Connect”
     console.log("Unban complete — waiting for user action on landing/blog page.");
   }
