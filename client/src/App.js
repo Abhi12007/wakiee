@@ -303,8 +303,15 @@ const {
   submitReport,
   BlockedOverlay,
   ReportModal,
-} = useBanSystem(socket, { name, gender, setStatus, cleanupCall, navigate });
-
+} = useBanSystem(socket, { 
+  name, 
+  gender, 
+  setStatus, 
+  cleanupCall, 
+  navigate, 
+  setMessages, 
+  setPartnerId 
+});
   
 
   // chat
