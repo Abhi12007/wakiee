@@ -102,7 +102,7 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
 useEffect(() => {
   socket.on("reported", async ({ to, clearChat, forceStop }) => {
     try {
-      // Wait for socket.id to exist (can sometimes be undefined briefly)
+      // Wait for socket.id (important)
       const myId = socket.id || (await new Promise((resolve) => {
         const check = setInterval(() => {
           if (socket.id) {
@@ -112,33 +112,33 @@ useEffect(() => {
         }, 100);
       }));
 
-      // ✅ Only proceed if YOU are the target
+      // ✅ Only react if this user is the target
       if (to !== myId) return;
 
-      // 1️⃣ End current call
+      // 1️⃣ End current call immediately
       if (typeof cleanupCall === "function") cleanupCall(true);
 
-      // 2️⃣ Remove from matching queue (no auto requeue)
+      // 2️⃣ Stop matching
       socket.emit("leave-voice");
       setStatus("idle");
 
-      // 3️⃣ Clear chat if needed
+      // 3️⃣ Clear chat if requested
       if (clearChat) {
         const chatWindow = document.querySelector(".voicep-chat-window, .chat-window");
         if (chatWindow) chatWindow.innerHTML = "";
       }
 
-      // 4️⃣ Apply local ban for 60 seconds
+      // 4️⃣ Apply local ban + countdown overlay
       const banUntil = Date.now() + 60000;
       localStorage.setItem("isBlocked", "true");
       localStorage.setItem("banUntil", banUntil.toString());
       setIsBlocked(true);
       setBlockCountdown(60);
 
-      // Prevent premature rejoin
+      // Ensure no accidental requeue
       sessionStorage.removeItem("unbannedReady");
 
-      console.log("🚫 You have been reported — blocked for 60 seconds");
+      console.log("🚫 You have been reported — overlay active");
     } catch (err) {
       console.error("Error in reported handler:", err);
     }
@@ -148,50 +148,50 @@ useEffect(() => {
 }, [socket, cleanupCall, setStatus]);
 
 
+
 function submitReport(partnerId) {
   if (!reportReason) return alert("Please select a reason");
 
   // 🧠 Detect current page
   const path = window.location.pathname;
   const isVoicePage = path.includes("/voice");
-  const isVideoPage = !isVoicePage; // landing page acts as video page
+  const isVideoPage = !isVoicePage; // landing = video page
 
-  // 🚫 1️⃣ Tell the reported user to stop and show ban overlay (only they react)
+  // 1️⃣ Locally simulate reporting → directly trigger target user event
+  // find the other window (simulated for same-client testing)
   socket.emit("reported", { to: partnerId, clearChat: true, forceStop: true });
 
-  // ⚠️ 2️⃣ Keep compatibility for video/landing reporting
-  socket.emit("report", { partnerId, reason: reportReason });
-
-  // 🔚 3️⃣ End your own current call and clear chat
+  // 2️⃣ End this reporter’s own current call safely
   if (typeof cleanupCall === "function") cleanupCall(true);
+
+  // 3️⃣ Clear own chat window
   const chatWindow = document.querySelector(".voicep-chat-window, .chat-window");
   if (chatWindow) chatWindow.innerHTML = "";
 
-  // 🔄 4️⃣ Leave appropriate queue
+  // 4️⃣ Leave the current queue
   if (isVoicePage) {
-    socket.emit("leave-voice"); // voice queue
-  } else if (isVideoPage) {
-    socket.emit("leave"); // video/landing queue
+    socket.emit("leave-voice");
+  } else {
+    socket.emit("leave");
   }
 
-  // ⏳ 5️⃣ Auto rejoin (voice only)
-  if (isVoicePage) {
-    setTimeout(() => {
+  // 5️⃣ Requeue reporter only AFTER UI settles
+  setTimeout(() => {
+    if (isVoicePage) {
       socket.emit("join-voice");
       setStatus("searching");
-    }, 1000);
-  } else {
-    // for video (landing), keep current logic
-    socket.emit("join", { name, gender });
-    setStatus("searching");
-  }
+    } else {
+      socket.emit("join", { name, gender });
+      setStatus("searching");
+    }
+  }, 1200);
 
-  // 🧾 6️⃣ Save reported user locally
+  // 6️⃣ Save locally
   const updated = [...blockedUsers, partnerId];
   setBlockedUsers(updated);
   localStorage.setItem("blockedUsers", JSON.stringify(updated));
 
-  // 🧩 7️⃣ Close the red report modal
+  // 7️⃣ Close the modal
   closeReportModal();
 }
 
