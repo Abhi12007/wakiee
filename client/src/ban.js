@@ -87,45 +87,62 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
     return () => clearInterval(countdownInterval.current);
   }, [isBlocked]);
 
-  // 🧩 When reported
-  useEffect(() => {
-    socket.on("reported", () => {
-      const banUntil = Date.now() + 60000; // 60 seconds from now
+// 🧩 When reported (client-side)
+useEffect(() => {
+  socket.on("client-report", ({ targetId, reason }) => {
+    // Only the targeted user reacts
+    if (socket.id === targetId) {
+      const banUntil = Date.now() + 60000; // 60s cooldown
       localStorage.setItem("isBlocked", "true");
       localStorage.setItem("banUntil", banUntil.toString());
       setIsBlocked(true);
       setBlockCountdown(60);
-    });
 
-    return () => socket.off("reported");
-  }, [socket]);
+      // 🔹 Immediately clear chat, disconnect call, and show overlay
+      socket.emit("leave");
+      cleanupCall(true);
+      setMessages([]);
+      setStatus("home"); // optional - go back to home
+    }
+  });
 
-  // 🧩 Report modal functions
-  function openReportModal() {
-    setShowReportModal(true);
-  }
+  return () => socket.off("client-report");
+}, [socket]);
 
-  function closeReportModal() {
-    setShowReportModal(false);
-    setReportReason("");
-  }
 
-  function submitReport(partnerId) {
-    if (!reportReason) return alert("Please select a reason");
-     // 2️⃣ Tell the reported user to stop everything
+ // 🧩 Report modal functions
+function openReportModal() {
+  setShowReportModal(true);
+}
 
-  socket.emit("report", { partnerId, reason: reportReason });
-    socket.emit("leave");
-    cleanupCall(true);
+function closeReportModal() {
+  setShowReportModal(false);
+  setReportReason("");
+}
 
-    const updated = [...blockedUsers, partnerId];
-    setBlockedUsers(updated);
-    localStorage.setItem("blockedUsers", JSON.stringify(updated));
+function submitReport(partnerId) {
+  if (!reportReason) return alert("Please select a reason");
 
-    socket.emit("join", { name, gender, blocked: updated });
-    setStatus("searching");
-    closeReportModal();
-  }
+  // ✅ Send private message directly to partner (not broadcasted by server)
+  socket.emit("client-report", { targetId: partnerId, reason: reportReason });
+
+  // ✅ Locally handle the reporter side
+  socket.emit("leave"); // disconnect current call
+  cleanupCall(true);
+  setMessages([]); // clear chat
+
+  // Optional: keep track of who you blocked locally
+  const updated = [...blockedUsers, partnerId];
+  setBlockedUsers(updated);
+  localStorage.setItem("blockedUsers", JSON.stringify(updated));
+
+  // ✅ Immediately go back to searching for new partner
+  socket.emit("join", { name, gender, blocked: updated });
+  setStatus("searching");
+
+  closeReportModal();
+}
+
 
   // 🟢 Read Blogs → Go to blog, but keep countdown running
   function handleBlogRedirect() {
