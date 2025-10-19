@@ -300,6 +300,7 @@ const {
   BlockedOverlay,
   ReportModal,
 } = useBanSystem(socket, { name, gender, setStatus, cleanupCall });
+
   
 
   // chat
@@ -593,6 +594,12 @@ const {
     setJoined(true);
     setStatus("searching");
   }
+// 🧩 Report submission handler
+const handleReportSubmit = () => {
+  if (partnerId) {
+    submitReport(partnerId); //only targeted person
+  }
+};
 
   function handleNext() {
     storedPrefsRef.current.micOn = micOn;
@@ -1142,9 +1149,14 @@ const {
 
 
                {/* ⬇️ BLOCKED OVERLAY (Step 4)  removed now in ban.js    */}
-               {showReportModal && <ReportModal partnerId={partnerId} />}
-                 {isBlocked && <BlockedOverlay />}
-           
+               {showReportModal && (
+  <ReportModal
+    partnerId={partnerId}
+    onSubmit={() => handleReportSubmit(partnerId)}
+  />
+)}
+{isBlocked && <BlockedOverlay />}
+
 
           </div>
         } />
