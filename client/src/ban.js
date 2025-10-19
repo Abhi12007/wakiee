@@ -89,17 +89,39 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
   }, [isBlocked]);
 
   // 🧩 When reported
-  useEffect(() => {
-    socket.on("reported", () => {
-      const banUntil = Date.now() + 60000; // 60 seconds from now
-      localStorage.setItem("isBlocked", "true");
-      localStorage.setItem("banUntil", banUntil.toString());
-      setIsBlocked(true);
-      setBlockCountdown(60);
-    });
+useEffect(() => {
+  socket.on("reported", ({ clearChat }) => {
+    const path = window.location.pathname;
+    const isVoicePage = path === "/voice";
+    const isVideoPage = path === "/video";
 
-    return () => socket.off("reported");
-  }, [socket]);
+    // 1️⃣ End the current call and clean up
+    if (typeof cleanupCall === "function") cleanupCall(true);
+
+    // 2️⃣ Voice-specific actions: stop matching, clear chat, and go idle
+    if (isVoicePage) {
+      socket.emit("leave-voice");
+      setStatus("idle");
+
+      if (clearChat && typeof window.clearVoiceChat === "function") {
+        window.clearVoiceChat();
+      }
+    }
+
+    // 3️⃣ Start 60s ban timer
+    const banUntil = Date.now() + 60000;
+    localStorage.setItem("isBlocked", "true");
+    localStorage.setItem("banUntil", banUntil.toString());
+    setIsBlocked(true);
+    setBlockCountdown(60);
+
+    // 4️⃣ Prevent auto-reconnect on all pages
+    sessionStorage.removeItem("unbannedReady");
+  });
+
+  return () => socket.off("reported");
+}, [socket, cleanupCall, setStatus]);
+
 
   // 🧩 Report modal functions
   function openReportModal() {
