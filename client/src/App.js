@@ -83,12 +83,21 @@ const endCall = () => {
       <div className={`nav-links ${menuOpen ? "open" : ""}`}>
         {showBack && (
           <button
-            onClick={() => navigate("/")}
-            className="back-btn"
-            title="Go Back"
-          >
-            ⬅
-          </button>
+  onClick={() => navigate("/")}
+  className="back-btn"
+  title="Go Back"
+  style={{
+    background: "none",
+    border: "none",
+    color: "white",
+    fontSize: "28px",   // 🔥 Increase arrow size
+    cursor: "pointer",
+    lineHeight: "1",
+  }}
+>
+  ⬅
+</button>
+
         )}
 
         {!joined ? (
@@ -96,7 +105,7 @@ const endCall = () => {
             <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
             <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
             <Link to="/blog" onClick={() => setMenuOpen(false)}>Blog</Link>
-            <Link to="/voice" onClick={() => setMenuOpen(false)}>🎤 Voice Call</Link>
+            <Link to="/voice" onClick={() => setMenuOpen(false)}>Voice Call</Link>
           </>
         ) : (
           <>
@@ -104,7 +113,7 @@ const endCall = () => {
             <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
             <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
             <Link to="/blog" onClick={() => setMenuOpen(false)}>Blog</Link>
-            <Link to="/voice" onClick={() => setMenuOpen(false)}>🎤 Voice Call</Link>
+            <Link to="/voice" onClick={() => setMenuOpen(false)}>Voice Call</Link>
           </>
         )}
       </div>
