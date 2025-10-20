@@ -155,10 +155,39 @@ function ReloadIcon() {
   );
 }
 
+function RouteChangeHandler({ joined, endCall }) {
+  const location = useLocation();
+
+  // 1) route change listener: if in call and navigates away from allowed pages → endCall()
+  useEffect(() => {
+    const allowed = ["/", "/voice"]; // pages that are considered "call pages"
+    if (joined && !allowed.includes(location.pathname)) {
+      console.log("RouteChangeHandler: leaving call page — ending call");
+      endCall();
+    }
+    // run on route changes
+  }, [location.pathname, joined, endCall]);
+
+  // 2) beforeunload: handles refresh / close / navigate away
+  useEffect(() => {
+    const handler = (e) => {
+      if (joined) {
+        // best-effort synchronous cleanup
+        try { endCall(); } catch (err) {}
+        // optionally prompt user (modern browsers often ignore custom text)
+        // e.preventDefault();
+        // e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [joined, endCall]);
+
+  return null; // no UI
+}
 
 
 
-// Utility: detect mobile screen    use when needed   const isMobile = window.innerWidth <= 768;
 
 
 
@@ -307,36 +336,7 @@ function endCall() {
 // -Add a small RouteChangeHandler component (global route listener + beforeunload)
 
 
-function RouteChangeHandler({ joined, endCall }) {
-  const location = useLocation();
 
-  // 1) route change listener: if in call and navigates away from allowed pages → endCall()
-  useEffect(() => {
-    const allowed = ["/", "/voice"]; // pages that are considered "call pages"
-    if (joined && !allowed.includes(location.pathname)) {
-      console.log("RouteChangeHandler: leaving call page — ending call");
-      endCall();
-    }
-    // run on route changes
-  }, [location.pathname, joined, endCall]);
-
-  // 2) beforeunload: handles refresh / close / navigate away
-  useEffect(() => {
-    const handler = (e) => {
-      if (joined) {
-        // best-effort synchronous cleanup
-        try { endCall(); } catch (err) {}
-        // optionally prompt user (modern browsers often ignore custom text)
-        // e.preventDefault();
-        // e.returnValue = "";
-      }
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [joined, endCall]);
-
-  return null; // no UI
-}
 
 
   // 🚫 Ban / Report System Hook
