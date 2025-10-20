@@ -106,7 +106,7 @@ const endCall = () => {
             <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
             <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
             <Link to="/blog" onClick={() => setMenuOpen(false)}>Blog</Link>
-            <Link to="/voice" onClick={() => setMenuOpen(false)}>Voice Call</Link>
+            
           </>
         ) : (
           <>
