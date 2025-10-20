@@ -102,6 +102,7 @@ const endCall = () => {
 
         {!joined ? (
           <>
+           <Link to="/voice" onClick={() => setMenuOpen(false)}>Voice Call</Link>
             <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
             <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
             <Link to="/blog" onClick={() => setMenuOpen(false)}>Blog</Link>
@@ -110,10 +111,11 @@ const endCall = () => {
         ) : (
           <>
             <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
+            <Link to="/voice" onClick={() => setMenuOpen(false)}>Voice Call</Link>
             <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
             <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
             <Link to="/blog" onClick={() => setMenuOpen(false)}>Blog</Link>
-            <Link to="/voice" onClick={() => setMenuOpen(false)}>Voice Call</Link>
+          
           </>
         )}
       </div>
