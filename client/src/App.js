@@ -838,7 +838,7 @@ const {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/guidelines" element={<Guidelines />} />
-       <Route path="/voice" element={<Voice />} /> {/* ✅ new route */}
+       <Route path="/voice" element={<Voice endCall={endCall} />} /> {/* ✅ new route */}
 
       <Route path="/blog" element={<BlogIndex />} />
       <Route path="/blog/:slug" element={<BlogPost />} />
