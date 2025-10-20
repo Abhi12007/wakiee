@@ -194,29 +194,37 @@ const Voice = ({ endCall }) => {
   }, []);
 
  // ✅ Disconnect & cleanup if component unmounts or user navigates away
-  useEffect(() => {
-    return () => {
-      console.log("🔴 Voice component unmounted — cleaning up call");
+ useEffect(() => {
+  return async () => {
+    console.log("🔴 Voice component unmounted — cleaning up call");
 
-      if (typeof endCall === "function") {
-        try {
-          endCall();
-        } catch (err) {
-          console.warn("⚠️ endCall() failed:", err);
-        }
-      } else {
-        try { socket.emit("leave-voice"); } catch {}
-        try { localStreamRef.current?.getTracks().forEach((t) => t.stop()); } catch {}
-        try {
-          if (pcRef.current) {
-            pcRef.current.close();
-            pcRef.current = null;
-          }
-        } catch {}
+    try {
+      // 1️⃣ Send leave event to server
+      socket.emit("leave-voice");
+      console.log("📤 Sent leave-voice signal");
+
+      // 2️⃣ Give time for it to actually reach server
+      await new Promise((r) => setTimeout(r, 100));
+
+      // 3️⃣ Disconnect socket gracefully (optional, but ensures no ghost events)
+      socket.disconnect();
+
+      // 4️⃣ Stop local tracks
+      localStreamRef.current?.getTracks().forEach((t) => t.stop());
+
+      // 5️⃣ Close peer connection
+      if (pcRef.current) {
+        pcRef.current.close();
+        pcRef.current = null;
       }
-    };
-  }, []);
- 
+
+      console.log("✅ Voice cleanup complete");
+    } catch (err) {
+      console.warn("⚠️ Error during voice cleanup:", err);
+    }
+  };
+}, []);
+
 
   const scrollToBottom = () => {
     setTimeout(() => {
