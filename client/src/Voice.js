@@ -596,8 +596,8 @@ const setAudioBitrate = (pc) => {
           
       </div>
       
-    /*                      {showReportModal && <ReportModal partnerId={partnerId} />}
-                            <BlockedOverlay />               */
+       {/*                      {showReportModal && <ReportModal partnerId={partnerId} />}
+                            <BlockedOverlay />               */}
 
       <audio ref={remoteAudioRef} autoPlay playsInline />
     </div>
