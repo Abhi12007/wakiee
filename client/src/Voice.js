@@ -2,7 +2,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Voice.css";
 import io from "socket.io-client";
-import { useBanSystem } from "./ban";
+
+ // import { useBanSystem } from "./ban"; 
+
+
 // 📶 Helps STUN/TURN connect faster through NAT/VPN by forcing IPv4
 window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection;
 
@@ -468,11 +471,11 @@ const setAudioBitrate = (pc) => {
   }, 1000);
 };
 
-  const handleReport = () => {
+/*  const handleReport = () => {
   if (partnerId) {
     openReportModal(); // opens the red report modal from ban.js
   }
-};
+};  */
 
 
   const sendMessage = () => {
@@ -487,14 +490,14 @@ const setAudioBitrate = (pc) => {
     socket.emit("typing-voice", { to: partnerId });
   };
 
-  const {
+/*  const {
   isBlocked,
   BlockedOverlay,
   ReportModal,
   openReportModal,
   closeReportModal,
   showReportModal,
-} = useBanSystem(socket, { setStatus, cleanupCall: handleStop });
+} = useBanSystem(socket, { setStatus, cleanupCall: handleStop }); */
 
 
   return (
@@ -543,14 +546,14 @@ const setAudioBitrate = (pc) => {
               <span className="voicep-label">Stop</span>
             </div>
 
-           {status === "connected" && (
+        /*   {status === "connected" && (
   <div className="voicep-btn-group">
     <button onClick={handleReport} className="voicep-btn report">
       <ReportIcon />
     </button>
     <span className="voicep-label">Report</span>
   </div>
-)}
+)}                        */
 
        
 
@@ -593,8 +596,8 @@ const setAudioBitrate = (pc) => {
           
       </div>
       
-      {showReportModal && <ReportModal partnerId={partnerId} />}
-<BlockedOverlay />
+    /*                      {showReportModal && <ReportModal partnerId={partnerId} />}
+                            <BlockedOverlay />               */
 
       <audio ref={remoteAudioRef} autoPlay playsInline />
     </div>
