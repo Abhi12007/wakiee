@@ -1,7 +1,5 @@
 // Voice.js
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 import "./Voice.css";
 import io from "socket.io-client";
 import { useBanSystem } from "./ban";
@@ -111,8 +109,6 @@ function ReportIcon() {
 
 // ========== MAIN COMPONENT ==========
 const Voice = () => {
-  const navigate = useNavigate();
-
   const [status, setStatus] = useState("idle");
   const [muted, setMuted] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -479,9 +475,6 @@ const setAudioBitrate = (pc) => {
 };
 
 
-
-
-
   const sendMessage = () => {
     if (!input.trim()) return;
     socket.emit("chat-message-voice", { to: partnerId, text: input });
@@ -494,25 +487,14 @@ const setAudioBitrate = (pc) => {
     socket.emit("typing-voice", { to: partnerId });
   };
 
-
-const {
+  const {
   isBlocked,
   BlockedOverlay,
   ReportModal,
   openReportModal,
   closeReportModal,
   showReportModal,
-  submitReport,
-} = useBanSystem(socket, {
-  name: "voice",                // optional but helps logging/debugging
-  gender: "unknown",            // not critical here but keeps args consistent
-  setStatus,
-  cleanupCall: handleStop,
-  navigate,                     // ✅ Needed for redirection after being reported
-  setMessages,                  // ✅ Needed to clear chat after ban
-  setPartnerId,                 // ✅ Needed to reset partner state after ban
-});
-
+} = useBanSystem(socket, { setStatus, cleanupCall: handleStop });
 
 
   return (
@@ -611,9 +593,7 @@ const {
           
       </div>
       
-{showReportModal && <ReportModal partnerId={partnerId} />}
-
-
+      {showReportModal && <ReportModal partnerId={partnerId} />}
 <BlockedOverlay />
 
       <audio ref={remoteAudioRef} autoPlay playsInline />
