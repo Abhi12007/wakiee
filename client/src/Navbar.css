@@ -1,0 +1,122 @@
+/* src/Navbar.css */
+
+/* Sticky navbar base */
+.navbar {
+  width: 100%;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* ✅ Your existing wakiee brand font styling */
+.brand-text {
+  font-family: "Poppins", sans-serif; /* or your existing artistic font */
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #000;
+  text-transform: lowercase;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+
+/* 🍔 Hamburger */
+.menu-icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  cursor: pointer;
+  width: 28px;
+  height: 24px;
+}
+
+.bar {
+  height: 3px;
+  background-color: #000;
+  margin: 3px 0;
+  transition: all 0.3s ease;
+}
+
+/* ✨ Hamburger animation */
+.bar1.open {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.bar2.open {
+  opacity: 0;
+}
+.bar3.open {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* 📱 Mobile dropdown */
+.nav-menu {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  background: white;
+  text-align: left;
+  padding: 1rem 0;
+  border-top: 1px solid #ddd;
+}
+
+.nav-menu.active {
+  display: flex;
+  animation: dropdown 0.3s ease-in-out;
+}
+
+@keyframes dropdown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.nav-menu li {
+  list-style: none;
+  padding: 0.8rem 1.2rem;
+}
+
+.nav-menu li a {
+  color: #000;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  display: block;
+}
+
+.nav-menu li a:hover {
+  color: #007bff;
+}
+
+/* 💻 Desktop layout */
+@media (min-width: 768px) {
+  .menu-icon {
+    display: none;
+  }
+
+  .nav-menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    background: transparent;
+    border: none;
+    width: auto;
+    padding: 0;
+  }
+
+  .nav-menu li {
+    padding: 0 1rem;
+  }
+
+  .nav-menu li a {
+    font-size: 1rem;
+  }
+}
