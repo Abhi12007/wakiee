@@ -7,7 +7,7 @@ export function useBanSystem(socket, { name, gender, setStatus, cleanupCall }) {
   // Identify current page (used for reconnect logic)
 const path = window.location.pathname;
 const isVoicePage = path === "/voice" || path.startsWith("/voice/");
-const isVideoPage = path === "/" ;
+// const isVideoPage = path === "/video" || path.startsWith("/video/");
 
   const [blockCountdown, setBlockCountdown] = useState(60);
   const [blockedUsers, setBlockedUsers] = useState(() => {
@@ -67,7 +67,7 @@ const isVideoPage = path === "/" ;
   const isBlogPage = path === "/blog" || path.startsWith("/blog/");
   const isLandingPage = path === "/"; // 👈 new check
 
-   if (isVideoPage) {
+   if (!isBlogPage && !isLandingPage && isVideoPage) {
     // 🟢 Only auto-rejoin automatically if user is inside the video page
     socket.emit("join", { name, gender });
     setStatus("searching");
@@ -87,81 +87,45 @@ const isVideoPage = path === "/" ;
     return () => clearInterval(countdownInterval.current);
   }, [isBlocked]);
 
-// 🧩 When reported (client-side)
-// 🧩 When reported
-useEffect(() => {
-  socket.on("client-report", ({ targetId, reason }) => {
-    if (socket.id === targetId) {
-      const banUntil = Date.now() + 60000; // 60s cooldown
+  // 🧩 When reported
+  useEffect(() => {
+    socket.on("reported", () => {
+      const banUntil = Date.now() + 60000; // 60 seconds from now
       localStorage.setItem("isBlocked", "true");
       localStorage.setItem("banUntil", banUntil.toString());
+      setIsBlocked(true);
       setBlockCountdown(60);
+    });
 
-      // 🚫 Remove from any active queues
-      socket.emit("leave");
-      socket.emit("leave-voice");
+    return () => socket.off("reported");
+  }, [socket]);
 
-      // 🧹 Stop media and clean up UI
-      cleanupCall?.(true);
-      setMessages?.([]);
-      setPartnerId?.(null);
-      setStatus?.("idle");
-
-// 🏠 Navigate to landing page (safe)
-try {
-  if (typeof navigate === "function") {
-    navigate("/", { replace: true });
-  } else {
-    window.location.href = "/";
+  // 🧩 Report modal functions
+  function openReportModal() {
+    setShowReportModal(true);
   }
-} catch (err) {
-  console.warn("⚠️ Navigate failed, fallback to reload", err);
-  window.location.href = "/";
-}
 
-// 🎭 Show block overlay after short delay for smooth UX
-setTimeout(() => setIsBlocked(true), 400);
+  function closeReportModal() {
+    setShowReportModal(false);
+    setReportReason("");
+  }
 
-    }
-  });
+  function submitReport(partnerId) {
+    if (!reportReason) return alert("Please select a reason");
+     // 2️⃣ Tell the reported user to stop everything
 
-  return () => socket.off("client-report");
-}, [socket, navigate]);
+  socket.emit("report", { partnerId, reason: reportReason });
+    socket.emit("leave");
+    cleanupCall(true);
 
+    const updated = [...blockedUsers, partnerId];
+    setBlockedUsers(updated);
+    localStorage.setItem("blockedUsers", JSON.stringify(updated));
 
- // 🧩 Report modal functions
-function openReportModal() {
-  setShowReportModal(true);
-}
-
-function closeReportModal() {
-  setShowReportModal(false);
-  setReportReason("");
-}
-
-function submitReport(partnerId) {
-  if (!reportReason) return alert("Please select a reason");
-
-  // ✅ Send private message directly to partner (not broadcasted by server)
-  socket.emit("client-report", { targetId: partnerId, reason: reportReason });
-
-  // ✅ Locally handle the reporter side
-  socket.emit("leave"); // disconnect current call
-  cleanupCall(true);
-  setMessages([]); // clear chat
-
-  // Optional: keep track of who you blocked locally
-  const updated = [...blockedUsers, partnerId];
-  setBlockedUsers(updated);
-  localStorage.setItem("blockedUsers", JSON.stringify(updated));
-
-  // ✅ Immediately go back to searching for new partner
-  socket.emit("join", { name, gender, blocked: updated });
-  setStatus("searching");
-
-  closeReportModal();
-}
-
+    socket.emit("join", { name, gender, blocked: updated });
+    setStatus("searching");
+    closeReportModal();
+  }
 
   // 🟢 Read Blogs → Go to blog, but keep countdown running
   function handleBlogRedirect() {
