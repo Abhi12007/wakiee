@@ -157,22 +157,35 @@ io.on('connection', (socket) => {           // video call logic
     io.emit('online-users', io.engine.clientsCount);
   });
 
-   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-    const partner = partners[socket.id];
-    if (partner) {
-      io.to(partner).emit('partner-left');
-      removeFromQueue(partner);
-      waitingQueue.push(partner);
-      delete partners[partner];
-      delete partners[socket.id];
-    } else {
-      removeFromQueue(socket.id);
-    }
-    delete userInfo[socket.id];
-    io.emit('online-count', io.engine.clientsCount);
-    io.emit('online-users', io.engine.clientsCount);
-  });
+  socket.on("disconnect", () => {
+  console.log("💀 Disconnected:", socket.id);
+
+  // ===== VIDEO CLEANUP =====
+  const videoPartner = partners[socket.id];
+  if (videoPartner) {
+    io.to(videoPartner).emit("partner-left");
+    removeFromQueue(videoPartner);
+    waitingQueue.push(videoPartner);
+    delete partners[videoPartner];
+    delete partners[socket.id];
+  } else {
+    removeFromQueue(socket.id);
+  }
+
+  // ===== VOICE CLEANUP =====
+  global.voiceQueue = (global.voiceQueue || []).filter((id) => id !== socket.id);
+  const voicePartner = global.voicePartners?.[socket.id];
+  if (voicePartner) {
+    io.to(voicePartner).emit("partner-left-voice");
+    delete global.voicePartners[voicePartner];
+    delete global.voicePartners[socket.id];
+  }
+
+  // ===== USER INFO + COUNTS =====
+  delete userInfo[socket.id];
+  io.emit("online-count", io.engine.clientsCount);
+  io.emit("online-users", io.engine.clientsCount);
+});
 
   // =========================================================
   // 🎧 VOICE PAGE CODE (AUDIO-ONLY MATCHING LOGIC)
@@ -209,16 +222,23 @@ io.on('connection', (socket) => {           // video call logic
 
   // leave or stop voice call
   socket.on("leave-voice", () => {
-    console.log(`🚪 [VOICE] ${socket.id} left voice`);
-    global.voiceQueue = global.voiceQueue.filter((id) => id !== socket.id);
+  console.log(`🚪 [VOICE] ${socket.id} left voice`);
 
-    const partnerId = global.voicePartners[socket.id];
-    if (partnerId) {
-      io.to(partnerId).emit("partner-left-voice");
-      delete global.voicePartners[partnerId];
-      delete global.voicePartners[socket.id];
-    }
-  });
+  // Remove from waiting queue
+  global.voiceQueue = global.voiceQueue.filter((id) => id !== socket.id);
+
+  // Notify and unpair partner if exists
+  const partnerId = global.voicePartners[socket.id];
+  if (partnerId) {
+    io.to(partnerId).emit("partner-left-voice");
+    delete global.voicePartners[partnerId];
+    delete global.voicePartners[socket.id];
+  }
+
+  // Final cleanup — ensures this socket has no lingering pairing
+  delete global.voicePartners[socket.id];
+});
+
 
   // Next button: leave then instantly rejoin
   socket.on("next-voice", () => {
@@ -267,16 +287,7 @@ socket.on("fallback-express-relay", ({ partnerId }) => {
   io.to(partnerId).emit("express-relay-start", { from: socket.id });
 });
 
-  // voice disconnect cleanup
-  socket.on("disconnect", () => {
-    global.voiceQueue = global.voiceQueue.filter((id) => id !== socket.id);
-    const partnerId = global.voicePartners[socket.id];
-    if (partnerId) {
-      io.to(partnerId).emit("partner-left-voice");
-      delete global.voicePartners[partnerId];
-      delete global.voicePartners[socket.id];
-    }
-  });
+ 
 
   // =========================================================
   // 🎧 END OF VOICE PAGE CODE
