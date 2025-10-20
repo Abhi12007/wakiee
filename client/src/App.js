@@ -74,9 +74,9 @@ const endCall = () => {
 
       {/* Hamburger icon (mobile only) */}
       <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
+        <div className={`bar ${menuOpen ? "open" : ""}`}></div>
+        <div className={`bar ${menuOpen ? "open" : ""}`}></div>
+        <div className={`bar ${menuOpen ? "open" : ""}`}></div>
       </div>
 
       {/* Navigation Links */}
@@ -90,11 +90,13 @@ const endCall = () => {
             ⬅
           </button>
         )}
+
         {!joined ? (
           <>
             <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
             <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
             <Link to="/blog" onClick={() => setMenuOpen(false)}>Blog</Link>
+            <Link to="/voice" onClick={() => setMenuOpen(false)}>🎤 Voice Call</Link>
           </>
         ) : (
           <>
@@ -102,6 +104,7 @@ const endCall = () => {
             <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
             <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
             <Link to="/blog" onClick={() => setMenuOpen(false)}>Blog</Link>
+            <Link to="/voice" onClick={() => setMenuOpen(false)}>🎤 Voice Call</Link>
           </>
         )}
       </div>
