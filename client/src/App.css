@@ -1150,6 +1150,7 @@ body::-webkit-scrollbar {
 }
 
 /* Desktop nav default */
+/* ✅ Desktop default */
 .navbar {
   display: flex;
   align-items: center;
@@ -1157,31 +1158,43 @@ body::-webkit-scrollbar {
   width: 100%;
 }
 
-/* Hide hamburger by default */
 .hamburger {
   display: none;
   flex-direction: column;
   justify-content: center;
   cursor: pointer;
-  padding: 8px;
+  padding: 10px;
+  z-index: 1100;
 }
 
 .hamburger .bar {
-  width: 26px;
+  width: 30px;
   height: 3px;
   background-color: white;
-  margin: 4px 0;
+  margin: 5px 0;
   border-radius: 2px;
+  transition: all 0.3s ease;
 }
 
-/* Desktop links inline */
+/* Optional: hamburger to X animation */
+.hamburger.open .bar:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.hamburger.open .bar:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.open .bar:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Desktop menu */
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 
-/* Mobile behavior */
+/* ✅ Mobile menu (bigger & easier to tap) */
 @media (max-width: 768px) {
   .hamburger {
     display: flex;
@@ -1193,28 +1206,33 @@ body::-webkit-scrollbar {
     position: absolute;
     top: 70px;
     right: 10px;
-    background: rgba(0, 0, 0, 0.9);
-    padding: 20px;
-    border-radius: 10px;
-    gap: 12px;
+    background: rgba(0, 0, 0, 0.95);
+    padding: 30px 40px;
+    border-radius: 16px;
+    gap: 22px;
     z-index: 1000;
+    width: 240px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
   }
 
   .nav-links.open {
     display: flex;
   }
 
-  .nav-links a, .nav-links button {
+  .nav-links a,
+  .nav-links button {
     color: white;
-    font-size: 18px;
+    font-size: 20px;
+    font-weight: 500;
     text-decoration: none;
     background: none;
     border: none;
     text-align: left;
+    width: 100%;
   }
 
   .nav-links a:hover {
     text-decoration: underline;
+    color: #00cfff;
   }
 }
-
