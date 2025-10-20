@@ -10,7 +10,6 @@ import io from "socket.io-client";
 window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection;
 
 
-const socket = io();
 
 // ========== SVG  ICONS ==========
 function MicIcon({ active }) {
@@ -112,6 +111,7 @@ function ReportIcon() {
 
 // ========== MAIN COMPONENT ==========
 const Voice = ({ endCall }) => {
+    const [socket] = useState(() => io());
 
   const [status, setStatus] = useState("idle");
   const [muted, setMuted] = useState(false);
