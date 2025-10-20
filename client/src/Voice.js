@@ -111,7 +111,8 @@ function ReportIcon() {
 
 
 // ========== MAIN COMPONENT ==========
-const Voice = () => {
+const Voice = ({ endCall }) => {
+
   const [status, setStatus] = useState("idle");
   const [muted, setMuted] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -191,6 +192,31 @@ const Voice = () => {
       stopAudio();
     };
   }, []);
+
+ // ✅ Disconnect & cleanup if component unmounts or user navigates away
+  useEffect(() => {
+    return () => {
+      console.log("🔴 Voice component unmounted — cleaning up call");
+
+      if (typeof endCall === "function") {
+        try {
+          endCall();
+        } catch (err) {
+          console.warn("⚠️ endCall() failed:", err);
+        }
+      } else {
+        try { socket.emit("leave-voice"); } catch {}
+        try { localStreamRef.current?.getTracks().forEach((t) => t.stop()); } catch {}
+        try {
+          if (pcRef.current) {
+            pcRef.current.close();
+            pcRef.current = null;
+          }
+        } catch {}
+      }
+    };
+  }, []);
+ 
 
   const scrollToBottom = () => {
     setTimeout(() => {
