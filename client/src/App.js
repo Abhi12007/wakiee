@@ -32,33 +32,6 @@ const [menuOpen, setMenuOpen] = useState(false); //
 
   
 
-// End call if user leaves the video page  not working when user presses back arrow in laptop
-useEffect(() => {
-  if (joined && location.pathname !== "/") {
-    endCall();
-  }
-}, [location]);
-
-const endCall = () => {
-  try {
-    // Stop local video/audio
-    if (localStream) {
-      localStream.getTracks().forEach(track => track.stop());
-    }
-
-    // Tell server
-    socket.emit("leave");
-
-    // Reset state
-    setJoined(false);
-    setPartnerInfo(null);
-    setStatus("idle");
-  } catch (err) {
-    console.error("Error ending call:", err);
-  }
-};
-
-
 
 
 
@@ -292,7 +265,79 @@ const [onboardingSeen, setOnboardingSeen] = useState(
   }
   
 
-  
+  // ----------------- paste right AFTER cleanupCall(stopCamera) -----------------
+function endCall() {
+  try {
+    // Close RTCPeerConnection
+    if (pcRef.current) {
+      try { pcRef.current.close(); } catch (e) {}
+      pcRef.current = null;
+    }
+
+    // Stop and clear local media
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((t) => {
+        try { t.stop(); } catch (e) {}
+      });
+      localStreamRef.current = null;
+    }
+
+    // Clear video elements
+    if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+    if (localVideoRef.current) localVideoRef.current.srcObject = null;
+
+    // Tell server we're leaving
+    try { socket.emit("leave"); } catch (e) {}
+
+    // Reset in-app state
+    setJoined(false);
+    setPartnerId(null);
+    setPartnerInfo(null);
+    setStatus("idle");
+
+    // optional: clear messages & any other transient state
+    setMessages([]);
+
+    console.log("✅ endCall: call disconnected and cleaned up");
+  } catch (err) {
+    console.error("endCall error:", err);
+  }
+}
+                               
+// -Add a small RouteChangeHandler component (global route listener + beforeunload)
+import { useLocation } from "react-router-dom"; // you already import this at top — fine
+
+function RouteChangeHandler({ joined, endCall }) {
+  const location = useLocation();
+
+  // 1) route change listener: if in call and navigates away from allowed pages → endCall()
+  useEffect(() => {
+    const allowed = ["/", "/voice"]; // pages that are considered "call pages"
+    if (joined && !allowed.includes(location.pathname)) {
+      console.log("RouteChangeHandler: leaving call page — ending call");
+      endCall();
+    }
+    // run on route changes
+  }, [location.pathname, joined, endCall]);
+
+  // 2) beforeunload: handles refresh / close / navigate away
+  useEffect(() => {
+    const handler = (e) => {
+      if (joined) {
+        // best-effort synchronous cleanup
+        try { endCall(); } catch (err) {}
+        // optionally prompt user (modern browsers often ignore custom text)
+        // e.preventDefault();
+        // e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [joined, endCall]);
+
+  return null; // no UI
+}
+
 
   // 🚫 Ban / Report System Hook
 const {
@@ -778,6 +823,12 @@ const {
    <Router>
     {/* ✅ Show NavBar on all pages except during video calls */}
    {!joined && <NavBar joined={joined} />}
+
+
+  {/* <-- ADD RouteChangeHandler here so it's inside Router and runs */}
+    <RouteChangeHandler joined={joined} endCall={endCall} />
+
+                               
     
   {/* ✅ Wrap all routes with Suspense so lazy pages load gracefully */}
   <Suspense fallback={<div className="loader">Loading...</div>}>
