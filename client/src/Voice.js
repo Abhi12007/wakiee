@@ -192,6 +192,18 @@ const Voice = ({ endCall }) => {
       stopAudio();
     };
   }, []);
+ 
+  // ✅ Rejoin voice queue safely after returning to /voice
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (socket && socket.connected) {
+        console.log("🔄 Rejoining voice queue after delay...");
+        socket.emit("join-voice");
+      }
+    }, 400); // Wait 400ms to ensure server cleanup
+
+    return () => clearTimeout(timer);
+  }, []);
 
  // ✅ Disconnect & cleanup if component unmounts or user navigates away
  useEffect(() => {
