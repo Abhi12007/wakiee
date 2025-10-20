@@ -28,6 +28,7 @@ const socket = io(); // assumes same origin
 function NavBar({ joined }) {
   const navigate = useNavigate();
   const location = useLocation();
+const [menuOpen, setMenuOpen] = useState(false); //
 
   
 
@@ -63,60 +64,51 @@ const endCall = () => {
 
   const showBack = location.pathname !== "/" && !joined;
 
-  return ( 
-    <header className="landing-header-nav">
-      <nav
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "100%",
-        }}
-      >
-        {/* Left Side: Wakiee Logo */}
-        <div className="wakiee-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-          <h1 className="wakiee-text">wakiee</h1>
-        </div>
+ return ( 
+  <header className="landing-header-nav">
+    <nav className="navbar">
+      {/* Left: Logo */}
+      <div className="wakiee-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+        <h1 className="wakiee-text">wakiee</h1>
+      </div>
 
-        {/*  Right Side: Navigation Links */}
-        <div style={{ display: "flex", alignItems: "center",marginLeft: "80px", gap: "14px" }}>
-          {showBack && (
-           
+      {/* Hamburger icon (mobile only) */}
+      <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+      </div>
 
-            <button
-              onClick={() => navigate("/")}
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "white",
-                fontSize: "25px",
-                cursor: "pointer",
-              }}
-              title="Go Back"
-            >
-              ⬅
-            </button>
-          )}
+      {/* Navigation Links */}
+      <div className={`nav-links ${menuOpen ? "open" : ""}`}>
+        {showBack && (
+          <button
+            onClick={() => navigate("/")}
+            className="back-btn"
+            title="Go Back"
+          >
+            ⬅
+          </button>
+        )}
         {!joined ? (
           <>
-           <Link to="/voice">Voice</Link> {/* ✅ new menu item */}
-            <Link to="/about">About Us</Link>
-            <Link to="/contact">Contact Us</Link>
-            <Link to="/blog">Blog</Link>
+            <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
+            <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
+            <Link to="/blog" onClick={() => setMenuOpen(false)}>Blog</Link>
           </>
         ) : (
           <>
-           <Link to="/voice">Voice</Link> {/* ✅ new menu item */}
-            <Link to="/">Home</Link>
-            <Link to="/about">About Us</Link>
-            <Link to="/contact">Contact Us</Link>
-            <Link to="/blog">Blog</Link>
+            <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
+            <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
+            <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
+            <Link to="/blog" onClick={() => setMenuOpen(false)}>Blog</Link>
           </>
         )}
-</div>
-      </nav>
-    </header>
-  );
+      </div>
+    </nav>
+  </header>
+);
+
 }
 
 
