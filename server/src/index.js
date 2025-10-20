@@ -157,7 +157,7 @@ io.on('connection', (socket) => {           // video call logic
     io.emit('online-users', io.engine.clientsCount);
   });
 
-  socket.on("disconnect", () => {
+ socket.on("disconnect", () => {
   console.log("💀 Disconnected:", socket.id);
 
   // ===== VIDEO CLEANUP =====
@@ -173,11 +173,21 @@ io.on('connection', (socket) => {           // video call logic
   }
 
   // ===== VOICE CLEANUP =====
-  global.voiceQueue = (global.voiceQueue || []).filter((id) => id !== socket.id);
+  if (global.voiceQueue) {
+    // Remove this socket from queue if still present
+    global.voiceQueue = global.voiceQueue.filter((id) => id !== socket.id);
+  }
+
   const voicePartner = global.voicePartners?.[socket.id];
   if (voicePartner) {
+    console.log(`🎤 Voice disconnect: notifying partner ${voicePartner}`);
     io.to(voicePartner).emit("partner-left-voice");
+
+    // Full unpair for both sides
     delete global.voicePartners[voicePartner];
+    delete global.voicePartners[socket.id];
+  } else {
+    // Ensure any stray mapping is cleaned up
     delete global.voicePartners[socket.id];
   }
 
@@ -186,6 +196,7 @@ io.on('connection', (socket) => {           // video call logic
   io.emit("online-count", io.engine.clientsCount);
   io.emit("online-users", io.engine.clientsCount);
 });
+
 
   // =========================================================
   // 🎧 VOICE PAGE CODE (AUDIO-ONLY MATCHING LOGIC)
