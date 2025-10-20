@@ -10,7 +10,6 @@ const BlogIndex = lazy(() => import("./blog/BlogIndex"));
 const BlogPost = lazy(() => import("./blog/BlogPost"));
 import "./App.css";
 import OnboardingModal from "./OnboardingModal";
-import Voice from "./Voice"; // ✅ add this import
 
 import img10 from "./blog/pictures/10.webp";
 import img14 from "./blog/pictures/14.webp";
@@ -99,14 +98,12 @@ const endCall = () => {
           )}
         {!joined ? (
           <>
-           <Link to="/voice">Voice</Link> {/* ✅ new menu item */}
             <Link to="/about">About Us</Link>
             <Link to="/contact">Contact Us</Link>
             <Link to="/blog">Blog</Link>
           </>
         ) : (
           <>
-           <Link to="/voice">Voice</Link> {/* ✅ new menu item */}
             <Link to="/">Home</Link>
             <Link to="/about">About Us</Link>
             <Link to="/contact">Contact Us</Link>
@@ -289,10 +286,6 @@ const [onboardingSeen, setOnboardingSeen] = useState(
   
 
   // 🚫 Ban / Report System Hook
-
-// inside App()
-const navigate = useNavigate();
-
 const {
   isBlocked,
   blockCountdown,
@@ -303,15 +296,7 @@ const {
   submitReport,
   BlockedOverlay,
   ReportModal,
-} = useBanSystem(socket, { 
-  name, 
-  gender, 
-  setStatus, 
-  cleanupCall, 
-  navigate, 
-  setMessages, 
-  setPartnerId 
-});
+} = useBanSystem(socket, { name, gender, setStatus, cleanupCall });
   
 
   // chat
@@ -372,7 +357,6 @@ const {
       setMessages((prev) => [...prev, { from: fromName || "Stranger", message, mine: false }]);
     });
 
-
     socket.on("typing", ({ fromName }) => {
       setTypingIndicator(`${fromName || "Stranger"} is typing...`);
       setTimeout(() => setTypingIndicator(""), 1600);
@@ -385,7 +369,7 @@ const {
       setStatus("waiting");
       if (name && gender) socket.emit("join", { name, gender });
     });
-       
+       // ⬇️ Step 5: handle when THIS user is reported removed now inside ban.js
    
 
     return () => socket.removeAllListeners();
@@ -605,12 +589,6 @@ const {
     setJoined(true);
     setStatus("searching");
   }
-// 🧩 Report submission handler
-const handleReportSubmit = () => {
-  if (partnerId) {
-    submitReport(partnerId); //only targeted person
-  }
-};
 
   function handleNext() {
     storedPrefsRef.current.micOn = micOn;
@@ -799,7 +777,6 @@ const handleReportSubmit = () => {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/guidelines" element={<Guidelines />} />
-       <Route path="/voice" element={<Voice />} /> {/* ✅ new route */}
 
       <Route path="/blog" element={<BlogIndex />} />
       <Route path="/blog/:slug" element={<BlogPost />} />
@@ -1160,14 +1137,9 @@ const handleReportSubmit = () => {
 
 
                {/* ⬇️ BLOCKED OVERLAY (Step 4)  removed now in ban.js    */}
-               {showReportModal && (
-  <ReportModal
-    partnerId={partnerId}
-    onSubmit={() => handleReportSubmit(partnerId)}
-  />
-)}
-{isBlocked && <BlockedOverlay />}
-
+               {showReportModal && <ReportModal partnerId={partnerId} />}
+                 {isBlocked && <BlockedOverlay />}
+           
 
           </div>
         } />
