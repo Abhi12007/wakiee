@@ -1194,10 +1194,12 @@ body::-webkit-scrollbar {
     position: absolute;
     top: 70px;
     right: 10px;
-    background: rgba(0, 0, 0, 0.9);
+    background: #000; /* solid pure black */
     padding: 20px;
     border-radius: 10px;
-    gap: 12px;
+    gap: 20px;
+    width: 120px;
+    align-items: flex-start; /* keep left-aligned text */
     z-index: 1000;
   }
 
@@ -1216,5 +1218,6 @@ body::-webkit-scrollbar {
 
   .nav-links a:hover {
     text-decoration: underline;
+    color: #00cfff;
   }
 }
