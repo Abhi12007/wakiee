@@ -157,34 +157,43 @@ function ReloadIcon() {
 
 function RouteChangeHandler({ joined, endCall }) {
   const location = useLocation();
+  const prevPath = React.useRef(location.pathname);
 
-  // 1) route change listener: if in call and navigates away from allowed pages → endCall()
   useEffect(() => {
-    const allowed = ["/", "/voice"]; // pages that are considered "call pages"
-    if (joined && !allowed.includes(location.pathname)) {
-      console.log("RouteChangeHandler: leaving call page — ending call");
+    const allowedPaths = ["/voice"]; // ✅ Only /voice is a "call active" page
+
+    // 🔥 Detect when user leaves /voice (includes Back/Forward browser button)
+    if (
+      joined &&
+      prevPath.current === "/voice" &&
+      location.pathname !== "/voice"
+    ) {
+      console.log("🔻 Navigated away from /voice — ending call");
       endCall();
     }
-    // run on route changes
+
+    prevPath.current = location.pathname;
   }, [location.pathname, joined, endCall]);
 
-  // 2) beforeunload: handles refresh / close / navigate away
+  // ✅ Handles browser refresh / tab close
   useEffect(() => {
-    const handler = (e) => {
+    const handleBeforeUnload = () => {
       if (joined) {
-        // best-effort synchronous cleanup
-        try { endCall(); } catch (err) {}
-        // optionally prompt user (modern browsers often ignore custom text)
-        // e.preventDefault();
-        // e.returnValue = "";
+        try {
+          endCall();
+        } catch (err) {
+          console.warn("beforeunload cleanup failed:", err);
+        }
       }
     };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [joined, endCall]);
 
-  return null; // no UI
+  return null;
 }
+
+
 
 
 
