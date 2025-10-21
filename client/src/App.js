@@ -263,7 +263,6 @@ const schema = {
     }
   }
 };
-
 // 🧹 Remove any existing JSON-LD to prevent duplicates
 const existing = document.querySelector('script[type="application/ld+json"][data-schema="main"]');
 if (existing) existing.remove();
@@ -271,9 +270,10 @@ if (existing) existing.remove();
 // 🧠 Inject new structured data
 const ld = document.createElement("script");
 ld.type = "application/ld+json";
-ld.dataset.schema = "main"; // mark it so we can find it later
+ld.dataset.schema = "main";
 ld.text = JSON.stringify(schema);
 document.head.appendChild(ld);
+
 
 
    
