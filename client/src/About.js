@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 export default function About() {
   useEffect(() => {
     // ✅ Set page title for SEO
-    document.title = "About Wakiee | Random Video Chat Platform for Fun & Learning";
+    document.title = "About Wakiee | Random Video and voice Chat Platform for Fun & Learning";
 
     // ✅ Add canonical tag
     const canonicalLink = document.querySelector("link[rel='canonical']");
@@ -22,14 +22,14 @@ export default function About() {
     if (metaDesc) {
       metaDesc.setAttribute(
         "content",
-        "Learn about Wakiee — a global random video calling platform where you can meet new people, share ideas, and learn language and culture safely through  video calls."
+        "Learn about Wakiee — a global random video and voice calling platform where you can meet new people, share ideas, and learn language and culture safely through  video and voicecalls."
       );
     } else {
       const meta = document.createElement("meta");
       meta.setAttribute("name", "description");
       meta.setAttribute(
         "content",
-        "Learn about Wakiee — a global random video calling platform where you can meet new people, share ideas, and learn language and culture safely through  video calls."
+        "Learn about Wakiee — a global random video and voice calling platform where you can meet new people, share ideas, and learn language and culture safely through  video and voice calls."
       );
       document.head.appendChild(meta);
     }
@@ -37,7 +37,9 @@ export default function About() {
     // ✅ Add meta keywords
     const metaKeywords = document.querySelector("meta[name='keywords']");
     const keywords =
-      "random video chat, anonymous video calls, chat with strangers, random webcam chat, talk to strangers anonymously, video call app,chathub,omegle,ometv,video call,random,unknown, random video chat platform, free random video calls, anonymous chat online, meet strangers online, safe video chat, video call with strangers, global video chatting, talk anonymously online, random people video chat";
+      "random video chat, anonymous video calls, chat with strangers, random webcam chat, talk to strangers anonymously, video call app, 
+      random video chat platform, free voice calls, anonymous chat online, meet strangers online, safe video chat, video call with strangers, global video chatting, talk online, random people video chat";
+      
     if (metaKeywords) {
       metaKeywords.setAttribute("content", keywords);
     } else {
