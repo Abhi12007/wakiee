@@ -7,88 +7,104 @@ export default function About() {
     document.title = "About Wakiee | Random Video and voice Chat Platform for Fun & Learning";
 
     // ✅ Add canonical tag
-    const canonicalLink = document.querySelector("link[rel='canonical']");
-    if (canonicalLink) {
-      canonicalLink.setAttribute("href", "https://wakiee.live/about");
-    } else {
-      const link = document.createElement("link");
-      link.setAttribute("rel", "canonical");
-      link.setAttribute("href", "https://wakiee.live/about");
-      document.head.appendChild(link);
+    // ✅ Canonical tag
+    let canonical = document.querySelector("link[rel='canonical']");
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
     }
+    canonical.setAttribute("href", "https://wakiee.live/about");
 
-    // ✅ Add meta description
-    const metaDesc = document.querySelector("meta[name='description']");
-    if (metaDesc) {
-      metaDesc.setAttribute(
-        "content",
-        "Learn about Wakiee — a global random video and voice calling platform where you can meet new people, share ideas, and learn language and culture safely through  video and voicecalls."
-      );
-    } else {
-      const meta = document.createElement("meta");
-      meta.setAttribute("name", "description");
-      meta.setAttribute(
-        "content",
-        "Learn about Wakiee — a global random video and voice calling platform where you can meet new people, share ideas, and learn language and culture safely through  video and voice calls."
-      );
-      document.head.appendChild(meta);
+    // ✅ Meta Description
+    const description =
+      "Learn about Wakiee — a global random video and voice calling platform where you can meet new people, share ideas, and learn languages and cultures safely through live chats.";
+
+    let metaDesc = document.querySelector("meta[name='description']");
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.setAttribute("name", "description");
+      document.head.appendChild(metaDesc);
     }
+    metaDesc.setAttribute("content", description);
 
-    // ✅ Add meta keywords
-    const metaKeywords = document.querySelector("meta[name='keywords']");
-   const keywords = "random video chat, anonymous video calls, chat with strangers, random webcam chat, talk to strangers anonymously, video call app, random video chat platform, free voice calls, anonymous chat online, meet strangers online, safe video chat,talk with strangers site,stranger chat website, global video chatting, talk online, random people video chat";
-
-    if (metaKeywords) {
-      metaKeywords.setAttribute("content", keywords);
-    } else {
-      const meta = document.createElement("meta");
-      meta.setAttribute("name", "keywords");
-      meta.setAttribute("content", keywords);
-      document.head.appendChild(meta);
+    // ✅ Meta Keywords
+    const keywords = `
+random video chat, anonymous video calls, chat with strangers, random webcam chat, talk to strangers anonymously, video call app,
+random video chat platform, free voice calls, anonymous chat online, meet strangers online, safe video chat, talk with strangers site,
+stranger chat website, global video chatting, talk online, random people video chat, about wakiee, what is wakiee, wakiee live platform
+`;
+    let metaKeywords = document.querySelector("meta[name='keywords']");
+    if (!metaKeywords) {
+      metaKeywords = document.createElement("meta");
+      metaKeywords.setAttribute("name", "keywords");
+      document.head.appendChild(metaKeywords);
     }
+    metaKeywords.setAttribute("content", keywords);
 
-    // ✅ Add Open Graph meta (for social sharing)
-    const ogTitle = document.createElement("meta");
-    ogTitle.setAttribute("property", "og:title");
-    ogTitle.setAttribute("content", "About Wakiee | Random Video Chat Platform for Fun & Learning");
+    // ✅ Open Graph Tags (for social preview)
+    const ogTags = [
+      { property: "og:title", content: "About Wakiee | Random Video Chat Platform for Fun & Learning" },
+      { property: "og:description", content: "Discover Wakiee — a safe, anonymous video chat app connecting people worldwide for fun, learning, and conversation." },
+      { property: "og:url", content: "https://wakiee.live/about" },
+      { property: "og:image", content: "https://wakiee.live/android-chrome-192x192.png" },
+    ];
 
-    const ogDesc = document.createElement("meta");
-    ogDesc.setAttribute(
-      "property",
-      "og:description",
-      "Discover Wakiee — an anonymous video chat app connecting people worldwide for fun, learning, and friendship."
-    );
+    ogTags.forEach(({ property, content }) => {
+      let tag = document.querySelector(`meta[property='${property}']`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("property", property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    });
 
-    const ogUrl = document.createElement("meta");
-    ogUrl.setAttribute("property", "og:url");
-    ogUrl.setAttribute("content", "https://wakiee.live/about");
+    // ✅ Structured Data (WebPage + Organization)
+    const schema = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://wakiee.live/about",
+          "url": "https://wakiee.live/about",
+          "name": "About Wakiee",
+          "description": description,
+          "isPartOf": { "@id": "https://wakiee.live/#website" },
+          "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://wakiee.live/" },
+              { "@type": "ListItem", "position": 2, "name": "About", "item": "https://wakiee.live/about" }
+            ]
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://wakiee.live/#organization",
+          "name": "Wakiee",
+          "url": "https://wakiee.live",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://wakiee.live/android-chrome-192x192.png"
+          },
+          "sameAs": [
+            "https://www.instagram.com/wakiee.live"
+          ]
+        }
+      ]
+    };
 
-    const ogImg = document.createElement("meta");
-    ogImg.setAttribute("property", "og:image");
-    ogImg.setAttribute("content", "https://wakiee.live/og-image.jpg");
+    // 🧹 Remove old schema (avoid duplicates)
+    const oldLd = document.querySelector('script[type="application/ld+json"][data-schema="about"]');
+    if (oldLd) oldLd.remove();
 
-    document.head.append(ogTitle, ogDesc, ogUrl, ogImg);
-
-    // ✅ Add JSON-LD structured data for Google
+    // 🧠 Inject structured data
     const ldJson = document.createElement("script");
     ldJson.type = "application/ld+json";
-    ldJson.text = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "AboutPage",
-      "url": "https://wakiee.live/about",
-      "name": "About Wakiee",
-      "description":
-        "Wakiee is a random video chat platform that connects people globally for fun, learning, and safe conversations.",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Wakiee",
-        "url": "https://wakiee.live",
-        "logo": "https://wakiee.live/android-chrome-192x192.png",
-      },
-    });
+    ldJson.dataset.schema = "about";
+    ldJson.text = JSON.stringify(schema);
     document.head.appendChild(ldJson);
-  }, []);
-
   return (
     <div
       style={{
