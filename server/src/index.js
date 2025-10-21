@@ -107,31 +107,35 @@ io.to(socket.id).emit('paired', {
 
      // --- Report Event ---
   socket.on("report", ({ partnerId, reason }) => {
-    console.log(`User ${socket.id} reported ${partnerId} for: ${reason}`);
+  console.log(`User ${socket.id} reported ${partnerId} for: ${reason}`);
 
-    const partnerSocket = io.sockets.sockets.get(partnerId);
-    if (!partnerSocket) return;
+  const partnerSocket = io.sockets.sockets.get(partnerId);
+  if (!partnerSocket) {
+    io.to(socket.id).emit("report-success");
+    return;
+  }
 
-    // --- Block partner’s IP ---
-    const partnerIp = partnerSocket.handshake.headers['x-forwarded-for']?.split(',')[0] || partnerSocket.handshake.address;
-    const now = Date.now();
-    const cooldown = 60 * 1000; // 60 seconds
-    blockedUsers.set(partnerIp, now + cooldown);
+  // 🔹 Ban reported user’s IP (you can change to socket.id later)
+  const partnerIp = partnerSocket.handshake.headers['x-forwarded-for']?.split(',')[0] || partnerSocket.handshake.address;
+  const now = Date.now();
+  const cooldown = 60 * 1000;
+  blockedUsers.set(partnerIp, now + cooldown);
 
-    // tell partner they are reported, send remaining time (always 60s at report time)
-    io.to(partnerId).emit("reported", { remaining: 60 });
+  // 🔹 Tell only the reported user they are banned
+  io.to(partnerId).emit("reported", { remaining: 60 });
+  io.to(partnerId).emit("partner-left"); // only reported gets disconnected
 
-    // end session for partner
-    io.to(partnerId).emit("partner-left");
-    removeFromQueue(partnerId);
-    delete partners[partnerId];
+  // 🔹 Clean up their pairing state
+  removeFromQueue(partnerId);
+  delete partners[partnerId];
 
-    // ✅ reporter is re-queued back into matchmaking immediately
-    io.to(socket.id).emit("partner-left");
-    removeFromQueue(socket.id);
-    waitingQueue.push(socket.id);
-    delete partners[socket.id];
-  }); 
+  // 🔹 Reporter side: just confirm success
+  io.to(socket.id).emit("report-success", { reason });
+  removeFromQueue(socket.id);
+  waitingQueue.push(socket.id);
+  delete partners[socket.id];
+});
+
     // add handler
    socket.on("skip-block", () => {
   const ip = socket.handshake.headers['x-forwarded-for']?.split(',')[0] || socket.handshake.address;
