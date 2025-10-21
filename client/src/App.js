@@ -202,7 +202,8 @@ function RouteChangeHandler({ joined, endCall }) {
 
 
 /* ---------- App ---------- */
-export default function App() {   useEffect(() => {
+export default function App() {  
+  useEffect(() => {
     // ✅ Basic SEO setup for homepage
     document.title = "Wakiee — Random Video Chat | Meet, Learn & Talk Online";
 
