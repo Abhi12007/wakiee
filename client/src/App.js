@@ -887,7 +887,7 @@ const {
 
               
                   <div className="landing-title">
-                    <div className="sub">🟢Online: {onlineCount}</div>
+              {/*      <div className="sub">🟢Online: {onlineCount}</div>                                              Temporary off until large no of users come */}
                   </div>
 
                   
@@ -1079,7 +1079,7 @@ const {
             ) : (
               /* ----- IN-APP  (video + chat) ----- */
               <div className="inapp-wrapper">
-                <div className="topbar">🟢Online: {onlineCount} • Status: {status}</div>
+              {/*   <div className="topbar">🟢Online: {onlineCount} • Status: {status}</div>                                     temporary off until large users comes */}
 
                 <div className="content">
                   <div className="video-container" ref={remoteContainerRef}>
