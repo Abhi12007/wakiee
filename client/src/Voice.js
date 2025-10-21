@@ -112,6 +112,77 @@ function ReportIcon() {
 // ========== MAIN COMPONENT ==========
 const Voice = ({ endCall }) => {
     const [socket] = useState(() => io());
+   // ✅ SEO + Structured Data for Voice Page
+  useEffect(() => {
+    // 1️⃣ Title
+    document.title = "Wakiee Voice — Talk to Strangers via Random Voice Chat | wakiee.live";
+
+    // 2️⃣ Meta description
+    const setMeta = (name, content) => {
+      let tag = document.querySelector(`meta[name="${name}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("name", name);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+
+    setMeta(
+      "description",
+      "Wakiee — free random voice and video chat website where you can talk to strangers safely and make new friends worldwide. No sign-up, just start talking!"
+    );
+
+    // 3️⃣ Meta keywords
+    setMeta(
+      "keywords",
+      "random voice chat, voice call strangers, anonymous chat, talk to strangers, free voice calling, random call app, wakiee voice, omegle voice chat, international talking app, wakiee.live"
+    );
+
+    // 4️⃣ Canonical link
+    let canonical = document.querySelector("link[rel='canonical']");
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", "https://wakiee.live/voice");
+
+    // 5️⃣ JSON-LD Structured Data (for Google Knowledge Graph + AdSense)
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Wakiee",
+      "url": "https://wakiee.live/voice",
+      "description":
+        "Wakiee is a global random voice chat platform that connects people through fun, real-time voice conversations. Talk to new people, anytime.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Wakiee",
+        "url": "https://wakiee.live",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://wakiee.live/android-chrome-192x192.png"
+        }
+      }
+    };
+
+    // 🧹 Remove old JSON-LD (avoid duplicates)
+    const old = document.querySelector('script[type="application/ld+json"][data-schema="voice"]');
+    if (old) old.remove();
+
+    // 🧠 Inject new JSON-LD
+    const ld = document.createElement("script");
+    ld.type = "application/ld+json";
+    ld.dataset.schema = "voice";
+    ld.text = JSON.stringify(schema);
+    document.head.appendChild(ld);
+
+    return () => {
+      if (ld) ld.remove();
+    };
+  }, []);
+
 
   const [status, setStatus] = useState("idle");
   const [muted, setMuted] = useState(false);
