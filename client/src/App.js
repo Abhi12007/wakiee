@@ -223,12 +223,7 @@ export default function App() {   useEffect(() => {
 
     setMeta(
   "keywords",
-  `random video chat, anonymous voice call, talk to strangers, omegle alternative, meet new people online, wakiee live, random webcam chat, omegle alternatives,
-  airtalk, talk to stranger,
-  random video calling app, random video calling website, Free calling,
-  talk with strangers online, random call,
-   international, friends, talk, conversation,
-  random, live, chat, call,stranger chat website,stranger chat sites,talk to strangers sites,websites to chat with strangers,talk to strangers online,talk to strangers for free`
+  `random video chat, anonymous voice call, talk to strangers, omegle alternative, meet new people online, wakiee live, random webcam chat, omegle alternatives,airtalk, talk to stranger,random video calling app, random video calling website, Free calling,talk with strangers online, random call,international, friends, talk, conversation,random, live, chat, call,stranger chat website,stranger chat sites,talk to strangers sites,websites to chat with strangers,talk to strangers online,talk to strangers for free`
 );
 
 
