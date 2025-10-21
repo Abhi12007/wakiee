@@ -52,7 +52,7 @@ if (waitingQueue.length === 0) {
   return;
 }
 
-// 🎲 2. Randomize available peers (prevent same re-pairing)
+                                                         // 🎲 2. Randomize available peers (prevent same re-pairing)
 const availablePeers = waitingQueue.filter(
   (id) => id !== socket.id && io.sockets.sockets.get(id)
 );
@@ -83,7 +83,7 @@ io.to(socket.id).emit('paired', {
   initiator: false,
   partnerInfo: userInfo[peerId],
 });
-
+});
 
 
   // signaling
