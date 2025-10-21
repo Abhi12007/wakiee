@@ -136,7 +136,7 @@ const Voice = ({ endCall }) => {
     // 3️⃣ Meta keywords
     setMeta(
       "keywords",
-      "random voice chat, voice call strangers, anonymous chat, talk to strangers, free voice calling, random call app, wakiee voice, omegle voice chat, international talking app, wakiee.live"
+      "random voice chat, voice call strangers, Talk with strangers,free chat with strangers,stranger chatting websites,websites to chat with strangers,talk to strangers online,websites to talk with strangers ,anonymous chat, talk to strangers, free voice calling, random call app, wakiee voice, omegle voice chat, international talking app, wakiee.live"
     );
 
     // 4️⃣ Canonical link
