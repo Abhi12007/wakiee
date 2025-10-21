@@ -36,10 +36,8 @@ export default function About() {
 
     // ✅ Add meta keywords
     const metaKeywords = document.querySelector("meta[name='keywords']");
-    const keywords =
-      "random video chat, anonymous video calls, chat with strangers, random webcam chat, talk to strangers anonymously, video call app, 
-      random video chat platform, free voice calls, anonymous chat online, meet strangers online, safe video chat, video call with strangers, global video chatting, talk online, random people video chat";
-      
+   const keywords = "random video chat, anonymous video calls, chat with strangers, random webcam chat, talk to strangers anonymously, video call app, random video chat platform, free voice calls, anonymous chat online, meet strangers online, safe video chat,talk with strangers site,stranger chat website, global video chatting, talk online, random people video chat";
+
     if (metaKeywords) {
       metaKeywords.setAttribute("content", keywords);
     } else {
