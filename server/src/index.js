@@ -39,49 +39,51 @@ io.on('connection', (socket) => {           // video call logic
       return;
     }
 
-    // normal join flow
-    userInfo[socket.id] = data || { name: 'Anonymous', gender: 'other' };
-    if (partners[socket.id]) return;
+   // normal join flow
+userInfo[socket.id] = data || { name: 'Anonymous', gender: 'other' };
+if (partners[socket.id]) return;
 
-    removeFromQueue(socket.id);
+removeFromQueue(socket.id);
 
-    if (waitingQueue.length === 0) {
-      waitingQueue.push(socket.id);
-      socket.emit('waiting');
-      return;
-    }
+// 🕓 1. If no one waiting, add to queue
+if (waitingQueue.length === 0) {
+  waitingQueue.push(socket.id);
+  socket.emit('waiting');
+  return;
+}
 
-    let peerIndex = -1;
-    for (let i = 0; i < waitingQueue.length; i++) {
-      const cand = waitingQueue[i];
-      if (cand !== socket.id && io.sockets.sockets.get(cand)) {
-        peerIndex = i;
-        break;
-      }
-    }
+// 🎲 2. Randomize available peers (prevent same re-pairing)
+const availablePeers = waitingQueue.filter(
+  (id) => id !== socket.id && io.sockets.sockets.get(id)
+);
 
-    if (peerIndex === -1) {
-      waitingQueue.push(socket.id);
-      socket.emit('waiting');
-      return;
-    }
+if (availablePeers.length === 0) {
+  waitingQueue.push(socket.id);
+  socket.emit('waiting');
+  return;
+}
 
-    const peerId = waitingQueue.splice(peerIndex, 1)[0];
+// Pick random peer instead of first one
+const peerId = availablePeers[Math.floor(Math.random() * availablePeers.length)];
 
-    partners[peerId] = socket.id;
-    partners[socket.id] = peerId;
+// Remove that peer from queue
+removeFromQueue(peerId);
 
-    io.to(peerId).emit('paired', {
-      partnerId: socket.id,
-      initiator: true,
-      partnerInfo: userInfo[socket.id]
-    });
-    io.to(socket.id).emit('paired', {
-      partnerId: peerId,
-      initiator: false,
-      partnerInfo: userInfo[peerId]
-    });
-  });
+// 🫱 3. Pair them
+partners[peerId] = socket.id;
+partners[socket.id] = peerId;
+
+io.to(peerId).emit('paired', {
+  partnerId: socket.id,
+  initiator: true,
+  partnerInfo: userInfo[socket.id],
+});
+io.to(socket.id).emit('paired', {
+  partnerId: peerId,
+  initiator: false,
+  partnerInfo: userInfo[peerId],
+});
+
 
 
   // signaling
