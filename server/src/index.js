@@ -265,7 +265,7 @@ io.to(socket.id).emit('paired', {
     }
     // rejoin matchmaking immediately
     socket.emit("leave-voice");
-    setTimeout(() => socket.emit("join-voice"), 300);
+    setTimeout(() => socket.emit("join-voice"), 1500);              // 1.5 seconds delay before joining
   });
 
   // signaling
