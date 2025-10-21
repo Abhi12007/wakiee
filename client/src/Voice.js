@@ -550,7 +550,7 @@ const setAudioBitrate = (pc) => {
     <div className="voicep-container">
       <div className="voicep-header">
         <p className="voicep-online">
-          Online: <span style={{ color: "#22c55e" }}>{onlineCount}</span>
+   {/*    Online: <span style={{ color: "#22c55e" }}>{onlineCount}</span>                                temporary off until lagre users come  */}
         </p>
         <p className="voicep-status">
           {status === "idle"
