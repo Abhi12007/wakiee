@@ -2,12 +2,11 @@
 import React, { useEffect } from "react";
 
 export default function About() {
-  useEffect(() => {
-    // ✅ Set page title for SEO
-    document.title = "About Wakiee | Random Video and voice Chat Platform for Fun & Learning";
+ useEffect(() => {
+    // ✅ SEO + META Setup
+    document.title = "About Wakiee | Random Video and Voice Chat Platform for Fun & Learning";
 
-    // ✅ Add canonical tag
-    // ✅ Canonical tag
+    // ✅ Canonical
     let canonical = document.querySelector("link[rel='canonical']");
     if (!canonical) {
       canonical = document.createElement("link");
@@ -16,7 +15,7 @@ export default function About() {
     }
     canonical.setAttribute("href", "https://wakiee.live/about");
 
-    // ✅ Meta Description
+    // ✅ Description
     const description =
       "Learn about Wakiee — a global random video and voice calling platform where you can meet new people, share ideas, and learn languages and cultures safely through live chats.";
 
@@ -28,12 +27,13 @@ export default function About() {
     }
     metaDesc.setAttribute("content", description);
 
-    // ✅ Meta Keywords
+    // ✅ Keywords
     const keywords = `
 random video chat, anonymous video calls, chat with strangers, random webcam chat, talk to strangers anonymously, video call app,
 random video chat platform, free voice calls, anonymous chat online, meet strangers online, safe video chat, talk with strangers site,
 stranger chat website, global video chatting, talk online, random people video chat, about wakiee, what is wakiee, wakiee live platform
 `;
+
     let metaKeywords = document.querySelector("meta[name='keywords']");
     if (!metaKeywords) {
       metaKeywords = document.createElement("meta");
@@ -42,7 +42,7 @@ stranger chat website, global video chatting, talk online, random people video c
     }
     metaKeywords.setAttribute("content", keywords);
 
-    // ✅ Open Graph Tags (for social preview)
+    // ✅ Open Graph
     const ogTags = [
       { property: "og:title", content: "About Wakiee | Random Video Chat Platform for Fun & Learning" },
       { property: "og:description", content: "Discover Wakiee — a safe, anonymous video chat app connecting people worldwide for fun, learning, and conversation." },
@@ -60,7 +60,7 @@ stranger chat website, global video chatting, talk online, random people video c
       tag.setAttribute("content", content);
     });
 
-    // ✅ Structured Data (WebPage + Organization)
+    // ✅ JSON-LD Schema
     const schema = {
       "@context": "https://schema.org",
       "@graph": [
@@ -95,16 +95,21 @@ stranger chat website, global video chatting, talk online, random people video c
       ]
     };
 
-    // 🧹 Remove old schema (avoid duplicates)
     const oldLd = document.querySelector('script[type="application/ld+json"][data-schema="about"]');
     if (oldLd) oldLd.remove();
 
-    // 🧠 Inject structured data
     const ldJson = document.createElement("script");
     ldJson.type = "application/ld+json";
     ldJson.dataset.schema = "about";
     ldJson.text = JSON.stringify(schema);
     document.head.appendChild(ldJson);
+
+    // ✅ Cleanup on unmount
+    return () => {
+      if (ldJson) ldJson.remove();
+    };
+  }, []); // <-- ✅ end of useEffect
+  
   return (
     <div
       style={{
