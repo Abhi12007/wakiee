@@ -210,28 +210,29 @@ io.to(socket.id).emit('paired', {
 
   // when user presses Start on /voice page
   socket.on("join-voice", () => {
-    console.log(`🎧 [VOICE] ${socket.id} joined voice queue`);
+  console.log(`🎧 [VOICE] ${socket.id} joined voice queue`);
 
-    // ensure not already queued
-    global.voiceQueue = global.voiceQueue.filter((id) => id !== socket.id);
+  // ensure not already queued
+  global.voiceQueue = global.voiceQueue.filter((id) => id !== socket.id);
 
-    // if another user waiting, pair them
-    if (global.voiceQueue.length > 0) {
-      const partnerId = global.voiceQueue.shift();
-      global.voicePartners[socket.id] = partnerId;
-      global.voicePartners[partnerId] = socket.id;
+                                                                             // 🎲 Randomly select a partner if someone is waiting
+  if (global.voiceQueue.length > 0) {
+    const randomIndex = Math.floor(Math.random() * global.voiceQueue.length);
+    const partnerId = global.voiceQueue.splice(randomIndex, 1)[0];
+    global.voicePartners[socket.id] = partnerId;
+    global.voicePartners[partnerId] = socket.id;
 
-      io.to(socket.id).emit("paired-voice", { partnerId, initiator: true });
-      io.to(partnerId).emit("paired-voice", { partnerId: socket.id, initiator: false });
+    io.to(socket.id).emit("paired-voice", { partnerId, initiator: true });
+    io.to(partnerId).emit("paired-voice", { partnerId: socket.id, initiator: false });
 
-      console.log(`✅ [VOICE] Paired ${socket.id} <--> ${partnerId}`);
-    } else {
-      // no one waiting — add to queue
-      global.voiceQueue.push(socket.id);
-      socket.emit("waiting");
-      console.log(`🕓 [VOICE] ${socket.id} waiting for match`);
-    }
-  });
+    console.log(`✅ [VOICE] Paired ${socket.id} <--> ${partnerId}`);
+  } else {
+    // no one waiting — add to queue
+    global.voiceQueue.push(socket.id);
+    socket.emit("waiting");
+    console.log(`🕓 [VOICE] ${socket.id} waiting for match`);
+  }
+});
 
   // leave or stop voice call
   socket.on("leave-voice", () => {
