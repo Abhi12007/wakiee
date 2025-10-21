@@ -672,16 +672,23 @@ const {
   }
 
   function handleNext() {
-    storedPrefsRef.current.micOn = micOn;
-    storedPrefsRef.current.camOn = camOn;
-    storedPrefsRef.current.localPos = localPos;
-    if (partnerId) socket.emit("leave");
-    cleanupCall(false);
-    setPartnerId(null);
-    setPartnerInfo(null);
+  storedPrefsRef.current.micOn = micOn;
+  storedPrefsRef.current.camOn = camOn;
+  storedPrefsRef.current.localPos = localPos;
+
+  if (partnerId) socket.emit("leave");
+  cleanupCall(false);
+  setPartnerId(null);
+  setPartnerInfo(null);
+
+  setStatus("waiting"); // optional: show short waiting text
+
+  // ⏳ Delay before rejoin (to avoid reconnecting to same user)
+  setTimeout(() => {
     socket.emit("join", { name, gender });
     setStatus("searching");
-  }
+  }, 2000); // 2-second delay
+}
 
   function handleStop() {
     if (partnerId) socket.emit("leave");
