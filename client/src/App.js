@@ -202,8 +202,7 @@ function RouteChangeHandler({ joined, endCall }) {
 
 
 /* ---------- App ---------- */
-export default function App() {  
-  useEffect(() => {
+export default function App() {   useEffect(() => {
     // ✅ Basic SEO setup for homepage
     document.title = "Wakiee — Random Video Chat | Meet, Learn & Talk Online";
 
@@ -219,22 +218,21 @@ export default function App() {
 
     setMeta(
       "description",
-      "Wakiee — free random video and voice chat with strangers, share ideas, and connect globally in a fun, safe space."
+      "Join Wakiee — free random video chat to meet strangers, share ideas, and connect globally in a fun, safe space."
     );
 
     setMeta(
   "keywords",
-  `random video chat, anonymous voice call, talk to strangers, omegle alternative, meet new people online, wakiee live, random webcam chat, omegle alternatives, video chat,
-  airtalk, talk to strangers,
-  random video calling app, random video calling website, free calling,
-  talk to strangers online, random call,
-  talk, conversation,
-  random, live chat`
+  `random video chat, anonymous voice call, talk to strangers, omegle alternative, meet new people online, wakiee live, random webcam chat, omegle alternatives,
+  airtalk, talk to stranger,
+  random video calling app, random video calling website, Free calling,
+  talk with strangers online, random call,
+   international, friends, talk, conversation,
+  random, live, chat, call,stranger chat website,stranger chat sites,talk to strangers sites,websites to chat with strangers,talk to strangers online,talk to strangers for free`
 );
 
 
-
-  // ✅ Canonical
+   // ✅ Canonical
 let canonical = document.querySelector("link[rel='canonical']");
 if (!canonical) {
   canonical = document.createElement("link");
@@ -265,6 +263,7 @@ const schema = {
     }
   }
 };
+
 // 🧹 Remove any existing JSON-LD to prevent duplicates
 const existing = document.querySelector('script[type="application/ld+json"][data-schema="main"]');
 if (existing) existing.remove();
@@ -272,11 +271,11 @@ if (existing) existing.remove();
 // 🧠 Inject new structured data
 const ld = document.createElement("script");
 ld.type = "application/ld+json";
-ld.dataset.schema = "main";
+ld.dataset.schema = "main"; // mark it so we can find it later
 ld.text = JSON.stringify(schema);
 document.head.appendChild(ld);
 
-
+  }, []);
 
    
   // Reporting / Block removed ,now inside ban.js
@@ -910,7 +909,7 @@ const {
 
               
                   <div className="landing-title">
-              {/*      <div className="sub">🟢Online: {onlineCount}</div>                                              Temporary off until large no of users come */}
+    {/*       <div className="sub">🟢Online: {onlineCount}</div>                                  temp off  */}
                   </div>
 
                   
@@ -1102,7 +1101,7 @@ const {
             ) : (
               /* ----- IN-APP  (video + chat) ----- */
               <div className="inapp-wrapper">
-              {/*   <div className="topbar">🟢Online: {onlineCount} • Status: {status}</div>                                     temporary off until large users comes */}
+              {/*     <div className="topbar">🟢Online: {onlineCount} • Status: {status}</div>                       temp off               */}
 
                 <div className="content">
                   <div className="video-container" ref={remoteContainerRef}>
