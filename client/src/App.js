@@ -232,28 +232,49 @@ export default function App() {   useEffect(() => {
 );
 
 
-    // ✅ Canonical
-    let canonical = document.querySelector("link[rel='canonical']");
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.setAttribute("rel", "canonical");
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute("href", "https://wakiee.live/");
+  // ✅ Canonical
+let canonical = document.querySelector("link[rel='canonical']");
+if (!canonical) {
+  canonical = document.createElement("link");
+  canonical.setAttribute("rel", "canonical");
+  document.head.appendChild(canonical);
+}
+canonical.setAttribute("href", "https://wakiee.live/");
 
-    // ✅ Structured Data (minimal)
-    const ld = document.createElement("script");
-    ld.type = "application/ld+json";
-    ld.text = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Wakiee",
-      "url": "https://wakiee.live",
-      "description":
-        "Wakiee connects people through random video chat to talk, learn, and exchange ideas safely.",
-    });
-    document.head.appendChild(ld);
-  }, []);
+// ✅ Structured Data (Enhanced for SEO + AdSense)
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Wakiee",
+  "alternateName": "wakiee.live",
+  "url": "https://wakiee.live/",
+  "logo": "https://wakiee.live/android-chrome-192x192.png",
+  "description": "Wakiee — random video and voice chat app to meet and talk with people globally.",
+  "sameAs": [
+    "https://www.instagram.com/wakiee.live"
+  ],
+  "publisher": {
+    "@type": "Organization",
+    "name": "Wakiee",
+    "url": "https://wakiee.live",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://wakiee.live/android-chrome-192x192.png"
+    }
+  }
+};
+
+// 🧹 Remove any existing JSON-LD to prevent duplicates
+const existing = document.querySelector('script[type="application/ld+json"][data-schema="main"]');
+if (existing) existing.remove();
+
+// 🧠 Inject new structured data
+const ld = document.createElement("script");
+ld.type = "application/ld+json";
+ld.dataset.schema = "main"; // mark it so we can find it later
+ld.text = JSON.stringify(schema);
+document.head.appendChild(ld);
+
 
    
   // Reporting / Block removed ,now inside ban.js
