@@ -11,6 +11,15 @@
     <priority>1.0</priority>
   </url>
 
+ <!-- 📰 Voice call -->
+  <url>
+    <loc>https://wakiee.live/voice</loc>
+    <lastmod>2025-10-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  
+
   <!-- 📰 Blog Home -->
   <url>
     <loc>https://wakiee.live/blog</loc>
