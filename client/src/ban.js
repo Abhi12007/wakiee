@@ -110,22 +110,22 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
     setReportReason("");
   }
 
-  function submitReport(partnerId) {
-    if (!reportReason) return alert("Please select a reason");
-     // 2️⃣ Tell the reported user to stop everything
+ function submitReport(partnerId) {
+  if (!reportReason) return alert("Please select a reason");
 
+  // 🚀 Only tell server to report partner
   socket.emit("report", { partnerId, reason: reportReason });
-    socket.emit("leave");
-    cleanupCall(true);
 
-    const updated = [...blockedUsers, partnerId];
-    setBlockedUsers(updated);
-    localStorage.setItem("blockedUsers", JSON.stringify(updated));
+  // ✅ Locally clean up (stop camera etc.)
+  cleanupCall(true);
 
-    socket.emit("join", { name, gender, blocked: updated });
-    setStatus("searching");
-    closeReportModal();
-  }
+  // ✅ Don't emit 'leave' or 'join' here — let the server handle it
+  closeReportModal();
+
+  // ✅ Optionally show confirmation
+  alert("Report submitted successfully. You'll be reconnected shortly.");
+}
+
 
   // 🟢 Read Blogs → Go to blog, but keep countdown running
   function handleBlogRedirect() {
