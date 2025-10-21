@@ -218,17 +218,17 @@ export default function App() {   useEffect(() => {
 
     setMeta(
       "description",
-      "Join Wakiee — free random video chat to meet strangers, share ideas, and connect globally in a fun, safe space."
+      "Wakiee — free random video and voice chat with strangers, share ideas, and connect globally in a fun, safe space."
     );
 
     setMeta(
   "keywords",
-  `random video chat, anonymous video call, talk to strangers, omegle alternative, chathub, omegle, uhmegle, ometv, meet new people, wakiee live, random webcam chat, omegle alternatives, ome, ome tv, azar, video chat,
-  monkey app, monkey, airtalk, talk to strangers,
+  `random video chat, anonymous voice call, talk to strangers, omegle alternative, meet new people online, wakiee live, random webcam chat, omegle alternatives,video chat,
+  airtalk, talk to strangers,
   random video calling app, random video calling website, Free calling,
   talk to strangers online, random call,
-  culture, language, international, friends, fun, talk, conversation,
-  random, live, chat, call, video`
+  talk, conversation,
+  random, live chat
 );
 
 
