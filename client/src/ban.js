@@ -110,21 +110,28 @@ const isVoicePage = path === "/voice" || path.startsWith("/voice/");
     setReportReason("");
   }
 
- function submitReport(partnerId) {
+function submitReport(partnerId) {
   if (!reportReason) return alert("Please select a reason");
 
-  // 🚀 Only tell server to report partner
   socket.emit("report", { partnerId, reason: reportReason });
-
-  // ✅ Locally clean up (stop camera etc.)
+  socket.emit("leave"); // ⚠️ still risky if server also disconnects
   cleanupCall(true);
 
-  // ✅ Don't emit 'leave' or 'join' here — let the server handle it
-  closeReportModal();
+  const updated = [...blockedUsers, partnerId];
+  setBlockedUsers(updated);
+  localStorage.setItem("blockedUsers", JSON.stringify(updated));
+ closeReportModal();
+  
+  // ⏱️ Wait 2 seconds before rejoining
+  setTimeout(() => {
+    socket.emit("join", { name, gender, blocked: updated });
+    setStatus("searching");
+  }, 2000);
 
-  // ✅ Optionally show confirmation
-  alert("Report submitted successfully. You'll be reconnected shortly.");
+ 
 }
+
+
 
 
   // 🟢 Read Blogs → Go to blog, but keep countdown running
