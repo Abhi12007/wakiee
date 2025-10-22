@@ -210,17 +210,31 @@ socket.on("report", ({ partnerId, reason }) => {
   if (!global.voiceQueue) global.voiceQueue = [];
   if (!global.voicePartners) global.voicePartners = {};
 
-  // when user presses Start on /voice page
-  socket.on("join-voice", () => {
+  // when user presses Start on /voice page                                                                    CHANGED CODE TEST IF USER GETTING CONNECTED TO MULTIPLE PEOPLE
+ socket.on("join-voice", () => {
   console.log(`🎧 [VOICE] ${socket.id} joined voice queue`);
 
-  // ensure not already queued
+  // ❌ Prevent multiple pairings
+  if (global.voicePartners[socket.id]) {
+    console.log(`⚠️ ${socket.id} is already paired — ignoring duplicate join.`);
+    return;
+  }
+
+  // ✅ Ensure socket not already waiting
   global.voiceQueue = global.voiceQueue.filter((id) => id !== socket.id);
 
-                                                                             // 🎲 Randomly select a partner if someone is waiting
+  // 🎲 Match if possible
   if (global.voiceQueue.length > 0) {
     const randomIndex = Math.floor(Math.random() * global.voiceQueue.length);
     const partnerId = global.voiceQueue.splice(randomIndex, 1)[0];
+
+    // Double-check partner not already paired
+    if (global.voicePartners[partnerId]) {
+      console.log(`⚠️ Partner ${partnerId} already paired — retrying...`);
+      socket.emit("waiting");
+      return;
+    }
+
     global.voicePartners[socket.id] = partnerId;
     global.voicePartners[partnerId] = socket.id;
 
@@ -229,12 +243,12 @@ socket.on("report", ({ partnerId, reason }) => {
 
     console.log(`✅ [VOICE] Paired ${socket.id} <--> ${partnerId}`);
   } else {
-    // no one waiting — add to queue
     global.voiceQueue.push(socket.id);
     socket.emit("waiting");
     console.log(`🕓 [VOICE] ${socket.id} waiting for match`);
   }
 });
+
 
   // leave or stop voice call
   socket.on("leave-voice", () => {
@@ -256,19 +270,28 @@ socket.on("report", ({ partnerId, reason }) => {
 });
 
 
-  // Next button: leave then instantly rejoin
-  socket.on("next-voice", () => {
-    console.log(`➡️ [VOICE] ${socket.id} requested next`);
-    const partnerId = global.voicePartners[socket.id];
-    if (partnerId) {
-      io.to(partnerId).emit("partner-left-voice");
-      delete global.voicePartners[partnerId];
-      delete global.voicePartners[socket.id];
+  // Next button: leave then instantly rejoin                                         CHANGED CODE TEST IS USER IS GETTING CONNECTED TO MULTIPLE USER
+socket.on("next-voice", () => {
+  console.log(`➡️ [VOICE] ${socket.id} requested next`);
+
+  const partnerId = global.voicePartners[socket.id];
+  if (partnerId) {
+    io.to(partnerId).emit("partner-left-voice");
+    delete global.voicePartners[partnerId];
+    delete global.voicePartners[socket.id];
+  }
+
+  // 🧹 Remove from waiting queue before rejoining
+  global.voiceQueue = global.voiceQueue.filter((id) => id !== socket.id);
+
+  // ✅ Rejoin matchmaking safely after short delay
+  setTimeout(() => {
+    if (!global.voicePartners[socket.id]) {
+      socket.emit("join-voice");
     }
-    // rejoin matchmaking immediately
-    socket.emit("leave-voice");
-    setTimeout(() => socket.emit("join-voice"), 1500);              // 1.5 seconds delay before joining
-  });
+  }, 1500); // 1.5 second delay before rejoining
+});
+
 
   // signaling
   socket.on("offer-voice", ({ to, sdp }) => {
