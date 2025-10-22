@@ -106,35 +106,41 @@ io.to(socket.id).emit('paired', {
   });
 
      // --- Report Event ---
-  socket.on("report", ({ partnerId, reason }) => {
+ socket.on("report", ({ partnerId, reason }) => {
   console.log(`User ${socket.id} reported ${partnerId} for: ${reason}`);
 
   const partnerSocket = io.sockets.sockets.get(partnerId);
   if (!partnerSocket) {
+    // Partner already left or disconnected
     io.to(socket.id).emit("report-success");
     return;
   }
 
-  // 🔹 Ban reported user’s IP (you can change to socket.id later)
-  const partnerIp = partnerSocket.handshake.headers['x-forwarded-for']?.split(',')[0] || partnerSocket.handshake.address;
+  // 🔹 Get reported user's IP address
+  const partnerIp =
+    partnerSocket.handshake.headers["x-forwarded-for"]?.split(",")[0] ||
+    partnerSocket.handshake.address;
+
   const now = Date.now();
-  const cooldown = 60 * 1000;
+  const cooldown = 60 * 1000; // 60 seconds ban
+
+  // 🔹 Ban the reported user for 60 seconds
   blockedUsers.set(partnerIp, now + cooldown);
 
-  // 🔹 Tell only the reported user they are banned
+  // 🔹 Notify the reported user
   io.to(partnerId).emit("reported", { remaining: 60 });
-  io.to(partnerId).emit("partner-left"); // only reported gets disconnected
+  io.to(partnerId).emit("partner-left"); // force end for reported user
 
-  // 🔹 Clean up their pairing state
+  // 🔹 Clean up reported user's state
   removeFromQueue(partnerId);
   delete partners[partnerId];
 
-  // 🔹 Reporter side: just confirm success
+  // 🔹 Reporter (A) has already left/requeued client-side
+  // So we only send them a confirmation (no queue edits)
   io.to(socket.id).emit("report-success", { reason });
-  removeFromQueue(socket.id);
-  waitingQueue.push(socket.id);
-  delete partners[socket.id];
 });
+
+
 
     // add handler
    socket.on("skip-block", () => {
