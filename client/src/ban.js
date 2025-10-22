@@ -126,7 +126,7 @@ function submitReport(partnerId) {
   setTimeout(() => {
     socket.emit("join", { name, gender, blocked: updated });
     setStatus("searching");
-  }, 2000);
+  }, 2000);    // wait for 2 second before matching
 
  
 }
