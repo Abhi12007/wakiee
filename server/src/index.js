@@ -106,40 +106,32 @@ io.to(socket.id).emit('paired', {
   });
 
      // --- Report Event ---
- socket.on("report", ({ partnerId, reason }) => {
-  console.log(`User ${socket.id} reported ${partnerId} for: ${reason}`);
+socket.on("report", ({ partnerId, reason }) => {
+    console.log(`User ${socket.id} reported ${partnerId} for: ${reason}`);
 
-  const partnerSocket = io.sockets.sockets.get(partnerId);
-  if (!partnerSocket) {
-    // Partner already left or disconnected
-    io.to(socket.id).emit("report-success");
-    return;
-  }
+    const partnerSocket = io.sockets.sockets.get(partnerId);
+    if (!partnerSocket) return;
 
-  // 🔹 Get reported user's IP address
-  const partnerIp =
-    partnerSocket.handshake.headers["x-forwarded-for"]?.split(",")[0] ||
-    partnerSocket.handshake.address;
+    // --- Block partner’s IP ---
+    const partnerIp = partnerSocket.handshake.headers['x-forwarded-for']?.split(',')[0] || partnerSocket.handshake.address;
+    const now = Date.now();
+    const cooldown = 60 * 1000; // 60 seconds
+    blockedUsers.set(partnerIp, now + cooldown);
 
-  const now = Date.now();
-  const cooldown = 60 * 1000; // 60 seconds ban
+    // tell partner they are reported, send remaining time (always 60s at report time)
+    io.to(partnerId).emit("reported", { remaining: 60 });
 
-  // 🔹 Ban the reported user for 60 seconds
-  blockedUsers.set(partnerIp, now + cooldown);
+    // end session for partner
+    io.to(partnerId).emit("partner-left");
+    removeFromQueue(partnerId);
+    delete partners[partnerId];
 
-  // 🔹 Notify the reported user
-  io.to(partnerId).emit("reported", { remaining: 60 });
-  io.to(partnerId).emit("partner-left"); // force end for reported user
-
-  // 🔹 Clean up reported user's state
-  removeFromQueue(partnerId);
-  delete partners[partnerId];
-
-  // 🔹 Reporter (A) has already left/requeued client-side
-  // So we only send them a confirmation (no queue edits)
-  io.to(socket.id).emit("report-success", { reason });
-});
-
+    // ✅ reporter is re-queued back into matchmaking immediately
+    io.to(socket.id).emit("partner-left");
+    removeFromQueue(socket.id);
+    waitingQueue.push(socket.id);
+    delete partners[socket.id];
+  }); 
 
 
     // add handler
