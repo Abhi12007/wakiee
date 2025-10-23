@@ -62,6 +62,12 @@ function getPreferredCodec() {
 }
 
 
+function getCommonCodec(localCodec, remoteCodec) {
+  if (localCodec === remoteCodec) return localCodec;
+  if (localCodec === "H264" || remoteCodec === "H264") return "H264";
+  if (localCodec === "VP9" || remoteCodec === "VP9") return "VP9";
+  return "VP8";
+}
 
 
 /* ---------- NavBar Component ---------- */
@@ -446,14 +452,19 @@ const {
 
     socket.on("waiting", () => setStatus("waiting"));
 
-    socket.on("paired", async ({ partnerId, initiator, partnerInfo }) => {
-      setPartnerId(partnerId);
-      setPartnerInfo(partnerInfo || { name: "Stranger", gender: "other" });
-      setStatus("paired");
-      await startLocalStream();
-      applyStoredPrefsToTracks();
-      await createPeerConnection(partnerId, initiator);
-    });
+    // ✅ When paired with another user
+socket.on("paired", async ({ partnerId, initiator, partnerInfo, partnerCodec }) => {
+  setPartnerId(partnerId);
+  // save partner codec into partnerInfo
+  setPartnerInfo({ ...(partnerInfo || {}), partnerCodec: partnerCodec || "VP8" });
+
+  console.log("🎬 Paired with:", partnerId, "| Partner codec:", partnerCodec);
+
+  await startLocalStream();
+  applyStoredPrefsToTracks();
+  await createPeerConnection(partnerId, initiator);
+});
+
 
     socket.on("offer", async ({ from, sdp }) => {
       await startLocalStream();
@@ -732,25 +743,34 @@ const monitorQuality = setInterval(async () => {
 
   // 🎬 Step 6: Create offer / answer
   // 🎬 Step 6: Create offer / answer
-// 🎬 Step 6: Create offer / answer with codec negotiation
+// 🎬 Step 6: Create offer / answer with negotiated codec
+
+// ✅ Get both local + remote codec preferences
 const localCodec = getPreferredCodec();
-const remoteCodec = partnerInfo?.partnerCodec || "VP8"; // get from paired event
+const remoteCodec = partnerInfo?.partnerCodec || "VP8";
 const finalCodec = getCommonCodec(localCodec, remoteCodec);
 
-console.log(`🎥 Local prefers: ${localCodec}, Remote prefers: ${remoteCodec}, Using: ${finalCodec}`);
+console.log(`🎥 Codec negotiation → local:${localCodec}, remote:${remoteCodec}, using:${finalCodec}`);
 
 if (initiator) {
   let offer = await pc.createOffer();
-  offer.sdp = offer.sdp.replace("VP8", finalCodec);
+
+  // replace VP8 references in SDP with the chosen codec (safer regex)
+  offer.sdp = offer.sdp.replace(/VP8\/90000/g, `${finalCodec}/90000`);
+
   await pc.setLocalDescription(offer);
   socket.emit("offer", { to: partnerSocketId, sdp: pc.localDescription });
+
 } else if (remoteOffer) {
   await pc.setRemoteDescription(new RTCSessionDescription(remoteOffer));
+
   let answer = await pc.createAnswer();
-  answer.sdp = answer.sdp.replace("VP8", finalCodec);
+  answer.sdp = answer.sdp.replace(/VP8\/90000/g, `${finalCodec}/90000`);
+
   await pc.setLocalDescription(answer);
   socket.emit("answer", { to: partnerSocketId, sdp: pc.localDescription });
 }
+
 
 
 }
