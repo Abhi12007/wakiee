@@ -585,39 +585,100 @@ const {
   localStream.getTracks().forEach((t) => pc.addTrack(t, localStream));
 
   // 🧠 Step 4: Adaptive quality based on network stats
-  const monitorQuality = setInterval(async () => {
-    if (!pcRef.current) return clearInterval(monitorQuality);
+ // 🧠 Step 4: Adaptive quality based on network stats
+let lastQualityTier = null; // store last applied quality to avoid flicker
 
+const monitorQuality = setInterval(async () => {
+  if (!pcRef.current) return clearInterval(monitorQuality);
+
+  try {
     const stats = await pcRef.current.getStats();
     let outbound = null;
+
+    // Find outbound video RTP stats
     stats.forEach((report) => {
-      if (report.type === "outbound-rtp" && report.kind === "video") outbound = report;
+      if (report.type === "outbound-rtp" && report.kind === "video") {
+        outbound = report;
+      }
     });
 
     if (outbound && outbound.bytesSent && outbound.framesEncoded) {
-      const bitrate = (8 * outbound.bytesSent) / 1024; // kbps
-      // auto adjust resolution or bitrate based on network
-      if (bitrate < 500) {
-        // 🟥 Poor connection → reduce video quality                                                                                               // CHANGE
-        localStream.getVideoTracks().forEach((track) => track.applyConstraints({
+      // ⚙️ Calculate current bitrate (kbps)
+      const bitrate = (8 * outbound.bytesSent) / 1024;
+
+      // Determine quality tier
+      let tier = null;
+      if (bitrate < 500) tier = "360p";
+      else if (bitrate >= 500 && bitrate <= 2000) tier = "720p";
+      else if (bitrate > 2000 && bitrate <= 5000) tier = "1080p";
+      else if (bitrate > 5000) tier = "2k";
+
+      // If tier didn’t change, skip reapplying
+      if (tier === lastQualityTier) return;
+
+      // 🎥 Select video track
+      const track = localStream.getVideoTracks()[0];
+      if (!track) return;
+
+      // Apply resolution & frame rate constraints
+      if (tier === "360p") {
+        await track.applyConstraints({
           width: { ideal: 640 },
           height: { ideal: 360 },
-        }));
-      } else if (bitrate > 1000) {
-        // 🟢 Strong connection → boost to 1080p if available
-        localStream.getVideoTracks().forEach((track) => track.applyConstraints({
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        }));
-      } else {
-        // ⚪ Medium → keep at 720p
-        localStream.getVideoTracks().forEach((track) => track.applyConstraints({
+          frameRate: { ideal: 20, max: 24 },
+        });
+        console.log("🟥 Network low → 360p mode");
+      } else if (tier === "720p") {
+        await track.applyConstraints({
           width: { ideal: 1280 },
           height: { ideal: 720 },
-        }));
+          frameRate: { ideal: 30, max: 30 },
+        });
+        console.log("⚪ Network medium → 720p mode");
+      } else if (tier === "1080p") {
+        await track.applyConstraints({
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          frameRate: { ideal: 60, max: 60 },
+        });
+        console.log("🟢 Network strong → 1080p mode");
+      } else if (tier === "2k") {
+        await track.applyConstraints({
+          width: { ideal: 2560 },
+          height: { ideal: 1440 },
+          frameRate: { ideal: 60, max: 60 },
+        });
+        console.log("💎 Network excellent → 2K (1440p) mode");
       }
+
+      // 🧩 Apply encoder bitrate (RTCRtpSender)
+      const sender = pcRef.current
+        .getSenders()
+        .find((s) => s.track && s.track.kind === "video");
+      if (sender) {
+        try {
+          const params = sender.getParameters();
+          params.encodings = params.encodings || [{}];
+
+          if (tier === "360p") params.encodings[0].maxBitrate = 300_000; // 300 kbps
+          else if (tier === "720p") params.encodings[0].maxBitrate = 1_500_000; // 1.5 Mbps
+          else if (tier === "1080p") params.encodings[0].maxBitrate = 6_000_000; // 6 Mbps
+          else if (tier === "2k") params.encodings[0].maxBitrate = 12_000_000; // 12 Mbps
+
+          await sender.setParameters(params);
+          console.log("⚙️ Encoder bitrate set for:", tier);
+        } catch (err) {
+          console.warn("setParameters failed:", err);
+        }
+      }
+
+      // Save last applied tier
+      lastQualityTier = tier;
     }
-  }, 2000); // check every 2 seconds
+  } catch (err) {
+    console.warn("monitorQuality error:", err);
+  }
+}, 2000); // check every 2 seconds
 
   // 🎧 Step 5: Optimize audio (Opus)
   pc.getSenders().forEach((sender) => {
