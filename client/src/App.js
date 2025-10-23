@@ -359,7 +359,7 @@ function endCall() {
   }
 }
                                
-// -Add a small RouteChangeHandler component (global route listener + beforeunload)
+
 
 
 
@@ -495,9 +495,9 @@ const {
     // 📸 Step 1: Smart getUserMedia — pick best possible quality automatically
     const supported = navigator.mediaDevices.getSupportedConstraints();
     const videoConstraints = {
-      width: { ideal: supported.width ? 1920 : 1280 }, // try Full HD if supported
+      width: { ideal: supported.width ? 1920 : 1280 }, // try Full HD if supported                                                                            // CHANGE
       height: { ideal: supported.height ? 1080 : 720 },
-      frameRate: { ideal: 30, max: 30 },
+      frameRate: { ideal: 30, max: 60 },                                      // max changed to 60 from 30
     };
 
     const audioConstraints = {
@@ -598,7 +598,7 @@ const {
       const bitrate = (8 * outbound.bytesSent) / 1024; // kbps
       // auto adjust resolution or bitrate based on network
       if (bitrate < 500) {
-        // 🟥 Poor connection → reduce video quality
+        // 🟥 Poor connection → reduce video quality                                                                                               // CHANGE
         localStream.getVideoTracks().forEach((track) => track.applyConstraints({
           width: { ideal: 640 },
           height: { ideal: 360 },
@@ -632,13 +632,13 @@ const {
   // 🎬 Step 6: Create offer / answer
   if (initiator) {
     let offer = await pc.createOffer();
-    offer.sdp = offer.sdp.replace("VP8", "H264"); // or "VP9" if both sides Chrome
+    offer.sdp = offer.sdp.replace("VP8", "VP9"); // or "VP9" if both sides Chrome                                                                                    //  CHANGE
     await pc.setLocalDescription(offer);
     socket.emit("offer", { to: partnerSocketId, sdp: pc.localDescription });
   } else if (remoteOffer) {
-    await pc.setRemoteDescription(new RTCSessionDescription(remoteOffer));
+    await pc.setRemoteDescription(new RTCSessionDescription(remoteOffer));                                                                                    // H264 CHANGED TO VP9
     let answer = await pc.createAnswer();
-    answer.sdp = answer.sdp.replace("VP8", "H264");
+    answer.sdp = answer.sdp.replace("VP8", "VP9");
     await pc.setLocalDescription(answer);
     socket.emit("answer", { to: partnerSocketId, sdp: pc.localDescription });
   }
