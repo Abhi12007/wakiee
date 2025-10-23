@@ -22,6 +22,12 @@ function removeFromQueue(socketId) {
 io.on('connection', (socket) => {           // video call logic
   console.log('User connected:', socket.id);
 
+  // ✅ store codec preference sent by client
+socket.on("codec-preference", ({ codec }) => {
+  socket.preferredCodec = codec || "VP8";
+  console.log(`🎬 [Codec] ${socket.id} prefers ${socket.preferredCodec}`);
+});
+
   io.emit('online-count', io.engine.clientsCount);
   io.emit('online-users', io.engine.clientsCount);
 
@@ -73,16 +79,21 @@ removeFromQueue(peerId);
 partners[peerId] = socket.id;
 partners[socket.id] = peerId;
 
-io.to(peerId).emit('paired', {
+// ✅ Send partner codec info to both users
+io.to(peerId).emit("paired", {
   partnerId: socket.id,
   initiator: true,
   partnerInfo: userInfo[socket.id],
+  partnerCodec: socket.preferredCodec || "VP8",
 });
-io.to(socket.id).emit('paired', {
+
+io.to(socket.id).emit("paired", {
   partnerId: peerId,
   initiator: false,
   partnerInfo: userInfo[peerId],
+  partnerCodec: io.sockets.sockets.get(peerId)?.preferredCodec || "VP8",
 });
+
 });
 
 
