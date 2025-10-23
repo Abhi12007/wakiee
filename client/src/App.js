@@ -24,6 +24,43 @@ import { useBanSystem } from "./ban";
 
 const socket = io(); // assumes same origin
 
+
+/* ---------- Helpers                                 automatic codec selection based on👉 Device type (mobile/desktop)                      ---------- */
+// ✅ Detect if user is on mobile
+function isMobile() {
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
+
+// ✅ Detect browser type
+function getBrowser() {
+  const ua = navigator.userAgent;
+
+  if (/Chrome/i.test(ua) && !/Edge|OPR|Brave/i.test(ua)) return "Chrome";
+  if (/Firefox/i.test(ua)) return "Firefox";
+  if (/Safari/i.test(ua) && !/Chrome|Chromium/i.test(ua)) return "Safari";
+  if (/Edg/i.test(ua)) return "Edge";
+  return "Other";
+}
+
+// ✅ Decide best codec for the current device + browser
+function getPreferredCodec() {
+  const mobile = isMobile();
+  const browser = getBrowser();
+
+  if (browser === "Chrome" || browser === "Firefox") {
+    return "VP9"; // works best on both mobile and desktop
+  }
+
+  if (browser === "Safari") {
+    return "H264"; // Safari prefers H264
+  }
+
+  // Edge or others → fallback
+  return "VP8";
+}
+
+
+
 /* ---------- NavBar Component ---------- */
 function NavBar({ joined }) {
   const navigate = useNavigate();
@@ -585,7 +622,7 @@ const {
   localStream.getTracks().forEach((t) => pc.addTrack(t, localStream));
 
   // 🧠 Step 4: Adaptive quality based on network stats
- // 🧠 Step 4: Adaptive quality based on network stats
+ // 🧠 Step 4: Adaptive quality based on network stats                                 // CHANGES QUALITY ACCORDING TO INTERNET SPEED + ADDED BITRATE ENCODING
 let lastQualityTier = null; // store last applied quality to avoid flicker
 
 const monitorQuality = setInterval(async () => {
@@ -691,18 +728,29 @@ const monitorQuality = setInterval(async () => {
   });
 
   // 🎬 Step 6: Create offer / answer
-  if (initiator) {
-    let offer = await pc.createOffer();
-    offer.sdp = offer.sdp.replace("VP8", "VP9"); // or "VP9" if both sides Chrome                                                                                    //  CHANGE
-    await pc.setLocalDescription(offer);
-    socket.emit("offer", { to: partnerSocketId, sdp: pc.localDescription });
-  } else if (remoteOffer) {
-    await pc.setRemoteDescription(new RTCSessionDescription(remoteOffer));                                                                                    // H264 CHANGED TO VP9
-    let answer = await pc.createAnswer();
-    answer.sdp = answer.sdp.replace("VP8", "VP9");
-    await pc.setLocalDescription(answer);
-    socket.emit("answer", { to: partnerSocketId, sdp: pc.localDescription });
-  }
+  // 🎬 Step 6: Create offer / answer
+const preferredCodec = getPreferredCodec();
+console.log(`🎥 Using preferred codec: ${preferredCodec}`);
+
+if (initiator) {
+  let offer = await pc.createOffer();
+
+  // replace VP8 (default) with preferred codec
+  offer.sdp = offer.sdp.replace("VP8", preferredCodec);
+
+  await pc.setLocalDescription(offer);
+  socket.emit("offer", { to: partnerSocketId, sdp: pc.localDescription });
+
+} else if (remoteOffer) {
+  await pc.setRemoteDescription(new RTCSessionDescription(remoteOffer));
+
+  let answer = await pc.createAnswer();
+  answer.sdp = answer.sdp.replace("VP8", preferredCodec);
+
+  await pc.setLocalDescription(answer);
+  socket.emit("answer", { to: partnerSocketId, sdp: pc.localDescription });
+}
+
 }
 
 
