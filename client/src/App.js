@@ -530,7 +530,30 @@ socket.on("paired", async ({ partnerId, initiator, partnerInfo, partnerCodec }) 
       window.removeEventListener("resize", setDefault);
     };
   }, []);
+                                               
+                               
+                                                   //CAMERA FOCUS
+async function tuneCameraFocus(stream) {
+  const track = stream.getVideoTracks()[0];
+  const caps = track.getCapabilities();
 
+  // Check focus control support
+  if (!caps.focusMode) {
+    console.log("❌ Focus control not supported on this device/browser.");
+    return;
+  }
+
+  // Try to enable continuous focus
+  const constraints = { advanced: [{ focusMode: "continuous" }] };
+  try {
+    await track.applyConstraints(constraints);
+    console.log("🎯 Camera focus set to continuous mode.");
+  } catch (err) {
+    console.warn("Failed to set focus mode:", err);
+  }
+}
+
+                               
   /* ---------- Media & Peer ---------- */
   async function startLocalStream(forceEnable = false) {
   if (localStreamRef.current) {
@@ -563,6 +586,9 @@ socket.on("paired", async ({ partnerId, initiator, partnerInfo, partnerCodec }) 
       video: videoConstraints,
       audio: audioConstraints,
     });
+
+    //for focus
+    tuneCameraFocus(s);
 
     // 🔊 Step 2: Respect your mic/cam toggle states
     s.getAudioTracks().forEach((t) => (t.enabled = micOn));
