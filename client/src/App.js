@@ -42,22 +42,25 @@ function getBrowser() {
   return "Other";
 }
 
-// ✅ Decide best codec for the current device + browser
+
+// ✅ Smart browser-based default codec choice
 function getPreferredCodec() {
-  const mobile = isMobile();
-  const browser = getBrowser();
+  const ua = navigator.userAgent;
 
-  if (browser === "Chrome" || browser === "Firefox") {
-    return "VP9"; // works best on both mobile and desktop
+  // Safari (iPhone, iPad, Mac)
+  if (/Safari/i.test(ua) && !/Chrome|Chromium/i.test(ua)) {
+    return "H264"; // Safari prefers H264 (hardware acceleration)
   }
 
-  if (browser === "Safari") {
-    return "H264"; // Safari prefers H264
+  // Chrome or Firefox (desktop or Android)
+  if (/Chrome|Firefox/i.test(ua)) {
+    return "VP9"; // modern efficient codec
   }
 
-  // Edge or others → fallback
+  // Fallback (Edge, Opera, others)
   return "VP8";
 }
+
 
 
 
@@ -729,27 +732,26 @@ const monitorQuality = setInterval(async () => {
 
   // 🎬 Step 6: Create offer / answer
   // 🎬 Step 6: Create offer / answer
-const preferredCodec = getPreferredCodec();
-console.log(`🎥 Using preferred codec: ${preferredCodec}`);
+// 🎬 Step 6: Create offer / answer with codec negotiation
+const localCodec = getPreferredCodec();
+const remoteCodec = partnerInfo?.partnerCodec || "VP8"; // get from paired event
+const finalCodec = getCommonCodec(localCodec, remoteCodec);
+
+console.log(`🎥 Local prefers: ${localCodec}, Remote prefers: ${remoteCodec}, Using: ${finalCodec}`);
 
 if (initiator) {
   let offer = await pc.createOffer();
-
-  // replace VP8 (default) with preferred codec
-  offer.sdp = offer.sdp.replace("VP8", preferredCodec);
-
+  offer.sdp = offer.sdp.replace("VP8", finalCodec);
   await pc.setLocalDescription(offer);
   socket.emit("offer", { to: partnerSocketId, sdp: pc.localDescription });
-
 } else if (remoteOffer) {
   await pc.setRemoteDescription(new RTCSessionDescription(remoteOffer));
-
   let answer = await pc.createAnswer();
-  answer.sdp = answer.sdp.replace("VP8", preferredCodec);
-
+  answer.sdp = answer.sdp.replace("VP8", finalCodec);
   await pc.setLocalDescription(answer);
   socket.emit("answer", { to: partnerSocketId, sdp: pc.localDescription });
 }
+
 
 }
 
