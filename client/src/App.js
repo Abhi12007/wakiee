@@ -776,7 +776,12 @@ if (initiator) {
       storedPrefsRef.current.localPos = pos;
       setLocalPos(pos);
     }
+ // ✅ Send codec preference to server before joining
+  const localCodec = getPreferredCodec();
+  socket.emit("codec-preference", { codec: localCodec });
+  console.log("🎯 Sent codec preference:", localCodec);
 
+  // join the queue
     socket.emit("join", { name, gender });
     setJoined(true);
     setStatus("searching");
