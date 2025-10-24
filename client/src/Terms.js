@@ -64,7 +64,9 @@ const Terms = () => {
     });
 
     // ✅ JSON-LD Structured Data
-   ldJson.text = JSON.stringify({
+const ldJson = document.createElement("script");   // <-- MISSING LINE
+ldJson.type = "application/ld+json";
+ldJson.text = JSON.stringify({
   "@context": "https://schema.org",
   "@type": "WebPage",
   "name": "Terms of Service | Wakiee",
@@ -75,11 +77,12 @@ const Terms = () => {
     "@type": "Organization",
     "name": "Wakiee",
     "url": "https://wakiee.live",
-    "logo": "https://wakiee.live/android-chrome-192x192.png",
+    "logo": "https://wakiee.live/android-chrome-192x192.png"
   }
 });
 
-    document.head.appendChild(ldJson);
+document.head.appendChild(ldJson);
+
   }, []);
 
   return (
