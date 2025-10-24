@@ -74,6 +74,7 @@ const ogData = [
   { property: "og:url", content: "https://wakiee.live/contact" },
   { property: "og:image", content: "https://wakiee.live/og-image.jpg" },
   { property: "og:site_name", content: "Wakiee" },
+  { property: "og:image:alt", content: "Contact Wakiee — Random Video Chat Support Page" },
 ];
 
 ogData.forEach((data) => {
