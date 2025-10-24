@@ -683,8 +683,10 @@ if (caps?.zoom) {
   localStream.getTracks().forEach((t) => pc.addTrack(t, localStream));
 
   // 🧠 Step 4: Adaptive quality based on network stats
- // 🧠 Step 4: Adaptive quality based on network stats                                 // CHANGES QUALITY ACCORDING TO INTERNET SPEED + ADDED BITRATE ENCODING
-let lastQualityTier = null; // store last applied quality to avoid flicker
+// 🧠 Step 4: Adaptive quality based on network stats (Hybrid: applyConstraints + replaceTrack)
+let lastQualityTier = null;
+let lastBytesSent = 0;
+let lastTimestamp = 0;
 
 const monitorQuality = setInterval(async () => {
   if (!pcRef.current) return clearInterval(monitorQuality);
@@ -700,83 +702,131 @@ const monitorQuality = setInterval(async () => {
       }
     });
 
-    if (outbound && outbound.bytesSent && outbound.framesEncoded) {
-      // ⚙️ Calculate current bitrate (kbps)
-      const bitrate = (8 * outbound.bytesSent) / 1024;
+    if (outbound && outbound.bytesSent) {
+      // 🔹 Compute delta bitrate (kbps)
+      if (lastTimestamp && outbound.timestamp !== lastTimestamp) {
+        const bitrate =
+          ((outbound.bytesSent - lastBytesSent) * 8) /
+          (outbound.timestamp - lastTimestamp);
+        const kbps = Math.round(bitrate); // kbps
 
-      // Determine quality tier
-      let tier = null;
-      if (bitrate < 500) tier = "360p";
-      else if (bitrate >= 500 && bitrate <= 2000) tier = "720p";
-      else if (bitrate > 2000 && bitrate <= 5000) tier = "1080p";
-      else if (bitrate > 5000) tier = "2k";
+        // 🎯 Determine tier
+        let tier = "720p";
+        if (kbps < 500) tier = "360p";
+        else if (kbps >= 500 && kbps <= 2000) tier = "720p";
+        else if (kbps > 2000 && kbps <= 5000) tier = "1080p";
+        else if (kbps > 5000) tier = "2k";
 
-      // If tier didn’t change, skip reapplying
-      if (tier === lastQualityTier) return;
+        // Avoid reapplying same tier
+        if (tier === lastQualityTier) {
+          lastBytesSent = outbound.bytesSent;
+          lastTimestamp = outbound.timestamp;
+          return;
+        }
 
-      // 🎥 Select video track
-      const track = localStream.getVideoTracks()[0];
-      if (!track) return;
+        const track = localStream.getVideoTracks()[0];
+        const sender = pcRef.current
+          .getSenders()
+          .find((s) => s.track && s.track.kind === "video");
 
-      // Apply resolution & frame rate constraints
-      if (tier === "360p") {
-        await track.applyConstraints({
-          width: { ideal: 640 },
-          height: { ideal: 360 },
-          frameRate: { ideal: 20, max: 24 },
-        });
-        console.log("🟥 Network low → 360p mode");
-      } else if (tier === "720p") {
-        await track.applyConstraints({
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          frameRate: { ideal: 30, max: 30 },
-        });
-        console.log("⚪ Network medium → 720p mode");
-      } else if (tier === "1080p") {
-        await track.applyConstraints({
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          frameRate: { ideal: 60, max: 60 },
-        });
-        console.log("🟢 Network strong → 1080p mode");
-      } else if (tier === "2k") {
-        await track.applyConstraints({
-          width: { ideal: 2560 },
-          height: { ideal: 1440 },
-          frameRate: { ideal: 60, max: 60 },
-        });
-        console.log("💎 Network excellent → 2K (1440p) mode");
-      }
+        if (!track || !sender) return;
 
-      // 🧩 Apply encoder bitrate (RTCRtpSender)
-      const sender = pcRef.current
-        .getSenders()
-        .find((s) => s.track && s.track.kind === "video");
-      if (sender) {
+        // 🎥 Decide which method to use
+        const currentWidth = track.getSettings().width || 720;
+        const bigJump =
+          (tier === "1080p" && currentWidth < 1280) ||
+          (tier === "360p" && currentWidth > 640) ||
+          (tier === "2k" && currentWidth < 1920);
+
+        if (bigJump) {
+          // ⚙️ Big jump → use replaceTrack() to avoid flicker
+          console.log(`♻️ Big resolution jump detected → Using replaceTrack() for ${tier}`);
+
+          try {
+            const newStream = await navigator.mediaDevices.getUserMedia({
+              video:
+                tier === "360p"
+                  ? { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 24 } }
+                  : tier === "720p"
+                  ? { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } }
+                  : tier === "1080p"
+                  ? { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } }
+                  : { width: { ideal: 2560 }, height: { ideal: 1440 }, frameRate: { ideal: 60 } },
+            });
+
+            const newTrack = newStream.getVideoTracks()[0];
+            await sender.replaceTrack(newTrack);
+            localStreamRef.current = newStream;
+            localVideoRef.current.srcObject = newStream;
+
+            // Stop old track to free camera
+            track.stop();
+
+            console.log(`✅ Seamless quality switch done via replaceTrack() → ${tier}`);
+          } catch (err) {
+            console.warn("replaceTrack() failed, fallback to applyConstraints:", err);
+          }
+        } else {
+          // ⚙️ Small change → safe to use applyConstraints()
+          try {
+            if (tier === "360p") {
+              await track.applyConstraints({
+                width: { ideal: 640 },
+                height: { ideal: 360 },
+                frameRate: { ideal: 20, max: 24 },
+              });
+            } else if (tier === "720p") {
+              await track.applyConstraints({
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                frameRate: { ideal: 30 },
+              });
+            } else if (tier === "1080p") {
+              await track.applyConstraints({
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+                frameRate: { ideal: 60 },
+              });
+            } else if (tier === "2k") {
+              await track.applyConstraints({
+                width: { ideal: 2560 },
+                height: { ideal: 1440 },
+                frameRate: { ideal: 60 },
+              });
+            }
+            console.log(`🎞️ Adjusted quality (applyConstraints) → ${tier}`);
+          } catch (err) {
+            console.warn("applyConstraints() failed:", err);
+          }
+        }
+
+        // 🧩 Encoder bitrate for the selected tier
         try {
           const params = sender.getParameters();
           params.encodings = params.encodings || [{}];
-
-          if (tier === "360p") params.encodings[0].maxBitrate = 300_000; // 300 kbps
-          else if (tier === "720p") params.encodings[0].maxBitrate = 1_500_000; // 1.5 Mbps
-          else if (tier === "1080p") params.encodings[0].maxBitrate = 6_000_000; // 6 Mbps
-          else if (tier === "2k") params.encodings[0].maxBitrate = 12_000_000; // 12 Mbps
-
+          if (tier === "360p") params.encodings[0].maxBitrate = 300_000;
+          else if (tier === "720p") params.encodings[0].maxBitrate = 1_500_000;
+          else if (tier === "1080p") params.encodings[0].maxBitrate = 6_000_000;
+          else if (tier === "2k") params.encodings[0].maxBitrate = 12_000_000;
           await sender.setParameters(params);
-          console.log("⚙️ Encoder bitrate set for:", tier);
+          console.log(`⚙️ Encoder bitrate set for ${tier}`);
         } catch (err) {
           console.warn("setParameters failed:", err);
         }
-      }
 
-      // Save last applied tier
-      lastQualityTier = tier;
+        lastQualityTier = tier;
+        lastBytesSent = outbound.bytesSent;
+        lastTimestamp = outbound.timestamp;
+      } else {
+        lastBytesSent = outbound.bytesSent;
+        lastTimestamp = outbound.timestamp;
+      }
     }
   } catch (err) {
     console.warn("monitorQuality error:", err);
   }
-}, 2000); // check every 2 seconds
+}, 2000);
+
 
   // 🎧 Step 5: Optimize audio (Opus)
   pc.getSenders().forEach((sender) => {
