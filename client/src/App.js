@@ -297,8 +297,7 @@ const schema = [
     "description": "Wakiee — random video and voice chat app to meet and talk with people globally.",
     "sameAs": [
       "https://www.instagram.com/wakiee.live",
-      "https://x.com/wakiee_live",
-      "https://www.facebook.com/wakiee.live"
+      "https://x.com/wakiee_live"
     ],
     "publisher": {
       "@type": "Organization",
@@ -319,8 +318,7 @@ const schema = [
     "logo": "https://wakiee.live/android-chrome-192x192.png",
     "sameAs": [
       "https://www.instagram.com/wakiee.live",
-      "https://x.com/wakiee_live",
-      "https://www.facebook.com/wakiee.live"
+      "https://x.com/wakiee_live"
     ],
     "description": "Wakiee — random video and voice chat platform to connect and learn safely online."
   }
