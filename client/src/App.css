@@ -163,7 +163,26 @@ section, main, .content, .video-container {
 .landing-footer{margin-top:40px;padding:16px 30px;display:flex;justify-content:space-between;align-items:center;font-size:14px;border-top:1px solid rgba(255,255,255,0.06)}
 .landing-footer a{margin-left:16px;color:var(--muted);text-decoration:none}
 .landing-footer a:hover{text-decoration:underline}
-.insta-icon{margin-left:8px;color:#e1306c;font-weight:700}
+
+.insta-icon svg,
+.twitter-icon svg {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.insta-icon svg {
+  color: #e1306c; /* Instagram brand color */
+}
+
+.twitter-icon svg {
+  color: #1d9bf0; /* Twitter (X) brand color */
+}
+
+.insta-icon:hover svg,
+.twitter-icon:hover svg {
+  transform: scale(1.15);
+  opacity: 0.85;
+}
+
 
 /* topbar (in-app) */
 .topbar{position:relative;z-index:3;display:flex;justify-content:flex-end;padding:12px 24px;color:var(--muted);font-size:14px}
