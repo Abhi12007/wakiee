@@ -44,28 +44,32 @@ const Privacy = () => {
     }
 
     // ✅ Open Graph / Social Meta Tags
-    const ogTags = [
-      { property: "og:title", content: "Privacy Policy | Wakiee — Safe Anonymous Video Chat" },
-      {
-        property: "og:description",
-        content:
-          "Discover how Wakiee keeps your video chats private and secure. No tracking, no data storage — just safe global connections.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://wakiee.live/privacy" },
-      { property: "og:image", content: "https://wakiee.live/og-image.jpg" },
-      { property: "og:site_name", content: "Wakiee" },
-    ];
-    ogTags.forEach((tag) => {
-      const meta = document.createElement("meta");
-      meta.setAttribute("property", tag.property);
-      meta.setAttribute("content", tag.content);
-      document.head.appendChild(meta);
-    });
+   // ✅ Open Graph / Social Meta Tags
+const ogTags = [
+  { property: "og:title", content: "Privacy Policy | Wakiee — Safe Anonymous Video Chat" },
+  {
+    property: "og:description",
+    content:
+      "Discover how Wakiee keeps your video chats private and secure. No tracking, no data storage — just safe global connections.",
+  },
+  { property: "og:type", content: "website" },
+  { property: "og:url", content: "https://wakiee.live/privacy" },
+  { property: "og:image", content: "https://wakiee.live/og-image.jpg" },
+  { property: "og:site_name", content: "Wakiee" },
+];
+ogTags.forEach((tag) => {
+  const meta = document.createElement("meta");
+  meta.setAttribute("property", tag.property);
+  meta.setAttribute("content", tag.content);
+  document.head.appendChild(meta);
+});
 
-    // ✅ JSON-LD Structured Data (Google Rich Snippet)
-    const ldJson = document.createElement("script");
-    ldJson.text = JSON.stringify({
+// ✅ JSON-LD Structured Data (Google Rich Snippet)
+const ldJson = document.createElement("script");
+ldJson.type = "application/ld+json";  // ✅ THIS LINE WAS MISSING
+ldJson.dataset.schema = "privacy";    // optional, helps prevent duplicates
+
+ldJson.text = JSON.stringify({
   "@context": "https://schema.org",
   "@type": "WebPage",
   "name": "Privacy Policy | Wakiee",
@@ -80,7 +84,12 @@ const Privacy = () => {
   }
 });
 
-    document.head.appendChild(ldJson);
+// 🧹 Optional safety: remove existing JSON-LD before appending a new one
+const oldLd = document.querySelector('script[type="application/ld+json"][data-schema="privacy"]');
+if (oldLd) oldLd.remove();
+
+document.head.appendChild(ldJson);
+
   }, []);
 
   return (
