@@ -12,28 +12,27 @@ const BlogPost = () => {
   // 🟢 State to show the unbanned popup
   const [showUnbannedPopup, setShowUnbannedPopup] = useState(false);
 
-  useEffect(() => {
+useEffect(() => {
   if (!post) return;
 
+  // 🧭 Page title and basic metadata
   document.title = `${post.title} | Wakiee Blog`;
-  const desc = post.excerpt || "Read insightful stories on Wakiee about random video calling and online learning.";
-  const canonical = `https://wakiee.live/blog/${post.slug}`;
+  const desc =
+    post.excerpt ||
+    "Read insightful stories on Wakiee about random video calling and online learning.";
+  const canonicalUrl = `https://wakiee.live/blog/${post.slug}`;
 
-  // Canonical
-  // Canonical
-let oldLinks = document.querySelectorAll("link[rel='canonical']");
-oldLinks.forEach(el => el.remove()); // remove duplicates
+  // 🧹 Remove any old canonical links before adding a new one
+  const oldLinks = document.querySelectorAll("link[rel='canonical']");
+  oldLinks.forEach((el) => el.remove());
 
-const canonicalUrl = `https://wakiee.live/blog/${post.slug}`; // no trailing slash
-const canonicalLink = document.createElement("link");
-canonicalLink.setAttribute("rel", "canonical");
-canonicalLink.setAttribute("href", canonicalUrl);
-document.head.appendChild(canonicalLink);
+  // 🪶 Add new canonical tag
+  const canonicalLink = document.createElement("link");
+  canonicalLink.setAttribute("rel", "canonical");
+  canonicalLink.setAttribute("href", canonicalUrl);
+  document.head.appendChild(canonicalLink);
 
-  }
-  link.href = canonical;
-
-  // Meta Description
+  // 📝 Meta Description
   let metaDesc = document.querySelector("meta[name='description']");
   if (!metaDesc) {
     metaDesc = document.createElement("meta");
