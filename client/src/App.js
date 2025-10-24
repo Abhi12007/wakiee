@@ -849,7 +849,7 @@ if (initiator) {
   setTimeout(() => {
     socket.emit("join", { name, gender });
     setStatus("searching");
-  }, 2000); // 2-second delay
+  }, 1000); // 1-second delay
 }
 
   function handleStop() {
