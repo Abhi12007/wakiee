@@ -674,15 +674,38 @@ if (caps?.zoom) {
     pcRef.current = null;
   }
 
-  // 🌍 Step 1: Create PeerConnection with TURN/STUN servers
+ // 🌍 Step 1: Create PeerConnection with TURN/STUN servers
   const pc = new RTCPeerConnection({
     iceServers: [
-      { urls: "stun:stun.l.google.com:19302" },
+           // 1️⃣ Fast STUN — quick IP discovery
+  { urls: "stun:stun.l.google.com:19302" },
+  { urls: "stun:stun1.l.google.com:19302" },
+  { urls: "stun:stun2.l.google.com:19302" },
+   { urls: "stun:stun3.l.google.com:19302" },
+  { urls: "stun:stun4.l.google.com:19302" },
       {
+    urls: [
+      "turn:turn.in.wakiee.live:3478?transport=udp",
+      "turns:turn.in.wakiee.live:5349?transport=tcp",
+      "turns:turn.sg.wakiee.live:5349?transport=tcp",
+    ],
+    username: "wakieeuser",
+    credential: "wakieepass123",
+  },
+
+     {
         urls: "turn:relay1.expressturn.com:3478",
         username: "000000002074682235",
         credential: "tN/jre4jo0Rpoi0z5MXgby3QAqo=",
       },
+
+
+       {
+        urls: "turn:relay1.expressturn.com:3480",
+        username: "000000002075993076",
+        credential: "95Ba+ErlB7Fg6HDb1t1tc5ju6Rc=",
+      },
+
     ],
   });
   pcRef.current = pc;
