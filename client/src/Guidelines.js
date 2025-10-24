@@ -46,51 +46,86 @@ const Community = () => {
       document.head.appendChild(meta);
     }
 
-    // ✅ Open Graph Meta
-    const ogTags = [
-      {
-        property: "og:title",
-        content:
-          "Community Guidelines | Wakiee — Safe Random Video Chat Rules & Policy",
-      },
-      {
-        property: "og:description",
-        content:
-          "Follow Wakiee’s Community Guidelines for respectful, safe, and AdSense-compliant random video chatting worldwide.",
-      },
-      { property: "og:type", content: "website" },
-      {
-        property: "og:url",
-        content: "https://wakiee.live/guidelines",
-      },
-      { property: "og:image", content: "https://wakiee.live/og-image.jpg" },
-      { property: "og:site_name", content: "Wakiee" },
-    ];
-    ogTags.forEach((tag) => {
-      const meta = document.createElement("meta");
-      meta.setAttribute("property", tag.property);
-      meta.setAttribute("content", tag.content);
-      document.head.appendChild(meta);
-    });
+    // ✅ Open Graph Meta (safe insert)
+const ogTags = [
+  {
+    property: "og:title",
+    content: "Community Guidelines | Wakiee — Safe Random Video Chat Rules & Policy",
+  },
+  {
+    property: "og:description",
+    content:
+      "Follow Wakiee’s Community Guidelines for respectful, safe, and AdSense-compliant random video chatting worldwide.",
+  },
+  { property: "og:type", content: "website" },
+  { property: "og:url", content: "https://wakiee.live/guidelines" },
+  { property: "og:image", content: "https://wakiee.live/og-image.jpg" },
+  { property: "og:site_name", content: "Wakiee" },
+];
 
-    // ✅ JSON-LD Structured Data
-    const ldJson = document.createElement("script");
-    ldJson.type = "application/ld+json";
-    ldJson.text = JSON.stringify({
-      "@context": "https://schema.org",
+ogTags.forEach((tag) => {
+  if (!document.querySelector(`meta[property='${tag.property}']`)) {
+    const meta = document.createElement("meta");
+    meta.setAttribute("property", tag.property);
+    meta.setAttribute("content", tag.content);
+    document.head.appendChild(meta);
+  }
+});
+
+
+    // ✅ JSON-LD Structured Data (Enhanced with FAQPage)
+const ldJson = document.createElement("script");
+ldJson.type = "application/ld+json";
+ldJson.text = JSON.stringify({
+  "@context": "https://schema.org",
+  "@graph": [
+    {
       "@type": "WebPage",
-      "name": "Wakiee Community Guidelines",
+      "@id": "https://wakiee.live/guidelines",
       "url": "https://wakiee.live/guidelines",
+      "name": "Wakiee Community Guidelines",
       "description":
         "Official Wakiee Community Guidelines outlining safety, moderation, and AdSense-compliant behavior for random video chat users.",
       "publisher": {
         "@type": "Organization",
         "name": "Wakiee",
         "url": "https://wakiee.live",
-        "logo": "https://wakiee.live/android-chrome-192x192.png",
-      },
-    });
-    document.head.appendChild(ldJson);
+        "logo": "https://wakiee.live/android-chrome-192x192.png"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What behavior is prohibited on Wakiee?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Wakiee prohibits nudity, hate speech, harassment, illegal activities, impersonation, and spam. Violators may be permanently banned."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Wakiee record or store video chats?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Wakiee never records or stores video or voice chats. All sessions are temporary, secure, and peer-to-peer."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Wakiee suitable for minors?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Wakiee is strictly for users aged 18 and above. Underage access is prohibited, and suspected minors are removed immediately."
+          }
+        }
+      ]
+    }
+  ]
+});
+document.head.appendChild(ldJson);
+
   }, []);
 
   return (
@@ -219,12 +254,14 @@ const Community = () => {
         <li>Any such activity may result in a permanent ban and legal action.</li>
       </ul>
 
-      <h2>🛡️ Moderation &amp; User Responsibility</h2>
-      <p>
-        Wakiee employs <strong>human moderators</strong> who monitor activity and
-        respond to reports. We may introduce <strong>AI-based moderation</strong>{" "}
-        in the future to improve safety and speed.
-      </p>
+     <h2>🛡️ Moderation &amp; User Responsibility</h2>
+<p>
+  Wakiee uses a combination of <strong>AI-based and human moderation</strong> to detect
+  and remove unsafe or inappropriate content in real time. Our moderation systems
+  automatically flag potentially harmful behavior, and human reviewers ensure fairness
+  and accuracy in enforcement.
+</p>
+
       <ul>
         <li>You are connecting with real people in real time.</li>
         <li>
@@ -266,6 +303,34 @@ const Community = () => {
         <li>Reports are reviewed by moderators for action.</li>
         <li>False or abusive reporting may lead to penalties.</li>
       </ul>
+          <h2>📢 Advertising, Cookies &amp; AdSense Compliance</h2>
+<p>
+  Wakiee displays advertisements through <strong>Google AdSense</strong> and other
+  trusted ad networks. These third-party vendors may use cookies to deliver
+  personalized ads based on user interests and prior visits.
+</p>
+<p>
+  By using Wakiee, you consent to the use of cookies and similar technologies as
+  described in our{" "}
+  <a href="/privacy" style={{ color: "#4FA3FF" }}>
+    Privacy Policy
+  </a>
+  . You can manage or disable personalized ads through{" "}
+  <a
+    href="https://adssettings.google.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{ color: "#4FA3FF" }}
+  >
+    Google Ads Settings
+  </a>
+  .
+</p>
+<p>
+  Wakiee complies with Google’s Publisher Policies and ensures that user-generated
+  content is actively moderated to maintain AdSense-safe environments.
+</p>
+
 
       <h2>⏳ Enforcement</h2>
       <p>
@@ -287,6 +352,21 @@ const Community = () => {
         <br />
         📍 <strong>Wakiee Technologies, Delhi, India</strong>
       </p>
+          <p
+  style={{
+    textAlign: "center",
+    marginTop: "40px",
+    fontSize: "15px",
+    opacity: 0.8,
+    lineHeight: "1.8",
+  }}
+>
+  Learn more about our{" "}
+  <a href="/privacy" style={{ color: "#4FA3FF" }}>Privacy Policy</a>,{" "}
+  <a href="/terms" style={{ color: "#4FA3FF" }}>Terms of Service</a>, and{" "}
+  <a href="/contact" style={{ color: "#4FA3FF" }}>Contact Page</a>.
+</p>
+
     </div>
   );
 };
