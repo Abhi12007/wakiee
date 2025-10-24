@@ -284,38 +284,60 @@ if (!canonical) {
 canonical.setAttribute("href", "https://wakiee.live/");
 
 // ✅ Structured Data (Enhanced for SEO + AdSense)
-const schema = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "Wakiee",
-  "alternateName": "wakiee.live",
-  "url": "https://wakiee.live/",
-  "logo": "https://wakiee.live/android-chrome-192x192.png",
-  "description": "Wakiee — random video and voice chat app to meet and talk with people globally.",
-  "sameAs": [
-    "https://www.instagram.com/wakiee.live"
-  ],
-  "publisher": {
+// ✅ Structured Data (Enhanced for SEO + AdSense)
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": "https://wakiee.live/#website",
+    "name": "Wakiee",
+    "alternateName": "wakiee.live",
+    "url": "https://wakiee.live/",
+    "logo": "https://wakiee.live/android-chrome-192x192.png",
+    "description": "Wakiee — random video and voice chat app to meet and talk with people globally.",
+    "sameAs": [
+      "https://www.instagram.com/wakiee.live",
+      "https://x.com/wakiee_live",
+      "https://www.facebook.com/wakiee.live"
+    ],
+    "publisher": {
+      "@type": "Organization",
+      "name": "Wakiee",
+      "url": "https://wakiee.live",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://wakiee.live/android-chrome-192x192.png"
+      }
+    }
+  },
+  {
+    "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": "https://wakiee.live/#organization",
     "name": "Wakiee",
     "url": "https://wakiee.live",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://wakiee.live/android-chrome-192x192.png"
-    }
+    "logo": "https://wakiee.live/android-chrome-192x192.png",
+    "sameAs": [
+      "https://www.instagram.com/wakiee.live",
+      "https://x.com/wakiee_live",
+      "https://www.facebook.com/wakiee.live"
+    ],
+    "description": "Wakiee — random video and voice chat platform to connect and learn safely online."
   }
-};
+];
 
 // 🧹 Remove any existing JSON-LD to prevent duplicates
-const existing = document.querySelector('script[type="application/ld+json"][data-schema="main"]');
-if (existing) existing.remove();
+document
+  .querySelectorAll('script[type="application/ld+json"][data-schema="main"]')
+  .forEach((el) => el.remove());
 
-// 🧠 Inject new structured data
+// 🧠 Inject new structured data (both WebSite + Organization)
 const ld = document.createElement("script");
 ld.type = "application/ld+json";
-ld.dataset.schema = "main"; // mark it so we can find it later
+ld.dataset.schema = "main"; // mark it for easy cleanup later
 ld.text = JSON.stringify(schema);
 document.head.appendChild(ld);
+
 
   }, []);
 
