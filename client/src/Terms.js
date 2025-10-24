@@ -3,7 +3,8 @@ import React, { useEffect } from "react";
 const Terms = () => {
   useEffect(() => {
     // ✅ SEO Title
-    document.title = "Terms of Service | Wakiee — Safe Random Video Chat Platform";
+    document.title = "Terms of Service | Wakiee — Random Video & Voice Chat Platform";
+
 
     // ✅ Canonical Tag
     const canonicalLink = document.querySelector("link[rel='canonical']");
@@ -63,22 +64,21 @@ const Terms = () => {
     });
 
     // ✅ JSON-LD Structured Data
-    const ldJson = document.createElement("script");
-    ldJson.type = "application/ld+json";
-    ldJson.text = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "TermsOfService",
-      "name": "Wakiee Terms of Service",
-      "url": "https://wakiee.live/terms",
-      "description":
-        "The official Terms of Service for Wakiee, explaining user conduct, privacy, moderation, and AdSense-compliant random video chat guidelines.",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Wakiee",
-        "url": "https://wakiee.live",
-        "logo": "https://wakiee.live/android-chrome-192x192.png",
-      },
-    });
+   ldJson.text = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Terms of Service | Wakiee",
+  "url": "https://wakiee.live/terms",
+  "description":
+    "Read Wakiee's official Terms of Service — learn about AI moderation, AdSense compliance, user behavior rules, and privacy protection for safe random video chats.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Wakiee",
+    "url": "https://wakiee.live",
+    "logo": "https://wakiee.live/android-chrome-192x192.png",
+  }
+});
+
     document.head.appendChild(ldJson);
   }, []);
 
@@ -182,7 +182,19 @@ const Terms = () => {
         Reported users may be reviewed and banned by moderators without prior notice.
       </p>
 
-      <h2>7. Limitation of Liability</h2>
+          <h2>7. Content Moderation & Safety Policy</h2>
+<p>
+  Wakiee uses a combination of <strong>AI-based and human moderation</strong> systems to ensure that all
+  interactions remain respectful and safe. Content that violates community standards — such as nudity,
+  hate speech, harassment, or illegal activity — may be automatically flagged and removed.
+</p>
+<p>
+  Repeat or severe violations may result in immediate suspension or permanent bans.
+  For details, please visit our{" "}
+  <a href="/guidelines" style={{ color: "#4FA3FF" }}>Community Guidelines</a>.
+</p>
+
+      <h2>8. Limitation of Liability</h2>
       <p>
         Wakiee provides its services on an “as-is” basis. We make no warranties, express or implied,
         regarding continuous availability, safety, or user-generated content.
@@ -192,50 +204,65 @@ const Terms = () => {
         loss, or injury arising from user interactions or technical interruptions.
       </p>
 
-      <h2>8. Termination</h2>
+      <h2>9. Termination</h2>
       <p>
         We may terminate or suspend access without notice if you violate these Terms or applicable laws,
         or if repeated reports of misconduct occur. Upon termination, access ceases immediately.
       </p>
 
-      <h2>9. Changes to Terms</h2>
+      <h2>10. Changes to Terms</h2>
       <p>
         Wakiee may update or modify these Terms at any time. Updates will be posted with a revised “Last Updated” date.
         Continued use means acceptance of revised Terms.
       </p>
 
-      <h2>10. Governing Law</h2>
+      <h2>11. Governing Law</h2>
       <p>
         These Terms are governed by the laws of India. All disputes are subject to the exclusive jurisdiction
         of the courts in Delhi, India.
       </p>
 
-      <h2>11. Contact</h2>
+      <h2>12. Contact</h2>
       <p>
         For questions or legal notices, contact:<br />
         📧 <strong>contact@wakiee.live</strong><br />
         📍 <strong>Wakiee Technologies, Delhi, India</strong>
       </p>
 
-      <h2>12. Third-Party Content Disclaimer</h2>
+      <h2>13. Third-Party Content Disclaimer</h2>
       <p>
         Wakiee may display third-party advertisements or content for information purposes.
         We do not control, endorse, or assume responsibility for any third-party websites or services.
       </p>
 
-      <h2>13. Intellectual Property</h2>
+      <h2>14. Intellectual Property</h2>
       <p>
         All trademarks, logos, and materials on Wakiee belong to Wakiee Technologies or its licensors.
         Unauthorized copying, reproduction, or redistribution is prohibited.
       </p>
 
-      <h2>14. Indemnification</h2>
+      <h2>15. Indemnification</h2>
       <p>
         You agree to indemnify and hold harmless Wakiee Technologies, its owners, employees, and partners
         from claims, damages, or liabilities resulting from your actions or violations of these Terms.
       </p>
 
-      <h2>15. Cookies and Analytics</h2>
+          <h2>15.1 Google AdSense & Cookies</h2>
+<p>
+  Wakiee displays ads served by <strong>Google AdSense</strong> and other third-party partners. 
+  These vendors may use cookies to collect non-personal browsing data to deliver personalized advertisements. 
+  By using Wakiee, you consent to the use of such cookies as described in our{" "}
+  <a href="/privacy" style={{ color: "#4FA3FF" }}>Privacy Policy</a>.
+</p>
+<p>
+  Users may opt out of personalized ads by visiting{" "}
+  <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" style={{ color: "#4FA3FF" }}>
+    Google Ads Settings
+  </a>.
+</p>
+
+
+      <h2>16. Cookies and Analytics</h2>
       <p>
         Wakiee uses cookies and analytics tools to enhance user experience and deliver relevant advertisements.
         By using Wakiee, you consent to cookies as described in our{" "}
@@ -244,12 +271,19 @@ const Terms = () => {
         </a>.
       </p>
 
-      <h2>16. Service Availability (Force Majeure)</h2>
+      <h2>17. Service Availability (Force Majeure)</h2>
       <p>
         Wakiee does not guarantee uninterrupted service. Temporary outages may occur due to maintenance,
         network issues, or factors beyond our control. We are not responsible for any data loss or interruption
         caused by such events.
       </p>
+          <p style={{ marginTop: "40px", textAlign: "center", opacity: 0.8 }}>
+  Learn more about our{" "}
+  <a href="/privacy" style={{ color: "#4FA3FF" }}>Privacy Policy</a>,{" "}
+  <a href="/guidelines" style={{ color: "#4FA3FF" }}>Community Guidelines</a>, and{" "}
+  <a href="/contact" style={{ color: "#4FA3FF" }}>Contact Page</a>.
+</p>
+
     </div>
   );
 };
