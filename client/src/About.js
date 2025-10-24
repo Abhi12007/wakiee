@@ -48,6 +48,13 @@ stranger chat website, global video chatting, talk online, random people video c
       { property: "og:description", content: "Discover Wakiee — a safe, anonymous video chat app connecting people worldwide for fun, learning, and conversation." },
       { property: "og:url", content: "https://wakiee.live/about" },
       { property: "og:image", content: "https://wakiee.live/android-chrome-192x192.png" },
+      { property: "og:type", content: "website" },
+  { property: "og:site_name", content: "Wakiee" },
+  { property: "og:image:alt", content: "About Wakiee — Random Video Chat Platform" },
+  { name: "twitter:card", content: "summary_large_image" },
+  { name: "twitter:title", content: "About Wakiee | Connect, Learn & Talk Online" },
+  { name: "twitter:description", content: "Discover Wakiee — random video chat for global learning and friendship." },
+  { name: "twitter:image", content: "https://wakiee.live/android-chrome-192x192.png" }
     ];
 
     ogTags.forEach(({ property, content }) => {
