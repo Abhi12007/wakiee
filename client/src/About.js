@@ -61,40 +61,63 @@ stranger chat website, global video chatting, talk online, random people video c
     });
 
     // ✅ JSON-LD Schema
-    const schema = {
-      "@context": "https://schema.org",
-      "@graph": [
+  // ✅ JSON-LD Schema
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://wakiee.live/about",
+      "url": "https://wakiee.live/about",
+      "name": "About Wakiee",
+      "description": description,
+      "isPartOf": { "@id": "https://wakiee.live/#website" },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://wakiee.live/" },
+          { "@type": "ListItem", "position": 2, "name": "About", "item": "https://wakiee.live/about" }
+        ]
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://wakiee.live/#organization",
+      "name": "Wakiee",
+      "url": "https://wakiee.live",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://wakiee.live/android-chrome-192x192.png"
+      },
+      "sameAs": [
+        "https://www.instagram.com/wakiee.live"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
         {
-          "@type": "WebPage",
-          "@id": "https://wakiee.live/about",
-          "url": "https://wakiee.live/about",
-          "name": "About Wakiee",
-          "description": description,
-          "isPartOf": { "@id": "https://wakiee.live/#website" },
-          "breadcrumb": {
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://wakiee.live/" },
-              { "@type": "ListItem", "position": 2, "name": "About", "item": "https://wakiee.live/about" }
-            ]
+          "@type": "Question",
+          "name": "Is Wakiee free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Wakiee is completely free to use for random video and voice chats."
           }
         },
         {
-          "@type": "Organization",
-          "@id": "https://wakiee.live/#organization",
-          "name": "Wakiee",
-          "url": "https://wakiee.live",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://wakiee.live/android-chrome-192x192.png"
-          },
-          "sameAs": [
-            "https://www.instagram.com/wakiee.live"
-          ]
+          "@type": "Question",
+          "name": "Does Wakiee store my video chats?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Wakiee never stores or records your chats. All connections are peer-to-peer and temporary."
+          }
         }
       ]
-    };
+    }
+  ]
+};
 
+   
     const oldLd = document.querySelector('script[type="application/ld+json"][data-schema="about"]');
     if (oldLd) oldLd.remove();
 
@@ -224,18 +247,22 @@ stranger chat website, global video chatting, talk online, random people video c
       </ul>
 
       {/* Closing Note */}
-      <p
-        style={{
-          maxWidth: "700px",
-          margin: "40px auto",
-          fontWeight: "bold",
-          lineHeight: "1.8",
-          fontSize: "18px",
-        }}
-      >
-        <em>Wakiee is more than just a chat — it’s where confidence grows, friendships begin, cultural exchange happens  
-        and the world feels a little closer. 🌍💬</em>
-      </p>
+     <p
+  style={{
+    maxWidth: "700px",
+    margin: "10px auto 40px",
+    fontSize: "16px",
+    lineHeight: "1.8",
+    opacity: 0.85,
+  }}
+>
+  Learn more about our{" "}
+  <a href="/privacy" style={{ color: "#4FA3FF" }}>Privacy Policy</a>,{" "}
+  <a href="/terms" style={{ color: "#4FA3FF" }}>Terms of Service</a>, and{" "}
+  <a href="/contact" style={{ color: "#4FA3FF" }}>Contact Page</a> to understand how we
+  keep your experience safe, transparent, and community-driven.
+</p>
+
     </div>
   );
 }
