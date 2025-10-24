@@ -572,6 +572,9 @@ async function tuneCameraFocus(stream) {
       width: { ideal: supported.width ? 1920 : 1280 }, // try Full HD if supported                                                                            // CHANGE
       height: { ideal: supported.height ? 1080 : 720 },
       frameRate: { ideal: 30, max: 60 },                                      // max changed to 60 from 30
+    advanced: [
+    { zoom: 1.0 }, // 👈 ask for 1.0 = fully zoomed out
+  ],
     };
 
     const audioConstraints = {
@@ -586,6 +589,21 @@ async function tuneCameraFocus(stream) {
       video: videoConstraints,
       audio: audioConstraints,
     });
+
+    // 🧠 Try to zoom out (if supported)
+const track = s.getVideoTracks()[0];
+const caps = track.getCapabilities?.();
+if (caps?.zoom) {
+  const minZoom = caps.zoom.min || 1.0;
+  try {
+    await track.applyConstraints({ advanced: [{ zoom: minZoom }] });
+    console.log(`🔍 Camera zoom set to minimum (${minZoom})`);
+  } catch (err) {
+    console.warn("Zoom adjustment failed:", err);
+  }
+}
+
+    
 
     //for focus
     tuneCameraFocus(s);
