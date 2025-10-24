@@ -48,6 +48,8 @@ useEffect(() => {
     { property: "og:type", content: "article" },
     { property: "og:url", content: canonicalUrl }, // ✅ fixed
     { property: "og:image", content: post.image || "https://wakiee.live/og-image.jpg" },
+    { property: "og:site_name", content: "Wakiee" },
+    { property: "og:image:alt", content: `${post.title} — Wakiee Blog` },
   ];
   ogTags.forEach((tag) => {
     const el = document.createElement("meta");
