@@ -20,11 +20,16 @@ const BlogPost = () => {
   const canonical = `https://wakiee.live/blog/${post.slug}`;
 
   // Canonical
-  let link = document.querySelector("link[rel='canonical']");
-  if (!link) {
-    link = document.createElement("link");
-    link.rel = "canonical";
-    document.head.appendChild(link);
+  // Canonical
+let oldLinks = document.querySelectorAll("link[rel='canonical']");
+oldLinks.forEach(el => el.remove()); // remove duplicates
+
+const canonicalUrl = `https://wakiee.live/blog/${post.slug}`; // no trailing slash
+const canonicalLink = document.createElement("link");
+canonicalLink.setAttribute("rel", "canonical");
+canonicalLink.setAttribute("href", canonicalUrl);
+document.head.appendChild(canonicalLink);
+
   }
   link.href = canonical;
 
