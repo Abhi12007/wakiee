@@ -248,7 +248,8 @@ function RouteChangeHandler({ joined, endCall }) {
 
 
 /* ---------- App ---------- */
-export default function App() {   useEffect(() => {
+export default function App() {   
+  useEffect(() => {
     // ✅ Basic SEO setup for homepage
     document.title = "Wakiee — Random Video Chat | Meet, Learn & Talk Online";
 
@@ -566,16 +567,18 @@ async function tuneCameraFocus(stream) {
   }
 
   try {
-    // 📸 Step 1: Smart getUserMedia — pick best possible quality automatically
-    const supported = navigator.mediaDevices.getSupportedConstraints();
-    const videoConstraints = {
-      width: { ideal: supported.width ? 1920 : 1280 }, // try Full HD if supported                                                                            // CHANGE
-      height: { ideal: supported.height ? 1080 : 720 },
-      frameRate: { ideal: 30, max: 60 },                                      // max changed to 60 from 30
-    advanced: [
-    { zoom: 1.0 }, // 👈 ask for 1.0 = fully zoomed out
-  ],
-    };
+                                                     
+   // 📸 Step 1: Smart getUserMedia — start fast, then upgrade quality
+const isPhone = isMobile();
+
+const videoConstraints = {
+  width: { ideal: isPhone ? 1280 : 1920 },  // start with 720p on phones
+  height: { ideal: isPhone ? 720 : 1080 },
+  frameRate: { ideal: 30, max: 60 },
+  facingMode: { ideal: "user" }, // always front camera
+  advanced: [{ zoom: 1.0 }],
+};
+
 
     const audioConstraints = {
       channelCount: 2,
@@ -911,6 +914,9 @@ if (initiator) {
 
   // reload local stream: reacquire and replace tracks on the current pc
   async function reloadLocalStream() {
+    const isPhone = isMobile();
+
+    
     try {
       const newStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       newStream.getAudioTracks().forEach((t) => (t.enabled = storedPrefsRef.current.micOn ?? true));
@@ -923,6 +929,33 @@ if (initiator) {
         localVideoRef.current.muted = true;
         await localVideoRef.current.play().catch(() => {});
       }
+
+      // ⏫ Step 2: After 3s, upgrade to 1080p if supported
+      
+if (isPhone) {
+  setTimeout(async () => {
+    try {
+      const track = newStream.getVideoTracks()[0];
+
+      const caps = track.getCapabilities();
+
+      if (caps.width?.max >= 1920 && caps.height?.max >= 1080) {
+        console.log("📈 Device supports 1080p — upgrading...");
+        await track.applyConstraints({
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          frameRate: { ideal: 30, max: 60 },
+        });
+        console.log("✅ Upgraded to 1080p successfully");
+      } else {
+        console.log("⚠️ 1080p not supported on this device — staying at 720p");
+      }
+    } catch (err) {
+      console.warn("1080p upgrade failed:", err);
+    }
+  }, 3000); // wait 3s after stream starts
+}
+
 
       // replace tracks on existing RTCPeerConnection
       if (pcRef.current) {
