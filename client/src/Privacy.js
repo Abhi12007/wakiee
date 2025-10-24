@@ -65,21 +65,21 @@ const Privacy = () => {
 
     // ✅ JSON-LD Structured Data (Google Rich Snippet)
     const ldJson = document.createElement("script");
-    ldJson.type = "application/ld+json";
     ldJson.text = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "PrivacyPolicy",
-      "name": "Wakiee Privacy Policy",
-      "url": "https://wakiee.live/privacy",
-      "description":
-        "Wakiee respects user privacy with anonymous video chats, no recordings, no data storage, and AdSense-compliant safety practices.",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Wakiee",
-        "url": "https://wakiee.live",
-        "logo": "https://wakiee.live/android-chrome-192x192.png",
-      },
-    });
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Privacy Policy | Wakiee",
+  "url": "https://wakiee.live/privacy",
+  "description":
+    "Official Privacy Policy of Wakiee — learn how we handle data, cookies, and Google AdSense ads safely and transparently.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Wakiee",
+    "url": "https://wakiee.live",
+    "logo": "https://wakiee.live/android-chrome-192x192.png"
+  }
+});
+
     document.head.appendChild(ldJson);
   }, []);
 
@@ -124,8 +124,8 @@ const Privacy = () => {
         <li>Chat Functionality: Text messages are temporary and not stored once you disconnect.</li>
         <li>Cookies: We use cookies for analytics, ad performance, and user experience improvements.</li>
         <li>Blog Section: If you comment or interact with blog content, basic analytics (like views or device data) may be collected.</li>
-        <li>Moderation: All reports and moderation actions are handled manually by trained human moderators. We may use AI moderation in the future, but as of now, moderation is fully human.</li>
-      </ul>
+        <li>Moderation: Wakiee uses a combination of <strong> AI-based and human moderation</strong> systems to detect and remove inappropriate or unsafe content in real time.This helps maintain a respectful and positive environment for all users.</li>
+</ul>
 
       <h2>3. How We Use the Information</h2>
       <ul>
@@ -153,6 +153,26 @@ const Privacy = () => {
         <li>Improve site functionality and analytics.</li>
       </ul>
       <p>You can disable cookies through your browser settings, but some parts of the site may not function properly.</p>
+            <h2>4.1 Cookie Consent and AdSense Compliance</h2>
+<p>
+  Wakiee uses cookies, localStorage, and similar technologies to improve functionality, 
+  analyze performance, and deliver personalized advertisements through <strong>Google AdSense</strong>.
+</p>
+<p>
+  By using Wakiee, you consent to the use of these cookies in accordance with this Privacy Policy. 
+  You may manage or withdraw consent anytime via your browser settings.
+</p>
+<p>
+  <strong>Third-party vendors, including Google</strong>, use cookies to serve ads based on a user's 
+  previous visits to Wakiee or other websites. 
+  Google's use of the <strong>DoubleClick DART cookie</strong> enables it and its partners 
+  to serve ads based on your activity across the web. 
+  You can opt out of personalized advertising by visiting 
+  <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" style={{ color: "#4FA3FF" }}>
+    Google Ads Settings
+  </a>.
+</p>
+
 
       <h3>Behavioral Advertising Opt-Out</h3>
       <p>
@@ -195,13 +215,7 @@ const Privacy = () => {
         access.
       </p>
 
-      <h2>8. How We Protect Your Information</h2>
-      <ul>
-        <li>HTTPS encryption</li>
-        <li>Anonymous session handling</li>
-        <li>No storage of video, audio, or text content</li>
-        <li>Limited access to internal tools by authorized staff only</li>
-      </ul>
+      
 
       <h2>9. Your Data Protection Rights</h2>
       <ul>
@@ -249,6 +263,19 @@ const Privacy = () => {
         We do not sell, trade, or share user data with any third party. Data may be shared only with trusted
         service providers (like hosting or analytics) under strict confidentiality agreements.
       </p>
+          <h2>15.1 Third-Party Ad Vendors</h2>
+<p>
+  Wakiee partners with third-party vendors, including <strong>Google AdSense</strong>, 
+  to display relevant advertisements. These vendors may use cookies and similar technologies 
+  to collect non-personal browsing data for ad personalization and measurement.
+</p>
+<p>
+  Users may opt out of the use of personalized advertising cookies by visiting 
+  <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" style={{ color: "#4FA3FF" }}>
+    Google Ad Settings
+  </a>.
+</p>
+
 
       <h2>16. Legal Compliance</h2>
       <p>
