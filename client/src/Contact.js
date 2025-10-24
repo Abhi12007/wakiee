@@ -62,24 +62,30 @@ const Contact = () => {
     keywordTag.setAttribute("content", keywords);
 
     // Open Graph
-    const ogData = [
-      { property: "og:title", content: "Contact Wakiee | Connect, Support & Feedback" },
-      {
-        property: "og:description",
-        content:
-          "Have questions or feedback? Reach out to Wakiee’s team for support or collaboration. We’re here to help you chat safely and globally.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://wakiee.live/contact" },
-      { property: "og:image", content: "https://wakiee.live/og-image.jpg" },
-      { property: "og:site_name", content: "Wakiee" },
-    ];
-    ogData.forEach((data) => {
-      const meta = document.createElement("meta");
-      meta.setAttribute("property", data.property);
-      meta.setAttribute("content", data.content);
-      document.head.appendChild(meta);
-    });
+   // ✅ Open Graph (safe injection, prevents duplicate tags)
+const ogData = [
+  { property: "og:title", content: "Contact Wakiee | Connect, Support & Feedback" },
+  {
+    property: "og:description",
+    content:
+      "Have questions or feedback? Reach out to Wakiee’s team for support or collaboration. We’re here to help you chat safely and globally.",
+  },
+  { property: "og:type", content: "website" },
+  { property: "og:url", content: "https://wakiee.live/contact" },
+  { property: "og:image", content: "https://wakiee.live/og-image.jpg" },
+  { property: "og:site_name", content: "Wakiee" },
+];
+
+ogData.forEach((data) => {
+  // only create if it doesn't already exist
+  if (!document.querySelector(`meta[property='${data.property}']`)) {
+    const meta = document.createElement("meta");
+    meta.setAttribute("property", data.property);
+    meta.setAttribute("content", data.content);
+    document.head.appendChild(meta);
+  }
+});
+
 
     // JSON-LD Structured Data for Google
     const ldJson = document.createElement("script");
@@ -238,6 +244,23 @@ const Contact = () => {
             ✅ Thank you for contacting us! We’ll get back to you soon.
           </div>
         )}
+<p
+  style={{
+    fontSize: "13px",
+    marginTop: "12px",
+    opacity: 0.8,
+    lineHeight: "1.6",
+  }}
+>
+  By submitting this form, you agree that Wakiee may temporarily store your message
+  for support and response purposes. We do not sell or share your personal data.
+  Learn more in our{" "}
+  <a href="/privacy" style={{ color: "#00c3ff" }}>
+    Privacy Policy
+  </a>
+  .
+</p>
+
       </form>
 
       <p
