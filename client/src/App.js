@@ -1364,6 +1364,7 @@ if (isPhone) {
 <footer className="landing-footer">
   <div className="footer-left">
     Follow us on{" "}
+    {/* Instagram Icon */}
     <a
       href="https://instagram.com/wakiee.live"
       target="_blank"
@@ -1387,11 +1388,34 @@ if (isPhone) {
         <path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm5 6.3a4.7 4.7 0 1 1 0 9.4 4.7 4.7 0 0 1 0-9.4zm0 7.7a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm5.2-8.8a1.1 1.1 0 1 1 0-2.2 1.1 1.1 0 0 1 0 2.2z" />
       </svg>
     </a>
+
+    {/* X (Twitter) Icon */}
+    <a
+      href="https://x.com/wakiee_live"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="twitter-icon"
+      aria-label="Follow Wakiee on X (Twitter)"
+      title="Follow Wakiee on X (Twitter)"
+      style={{ marginLeft: "10px", display: "inline-flex", alignItems: "center" }}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        role="img"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <title>X (Twitter) icon</title>
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.34l-5.223-6.82-5.97 6.82H1.84l7.73-8.834L1.378 2.25h5.07l4.713 6.17L18.244 2.25zm-1.162 17.52h1.833L7.086 4.634H5.12l11.962 15.136z" />
+      </svg>
+    </a>
   </div>
 
-  <div className="footer-center">
-    ©2025 Wakiee
-  </div>
+  <div className="footer-center">©2025 Wakiee</div>
 
   <div className="footer-right">
     <a href="/about">About Us</a>
