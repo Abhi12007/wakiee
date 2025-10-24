@@ -41,22 +41,22 @@ useEffect(() => {
   }
   metaDesc.content = desc;
 
-  // Open Graph
+  // 🪞 Open Graph
   const ogTags = [
     { property: "og:title", content: post.title },
     { property: "og:description", content: desc },
     { property: "og:type", content: "article" },
-    { property: "og:url", content: canonical },
+    { property: "og:url", content: canonicalUrl }, // ✅ fixed
     { property: "og:image", content: post.image || "https://wakiee.live/og-image.jpg" },
   ];
-  ogTags.forEach(tag => {
+  ogTags.forEach((tag) => {
     const el = document.createElement("meta");
     el.setAttribute("property", tag.property);
     el.content = tag.content;
     document.head.appendChild(el);
   });
 
-  // JSON-LD Structured Data (BlogPosting schema)
+  // 🧩 JSON-LD Structured Data (BlogPosting schema)
   const ld = document.createElement("script");
   ld.type = "application/ld+json";
   ld.text = JSON.stringify({
@@ -65,8 +65,15 @@ useEffect(() => {
     "headline": post.title,
     "image": post.image || "https://wakiee.live/og-image.jpg",
     "author": { "@type": "Organization", "name": "Wakiee" },
-    "publisher": { "@type": "Organization", "name": "Wakiee", "logo": { "@type": "ImageObject", "url": "https://wakiee.live/android-chrome-192x192.png" } },
-    "url": canonical,
+    "publisher": {
+      "@type": "Organization",
+      "name": "Wakiee",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://wakiee.live/android-chrome-192x192.png",
+      },
+    },
+    "url": canonicalUrl, // ✅ fixed
     "description": desc,
   });
   document.head.appendChild(ld);
