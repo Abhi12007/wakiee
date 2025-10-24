@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PostCard from "./components/PostCard"; // ✅ correct path
-import { posts } from "./BlogData";           // ✅ named import
+import { posts } from "./BlogData";            // ✅ named import
 import "./blog.css";
 
 const BlogIndex = () => {
