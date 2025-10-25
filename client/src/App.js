@@ -24,52 +24,6 @@ import { useBanSystem } from "./ban";
 
 const socket = io(); // assumes same origin
 
-
-/* ---------- Helpers                                 automatic codec selection based on👉 Device type (mobile/desktop)                      ---------- */
-// ✅ Detect if user is on mobile
-function isMobile() {
-  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-}
-
-// ✅ Detect browser type
-function getBrowser() {
-  const ua = navigator.userAgent;
-
-  if (/Chrome/i.test(ua) && !/Edge|OPR|Brave/i.test(ua)) return "Chrome";
-  if (/Firefox/i.test(ua)) return "Firefox";
-  if (/Safari/i.test(ua) && !/Chrome|Chromium/i.test(ua)) return "Safari";
-  if (/Edg/i.test(ua)) return "Edge";
-  return "Other";
-}
-
-
-// ✅ Smart browser-based default codec choice
-function getPreferredCodec() {
-  const ua = navigator.userAgent;
-
-  // Safari (iPhone, iPad, Mac)
-  if (/Safari/i.test(ua) && !/Chrome|Chromium/i.test(ua)) {
-    return "H264"; // Safari prefers H264 (hardware acceleration)
-  }
-
-  // Chrome or Firefox (desktop or Android)
-  if (/Chrome|Firefox/i.test(ua)) {
-    return "VP9"; // modern efficient codec
-  }
-
-  // Fallback (Edge, Opera, others)
-  return "VP8";
-}
-
-
-function getCommonCodec(localCodec, remoteCodec) {
-  if (localCodec === remoteCodec) return localCodec;
-  if (localCodec === "H264" || remoteCodec === "H264") return "H264";
-  if (localCodec === "VP9" || remoteCodec === "VP9") return "VP9";
-  return "VP8";
-}
-
-
 /* ---------- NavBar Component ---------- */
 function NavBar({ joined }) {
   const navigate = useNavigate();
@@ -248,8 +202,7 @@ function RouteChangeHandler({ joined, endCall }) {
 
 
 /* ---------- App ---------- */
-export default function App() {   
-  useEffect(() => {
+export default function App() {   useEffect(() => {
     // ✅ Basic SEO setup for homepage
     document.title = "Wakiee — Random Video Chat | Meet, Learn & Talk Online";
 
@@ -265,7 +218,7 @@ export default function App() {
 
     setMeta(
       "description",
-      "Join Wakiee — free random video chat to meet strangers, share ideas, and connect globally in a fun, safe space."
+      "Join Wakiee — free random video and voice chat to meet strangers, share ideas, and connect globally in a fun, safe space."
     );
 
     setMeta(
@@ -426,7 +379,7 @@ function endCall() {
   }
 }
                                
-
+// -Add a small RouteChangeHandler component (global route listener + beforeunload)
 
 
 
@@ -473,19 +426,14 @@ const {
 
     socket.on("waiting", () => setStatus("waiting"));
 
-    // ✅ When paired with another user
-socket.on("paired", async ({ partnerId, initiator, partnerInfo, partnerCodec }) => {
-  setPartnerId(partnerId);
-  // save partner codec into partnerInfo
-  setPartnerInfo({ ...(partnerInfo || {}), partnerCodec: partnerCodec || "VP8" });
-
-  console.log("🎬 Paired with:", partnerId, "| Partner codec:", partnerCodec);
-
-  await startLocalStream();
-  applyStoredPrefsToTracks();
-  await createPeerConnection(partnerId, initiator);
-});
-
+    socket.on("paired", async ({ partnerId, initiator, partnerInfo }) => {
+      setPartnerId(partnerId);
+      setPartnerInfo(partnerInfo || { name: "Stranger", gender: "other" });
+      setStatus("paired");
+      await startLocalStream();
+      applyStoredPrefsToTracks();
+      await createPeerConnection(partnerId, initiator);
+    });
 
     socket.on("offer", async ({ from, sdp }) => {
       await startLocalStream();
@@ -551,30 +499,7 @@ socket.on("paired", async ({ partnerId, initiator, partnerInfo, partnerCodec }) 
       window.removeEventListener("resize", setDefault);
     };
   }, []);
-                                               
-                               
-                                                   //CAMERA FOCUS
-async function tuneCameraFocus(stream) {
-  const track = stream.getVideoTracks()[0];
-  const caps = track.getCapabilities();
 
-  // Check focus control support
-  if (!caps.focusMode) {
-    console.log("❌ Focus control not supported on this device/browser.");
-    return;
-  }
-
-  // Try to enable continuous focus
-  const constraints = { advanced: [{ focusMode: "continuous" }] };
-  try {
-    await track.applyConstraints(constraints);
-    console.log("🎯 Camera focus set to continuous mode.");
-  } catch (err) {
-    console.warn("Failed to set focus mode:", err);
-  }
-}
-
-                               
   /* ---------- Media & Peer ---------- */
   async function startLocalStream(forceEnable = false) {
   if (localStreamRef.current) {
@@ -587,18 +512,13 @@ async function tuneCameraFocus(stream) {
   }
 
   try {
-                                                     
-   // 📸 Step 1: Smart getUserMedia — start fast, then upgrade quality
-const isPhone = isMobile();
-
-const videoConstraints = {
-  width: { ideal: isPhone ? 1280 : 1920 },  // start with 720p on phones
-  height: { ideal: isPhone ? 720 : 1080 },
-  frameRate: { ideal: 30, max: 60 },
-  facingMode: { ideal: "user" }, // always front camera
-  advanced: [{ zoom: 1.0 }],
-};
-
+  // 📸 Step 1: Start fast at 720p for instant preview
+  const videoConstraints = {
+    width: { ideal: 1280 },
+    height: { ideal: 720 },
+    frameRate: { ideal: 30, max: 30 },
+   
+  };
 
     const audioConstraints = {
       channelCount: 2,
@@ -613,24 +533,6 @@ const videoConstraints = {
       audio: audioConstraints,
     });
 
-    // 🧠 Try to zoom out (if supported)
-const track = s.getVideoTracks()[0];
-const caps = track.getCapabilities?.();
-if (caps?.zoom) {
-  const minZoom = caps.zoom.min || 1.0;
-  try {
-    await track.applyConstraints({ advanced: [{ zoom: minZoom }] });
-    console.log(`🔍 Camera zoom set to minimum (${minZoom})`);
-  } catch (err) {
-    console.warn("Zoom adjustment failed:", err);
-  }
-}
-
-    
-
-    //for focus
-    tuneCameraFocus(s);
-
     // 🔊 Step 2: Respect your mic/cam toggle states
     s.getAudioTracks().forEach((t) => (t.enabled = micOn));
     s.getVideoTracks().forEach((t) => (t.enabled = camOn));
@@ -643,6 +545,29 @@ if (caps?.zoom) {
     }
 
     localStreamRef.current = s;
+// ⏫ Step 4: Try upgrading to 1080p after 3s if device supports
+  setTimeout(async () => {
+    try {
+      const track = s.getVideoTracks()[0];
+      const caps = track.getCapabilities();
+
+      if (caps.width?.max >= 1920 && caps.height?.max >= 1080) {
+        console.log("📈 Device supports 1080p — upgrading...");
+        await track.applyConstraints({
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          frameRate: { ideal: 30, max: 60 },
+        });
+        console.log("✅ Upgraded to 1080p successfully");
+      } else {
+        console.log("⚠️ 1080p not supported — staying at 720p");
+      }
+    } catch (err) {
+      console.warn("1080p upgrade failed:", err);
+    }
+  }, 3000); // wait 3s after stream starts
+
+
     return s;
   } catch (err) {
     console.error("getUserMedia failed", err);
@@ -672,38 +597,15 @@ if (caps?.zoom) {
     pcRef.current = null;
   }
 
- // 🌍 Step 1: Create PeerConnection with TURN/STUN servers
+  // 🌍 Step 1: Create PeerConnection with TURN/STUN servers
   const pc = new RTCPeerConnection({
     iceServers: [
-           // 1️⃣ Fast STUN — quick IP discovery
-  { urls: "stun:stun.l.google.com:19302" },
-  { urls: "stun:stun1.l.google.com:19302" },
-  { urls: "stun:stun2.l.google.com:19302" },
-   { urls: "stun:stun3.l.google.com:19302" },
-  { urls: "stun:stun4.l.google.com:19302" },
+      { urls: "stun:stun.l.google.com:19302" },
       {
-    urls: [
-      "turn:turn.in.wakiee.live:3478?transport=udp",
-      "turns:turn.in.wakiee.live:5349?transport=tcp",
-      "turns:turn.sg.wakiee.live:5349?transport=tcp",
-    ],
-    username: "wakieeuser",
-    credential: "wakieepass123",
-  },
-
-     {
         urls: "turn:relay1.expressturn.com:3478",
         username: "000000002074682235",
         credential: "tN/jre4jo0Rpoi0z5MXgby3QAqo=",
       },
-
-
-       {
-        urls: "turn:relay1.expressturn.com:3480",
-        username: "000000002075993076",
-        credential: "95Ba+ErlB7Fg6HDb1t1tc5ju6Rc=",
-      },
-
     ],
   });
   pcRef.current = pc;
@@ -726,150 +628,39 @@ if (caps?.zoom) {
   localStream.getTracks().forEach((t) => pc.addTrack(t, localStream));
 
   // 🧠 Step 4: Adaptive quality based on network stats
-// 🧠 Step 4: Adaptive quality based on network stats (Hybrid: applyConstraints + replaceTrack)
-let lastQualityTier = null;
-let lastBytesSent = 0;
-let lastTimestamp = 0;
+  const monitorQuality = setInterval(async () => {
+    if (!pcRef.current) return clearInterval(monitorQuality);
 
-const monitorQuality = setInterval(async () => {
-  if (!pcRef.current) return clearInterval(monitorQuality);
-
-  try {
     const stats = await pcRef.current.getStats();
     let outbound = null;
-
-    // Find outbound video RTP stats
     stats.forEach((report) => {
-      if (report.type === "outbound-rtp" && report.kind === "video") {
-        outbound = report;
-      }
+      if (report.type === "outbound-rtp" && report.kind === "video") outbound = report;
     });
 
-    if (outbound && outbound.bytesSent) {
-      // 🔹 Compute delta bitrate (kbps)
-      if (lastTimestamp && outbound.timestamp !== lastTimestamp) {
-        const bitrate =
-          ((outbound.bytesSent - lastBytesSent) * 8) /
-          (outbound.timestamp - lastTimestamp);
-        const kbps = Math.round(bitrate); // kbps
-
-        // 🎯 Determine tier
-        let tier = "720p";
-        if (kbps < 500) tier = "360p";
-        else if (kbps >= 500 && kbps <= 2000) tier = "720p";
-        else if (kbps > 2000 && kbps <= 5000) tier = "1080p";
-        else if (kbps > 5000) tier = "2k";
-
-        // Avoid reapplying same tier
-        if (tier === lastQualityTier) {
-          lastBytesSent = outbound.bytesSent;
-          lastTimestamp = outbound.timestamp;
-          return;
-        }
-
-        const track = localStream.getVideoTracks()[0];
-        const sender = pcRef.current
-          .getSenders()
-          .find((s) => s.track && s.track.kind === "video");
-
-        if (!track || !sender) return;
-
-        // 🎥 Decide which method to use
-        const currentWidth = track.getSettings().width || 720;
-        const bigJump =
-          (tier === "1080p" && currentWidth < 1280) ||
-          (tier === "360p" && currentWidth > 640) ||
-          (tier === "2k" && currentWidth < 1920);
-
-        if (bigJump) {
-          // ⚙️ Big jump → use replaceTrack() to avoid flicker
-          console.log(`♻️ Big resolution jump detected → Using replaceTrack() for ${tier}`);
-
-          try {
-            const newStream = await navigator.mediaDevices.getUserMedia({
-              video:
-                tier === "360p"
-                  ? { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 24 } }
-                  : tier === "720p"
-                  ? { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } }
-                  : tier === "1080p"
-                  ? { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } }
-                  : { width: { ideal: 2560 }, height: { ideal: 1440 }, frameRate: { ideal: 60 } },
-            });
-
-            const newTrack = newStream.getVideoTracks()[0];
-            await sender.replaceTrack(newTrack);
-            localStreamRef.current = newStream;
-            localVideoRef.current.srcObject = newStream;
-
-            // Stop old track to free camera
-            track.stop();
-
-            console.log(`✅ Seamless quality switch done via replaceTrack() → ${tier}`);
-          } catch (err) {
-            console.warn("replaceTrack() failed, fallback to applyConstraints:", err);
-          }
-        } else {
-          // ⚙️ Small change → safe to use applyConstraints()
-          try {
-            if (tier === "360p") {
-              await track.applyConstraints({
-                width: { ideal: 640 },
-                height: { ideal: 360 },
-                frameRate: { ideal: 20, max: 24 },
-              });
-            } else if (tier === "720p") {
-              await track.applyConstraints({
-                width: { ideal: 1280 },
-                height: { ideal: 720 },
-                frameRate: { ideal: 30 },
-              });
-            } else if (tier === "1080p") {
-              await track.applyConstraints({
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
-                frameRate: { ideal: 60 },
-              });
-            } else if (tier === "2k") {
-              await track.applyConstraints({
-                width: { ideal: 2560 },
-                height: { ideal: 1440 },
-                frameRate: { ideal: 60 },
-              });
-            }
-            console.log(`🎞️ Adjusted quality (applyConstraints) → ${tier}`);
-          } catch (err) {
-            console.warn("applyConstraints() failed:", err);
-          }
-        }
-
-        // 🧩 Encoder bitrate for the selected tier
-        try {
-          const params = sender.getParameters();
-          params.encodings = params.encodings || [{}];
-          if (tier === "360p") params.encodings[0].maxBitrate = 300_000;
-          else if (tier === "720p") params.encodings[0].maxBitrate = 1_500_000;
-          else if (tier === "1080p") params.encodings[0].maxBitrate = 6_000_000;
-          else if (tier === "2k") params.encodings[0].maxBitrate = 12_000_000;
-          await sender.setParameters(params);
-          console.log(`⚙️ Encoder bitrate set for ${tier}`);
-        } catch (err) {
-          console.warn("setParameters failed:", err);
-        }
-
-        lastQualityTier = tier;
-        lastBytesSent = outbound.bytesSent;
-        lastTimestamp = outbound.timestamp;
+    if (outbound && outbound.bytesSent && outbound.framesEncoded) {
+      const bitrate = (8 * outbound.bytesSent) / 1024; // kbps
+      // auto adjust resolution or bitrate based on network
+      if (bitrate < 500) {
+        // 🟥 Poor connection → reduce video quality
+        localStream.getVideoTracks().forEach((track) => track.applyConstraints({
+          width: { ideal: 640 },
+          height: { ideal: 360 },
+        }));
+      } else if (bitrate > 1500) {
+        // 🟢 Strong connection → boost to 1080p if available
+        localStream.getVideoTracks().forEach((track) => track.applyConstraints({
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        }));
       } else {
-        lastBytesSent = outbound.bytesSent;
-        lastTimestamp = outbound.timestamp;
+        // ⚪ Medium → keep at 720p
+        localStream.getVideoTracks().forEach((track) => track.applyConstraints({
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        }));
       }
     }
-  } catch (err) {
-    console.warn("monitorQuality error:", err);
-  }
-}, 2000);
-
+  }, 2000); // check every 2 seconds
 
   // 🎧 Step 5: Optimize audio (Opus)
   pc.getSenders().forEach((sender) => {
@@ -882,37 +673,18 @@ const monitorQuality = setInterval(async () => {
   });
 
   // 🎬 Step 6: Create offer / answer
-  // 🎬 Step 6: Create offer / answer
-// 🎬 Step 6: Create offer / answer with negotiated codec
-
-// ✅ Get both local + remote codec preferences
-const localCodec = getPreferredCodec();
-const remoteCodec = partnerInfo?.partnerCodec || "VP8";
-const finalCodec = getCommonCodec(localCodec, remoteCodec);
-
-console.log(`🎥 Codec negotiation → local:${localCodec}, remote:${remoteCodec}, using:${finalCodec}`);
-
-if (initiator) {
-  let offer = await pc.createOffer();
-
-  // replace VP8 references in SDP with the chosen codec (safer regex)
-  offer.sdp = offer.sdp.replace(/VP8\/90000/g, `${finalCodec}/90000`);
-
-  await pc.setLocalDescription(offer);
-  socket.emit("offer", { to: partnerSocketId, sdp: pc.localDescription });
-
-} else if (remoteOffer) {
-  await pc.setRemoteDescription(new RTCSessionDescription(remoteOffer));
-
-  let answer = await pc.createAnswer();
-  answer.sdp = answer.sdp.replace(/VP8\/90000/g, `${finalCodec}/90000`);
-
-  await pc.setLocalDescription(answer);
-  socket.emit("answer", { to: partnerSocketId, sdp: pc.localDescription });
-}
-
-
-
+  if (initiator) {
+    let offer = await pc.createOffer();
+    offer.sdp = offer.sdp.replace("VP8", "H264"); // or "VP9" if both sides Chrome
+    await pc.setLocalDescription(offer);
+    socket.emit("offer", { to: partnerSocketId, sdp: pc.localDescription });
+  } else if (remoteOffer) {
+    await pc.setRemoteDescription(new RTCSessionDescription(remoteOffer));
+    let answer = await pc.createAnswer();
+    answer.sdp = answer.sdp.replace("VP8", "H264");
+    await pc.setLocalDescription(answer);
+    socket.emit("answer", { to: partnerSocketId, sdp: pc.localDescription });
+  }
 }
 
 
@@ -936,12 +708,7 @@ if (initiator) {
       storedPrefsRef.current.localPos = pos;
       setLocalPos(pos);
     }
- // ✅ Send codec preference to server before joining
-  const localCodec = getPreferredCodec();
-  socket.emit("codec-preference", { codec: localCodec });
-  console.log("🎯 Sent codec preference:", localCodec);
 
-  // join the queue
     socket.emit("join", { name, gender });
     setJoined(true);
     setStatus("searching");
@@ -963,7 +730,7 @@ if (initiator) {
   setTimeout(() => {
     socket.emit("join", { name, gender });
     setStatus("searching");
-  }, 1000); // 1-second delay
+  }, 1200); // 1.2-second delay
 }
 
   function handleStop() {
@@ -1007,9 +774,6 @@ if (initiator) {
 
   // reload local stream: reacquire and replace tracks on the current pc
   async function reloadLocalStream() {
-    const isPhone = isMobile();
-
-    
     try {
       const newStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       newStream.getAudioTracks().forEach((t) => (t.enabled = storedPrefsRef.current.micOn ?? true));
@@ -1022,33 +786,6 @@ if (initiator) {
         localVideoRef.current.muted = true;
         await localVideoRef.current.play().catch(() => {});
       }
-
-      // ⏫ Step 2: After 3s, upgrade to 1080p if supported
-      
-if (isPhone) {
-  setTimeout(async () => {
-    try {
-      const track = newStream.getVideoTracks()[0];
-
-      const caps = track.getCapabilities();
-
-      if (caps.width?.max >= 1920 && caps.height?.max >= 1080) {
-        console.log("📈 Device supports 1080p — upgrading...");
-        await track.applyConstraints({
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          frameRate: { ideal: 30, max: 60 },
-        });
-        console.log("✅ Upgraded to 1080p successfully");
-      } else {
-        console.log("⚠️ 1080p not supported on this device — staying at 720p");
-      }
-    } catch (err) {
-      console.warn("1080p upgrade failed:", err);
-    }
-  }, 3000); // wait 3s after stream starts
-}
-
 
       // replace tracks on existing RTCPeerConnection
       if (pcRef.current) {
